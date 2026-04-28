@@ -1,0 +1,105 @@
+paragraphs: 396
+
+P1: 🎓
+P2: SCHOOL MANAGEMENT SYSTEM
+P3: Single School Edition
+P4: Technical Documentation & Database ERD
+P5: Version 1.0.0  |  Complete Edition
+P6: 1. Project Overview
+P7: 1.1 Deskripsi Sistem
+P8: School Management System (SMS) adalah aplikasi web komprehensif yang dirancang untuk mengelola seluruh operasional sekolah dalam satu platform terpadu. Sistem ini mencakup manajemen akademik, administrasi siswa dan guru, keuangan, perpustakaan, inventaris, serta komunikasi antara sekolah, guru, siswa, dan orang tua.
+P9: Dibangun menggunakan teknologi modern berbasis Laravel 11, sistem ini menawarkan antarmuka yang responsif, performa tinggi, dan keamanan berlapis untuk memastikan data sekolah terlindungi dengan baik.
+P10: 1.2 Tujuan & Manfaat
+P11: Mengotomatisasi proses akademik: absensi, penilaian, rapor, dan jadwal pelajaran
+P12: Menyederhanakan administrasi keuangan: tagihan SPP, pembayaran, dan laporan keuangan
+P13: Meningkatkan komunikasi antara guru, siswa, dan orang tua secara real-time
+P14: Menyediakan dashboard analitik untuk pengambilan keputusan manajemen sekolah
+P15: Mengurangi penggunaan kertas dan mempercepat proses administratif
+P16: Meningkatkan transparansi nilai dan kehadiran kepada orang tua siswa
+P17: 1.3 Role & Hak Akses
+P18: 1.4 Tech Stack
+P19: 2. Detail Modul Sistem
+P20: 2.1 Modul Autentikasi & Manajemen User
+P21: Login multi-role dengan email + password
+P22: Forgot password via email (token based)
+P23: Remember me & session management
+P24: Two-Factor Authentication (2FA) opsional
+P25: Audit log: semua aktivitas login tercatat
+P26: Manajemen role & permission granular (Spatie)
+P27: Force logout dari semua perangkat
+P28: Profile management dengan foto avatar
+P29: Password change dengan validasi kekuatan
+P30: Rate limiting login (max 5x failed = lockout 15 menit)
+P31: 2.2 Modul Akademik – Tahun Ajaran & Semester
+P32: Buat & kelola tahun ajaran (contoh: 2024/2025)
+P33: Semester: Ganjil (Jul–Des) & Genap (Jan–Jun)
+P34: Set tahun ajaran aktif – hanya 1 yang aktif
+P35: Konfigurasi tanggal awal & akhir semester
+P36: Tanggal UTS, UAS, penerimaan rapor
+P37: Arsip data tahun ajaran sebelumnya (read-only)
+P38: Clone setting dari tahun sebelumnya
+P39: 2.3 Modul Kelas & Mata Pelajaran
+P40: Buat kelas per tingkat (VII, VIII, IX / X, XI, XII)
+P41: Jurusan: IPA, IPS, Bahasa, Teknik, dll
+P42: Assign wali kelas per kelas
+P43: Batas maksimal siswa per kelas (kapasitas)
+P44: Mata pelajaran: nama, kode, SKS/jam, kategori
+P45: Assign mata pelajaran ke kelas + guru pengampu
+P46: KKM (Kriteria Ketuntasan Minimal) per mapel
+P47: Bobot nilai: Harian, UTS, UAS (konfigurasi %)
+P48: Promosi siswa naik kelas otomatis end of year
+P49: 2.4 Modul Jadwal Pelajaran
+P50: Builder jadwal visual drag-and-drop per kelas
+P51: Slot waktu konfigurasi (07:00–15:30, 40-60 menit/jam)
+P52: Deteksi konflik: guru sama di jam yang sama
+P53: Deteksi konflik: ruangan sama di jam yang sama
+P54: Jadwal istirahat & sholat (non-pelajaran)
+P55: Jadwal ekskul terintegrasi
+P56: Preview & export jadwal ke PDF per kelas
+P57: Tampil di dashboard guru & siswa sesuai hari ini
+P58: Substitusi guru sementara (guru pengganti)
+P59: 2.5 Modul Absensi Siswa
+P60: Input absensi harian per kelas (oleh wali/guru)
+P61: Status: Hadir (H) / Izin (I) / Sakit (S) / Alpha (A)
+P62: Upload surat keterangan untuk Izin & Sakit
+P63: Absensi per mata pelajaran (opsional)
+P64: Rekapitulasi: harian, mingguan, bulanan, per semester
+P65: Persentase kehadiran per siswa (warning jika < 75%)
+P66: Notifikasi otomatis ke orang tua jika Alpha/Izin/Sakit
+P67: Laporan absensi: per siswa, per kelas, per periode
+P68: Export laporan ke Excel & PDF
+P69: Absensi QR Code (opsional add-on)
+P70: 2.6 Modul Penilaian & Rapor
+P71: Input nilai harian (tugas, kuis, ulangan)
+P72: Input nilai UTS per mata pelajaran
+P73: Input nilai UAS per mata pelajaran
+P74: Hitung nilai akhir otomatis berdasarkan bobot yang dikonfigurasi
+P75: Nilai dalam bentuk angka (0–100) dan konversi huruf (A/B/C/D)
+P76: Predikat: Sangat Baik / Baik / Cukup / Perlu Bimbingan
+P77: Nilai sikap & ekstrakurikuler
+P78: Catatan deskripsi guru per mata pelajaran
+P79: Ranking: per kelas & per angkatan
+P80: Generate rapor digital per siswa otomatis
+
+---TABLES--- 60
+TABLE 1: rows 6 cols 2
+ROW 1: Platform | CodeCanyon / Envato Market
+ROW 2: License Type | Regular License – Single School
+ROW 3: Tech Stack | Laravel 11 + Livewire + Tailwind CSS
+ROW 4: Database | MySQL 8.0 / PostgreSQL 15
+ROW 5: Version | 1.0.0 – Initial Release
+---
+TABLE 2: rows 9 cols 3
+ROW 1: Role | Level | Deskripsi Akses
+ROW 2: Super Admin | Level 1 – Tertinggi | Akses penuh ke semua modul, konfigurasi sistem, manajemen role, backup data, dan pengaturan global sekolah
+ROW 3: Kepala Sekolah | Level 2 | Lihat semua laporan, approval pengajuan, monitor kinerja guru & akademik, akses dashboard eksekutif
+ROW 4: Admin / TU | Level 3 | Kelola data master, administrasi siswa & guru, keuangan, dokumen, inventaris, dan pengumuman
+ROW 5: Wali Kelas | Level 4 | Input absensi kelas, nilai, raport kelas wali, laporan kelas, komunikasi dengan orang tua
+---
+TABLE 3: rows 19 cols 3
+ROW 1: Layer | Teknologi | Keterangan
+ROW 2: Backend Framework | Laravel 11 | PHP 8.2+, Eloquent ORM, Queue, Events
+ROW 3: Frontend Reactive | Livewire 3 + Alpine.js | Real-time UI tanpa full SPA
+ROW 4: CSS Framework | Tailwind CSS 3 | Utility-first, dark mode support
+ROW 5: UI Components | Filament 3 / Shadcn | Admin panel modern
+---
