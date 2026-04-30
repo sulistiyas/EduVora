@@ -2,23 +2,17 @@
 
 namespace App\Models\Core;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Core\Role;
+use App\Models\Core\SchoolProfiles;
+use App\Models\Student\Student;
+use App\Models\Teacher\Teacher;
 
-class User extends Authenticatable 
+class User extends Authenticatable
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
     protected $table = 'users';
+    protected $primaryKey = 'id';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -26,34 +20,60 @@ class User extends Authenticatable
         'password',
         'profile_picture',
         'phone_number',
-        'email',
         'token',
         'user_agent',
         'payload',
         'last_activity',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'user_id' => 'integer',
             'last_activity' => 'integer',
         ];
     }
 
+    // =======================
+    // RELATIONS
+    // =======================
+
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'user_has_roles', 'user_id', 'role_id');
+        return $this->belongsToMany(
+            Role::class,
+            'user_has_roles',
+            'user_id',
+            'role_id',
+            'id',
+            'role_id'
+        );
+    }
+
+    public function schools()
+    {
+        return $this->belongsToMany(
+            SchoolProfiles::class,
+            'user_has_schools',
+            'user_id',
+            'school_id',
+            'id',
+            'school_id'
+        );
+    }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'user_id', 'id');
+    }
+
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class, 'user_id', 'id');
     }
 
     // =======================
-    // CORE HELPER (REUSABLE)
+    // CORE HELPER
     // =======================
 
     public function hasRole($roles): bool
@@ -65,17 +85,24 @@ class User extends Authenticatable
             ->exists();
     }
 
-    // // optional: kebalikannya
-    // public function hasNotRole($roles): bool
-    // {
-    //     return !$this->hasRole($roles);
-    // }
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->hasRole($roles);
+    }
 
-    // // optional: harus punya semua role
-    // public function hasAllRoles(array $roles): bool
-    // {
-    //     return $this->roles()
-    //         ->whereIn('role_name', $roles)
-    //         ->count() === count($roles);
-    // }
+    public function hasAllRoles(array $roles): bool
+    {
+        return $this->roles()
+            ->whereIn('role_name', $roles)
+            ->count() === count($roles);
+    }
+
+    // =======================
+    // ACCESSOR (BONUS)
+    // =======================
+
+    public function getRoleNamesAttribute()
+    {
+        return $this->roles->pluck('role_name');
+    }
 }

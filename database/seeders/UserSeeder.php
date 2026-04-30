@@ -15,10 +15,11 @@ class UserSeeder extends Seeder
     {
         $now = Carbon::now();
 
-        // 🔑 Ambil role dari DB
+        // 🔑 roles
         $roles = DB::table('roles')->pluck('role_id', 'role_name');
 
         $userRolePivot = [];
+        $userSchoolPivot = [];
 
         // =========================
         // SUPER ADMIN (1)
@@ -36,7 +37,11 @@ class UserSeeder extends Seeder
                 "08110000010{$i}",
                 $now
             );
+
             $userRolePivot[] = $this->attachRole($userId, $roles['school-admin'], $now);
+
+            // 🔥 assign ke school sesuai index
+            $userSchoolPivot[] = $this->attachSchool($userId, $i, $now);
         }
 
         // =========================
@@ -49,11 +54,15 @@ class UserSeeder extends Seeder
                 "08110000020{$i}",
                 $now
             );
+
             $userRolePivot[] = $this->attachRole($userId, $roles['headmaster'], $now);
+
+            // 🔥 1 headmaster = 1 school
+            $userSchoolPivot[] = $this->attachSchool($userId, $i, $now);
         }
 
         // =========================
-        // TEACHER (10)
+        // TEACHER (10) → RANDOM
         // =========================
         for ($i = 1; $i <= 10; $i++) {
             $userId = $this->insertUser(
@@ -62,37 +71,52 @@ class UserSeeder extends Seeder
                 "08110000030{$i}",
                 $now
             );
+
             $userRolePivot[] = $this->attachRole($userId, $roles['teacher'], $now);
+
+            $randomSchool = rand(1, 4);
+            $userSchoolPivot[] = $this->attachSchool($userId, $randomSchool, $now);
         }
 
         // =========================
-        // STUDENT (50)
+        // STUDENT (50) → DIBAGI
         // =========================
         for ($i = 1; $i <= 50; $i++) {
+            $schoolId = ($i % 4) + 1;
+
             $userId = $this->insertUser(
                 "Student {$i}",
                 "student{$i}@school.com",
                 "08110000040{$i}",
                 $now
             );
+
             $userRolePivot[] = $this->attachRole($userId, $roles['student'], $now);
+            $userSchoolPivot[] = $this->attachSchool($userId, $schoolId, $now);
         }
 
         // =========================
-        // STUDENT PARENT (50)
+        // PARENT (50) → IKUT POLA STUDENT
         // =========================
         for ($i = 1; $i <= 50; $i++) {
+            $schoolId = ($i % 4) + 1;
+
             $userId = $this->insertUser(
                 "Parent {$i}",
                 "parent{$i}@school.com",
                 "08110000050{$i}",
                 $now
             );
+
             $userRolePivot[] = $this->attachRole($userId, $roles['student-parent'], $now);
+            $userSchoolPivot[] = $this->attachSchool($userId, $schoolId, $now);
         }
 
-        // 🔥 Insert pivot sekaligus (lebih cepat)
+        // =========================
+        // BULK INSERT
+        // =========================
         DB::table('user_has_roles')->insert($userRolePivot);
+        DB::table('user_has_schools')->insert($userSchoolPivot);
     }
 
     private function insertUser($name, $email, $phone, $now)
@@ -116,6 +140,16 @@ class UserSeeder extends Seeder
         return [
             'user_id' => $userId,
             'role_id' => $roleId,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+    }
+
+    private function attachSchool($userId, $schoolId, $now)
+    {
+        return [
+            'user_id' => $userId,
+            'school_id' => $schoolId,
             'created_at' => $now,
             'updated_at' => $now,
         ];

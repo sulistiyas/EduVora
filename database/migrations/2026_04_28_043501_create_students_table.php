@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('school_id')->unsigned()->nullable()->constrained('school_profiles')->onDelete('set null');
+            $table->bigInteger('user_id')->unsigned()->unique();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // $table->bigInteger('school_id')->unsigned()->nullable()->constrained('school_profiles')->onDelete('set null');
             $table->string('nis')->unique();
             $table->string('full_name');
             $table->string('nick_name')->nullable();

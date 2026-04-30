@@ -17,4 +17,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('pages.dash.index');
     })->name('dashboard');
+
+    Route::prefix('users')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UserController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\UserController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\UserController::class, 'show'])->name('show');
+        Route::put('/{id}', [\App\Http\Controllers\UserController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('destroy');
+    });
 });

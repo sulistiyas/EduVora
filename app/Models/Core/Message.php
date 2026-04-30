@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Message extends Model
 {
     /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
+
+    /**
      * The table associated with the model.
      *
      * @var string
@@ -33,13 +40,8 @@ class Message extends Model
     {
         return [
             'sender_id' => 'integer',
-        'receiver_id' => 'integer',
-        'is_read' => 'boolean',
+            'receiver_id' => 'integer',
+            'is_read' => 'boolean',
         ];
     }
-
-
-    public function user() { return $this->belongsTo(\App\Models\Core\User::class, 'sender_id'); }
-
-    public function user() { return $this->belongsTo(\App\Models\Core\User::class, 'receiver_id'); }
 }

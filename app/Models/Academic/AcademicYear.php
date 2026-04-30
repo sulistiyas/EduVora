@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class AcademicYear extends Model
 {
     /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'academic_year_id';
+
+    /**
      * The table associated with the model.
      *
      * @var string
