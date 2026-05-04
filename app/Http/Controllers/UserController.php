@@ -16,7 +16,13 @@ class UserController extends Controller
 
     public function index()
     {
-        return response()->json($this->userService->getAllUsers());
+        // return response()->json($this->userService->getAllUsers());
+
+        return view('pages.users.index', ['users' => $this->userService->getAllUsers()]);
+    }
+
+    public function create(){
+        
     }
 
     public function show($id)

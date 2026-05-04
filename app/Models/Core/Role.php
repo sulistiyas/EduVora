@@ -23,6 +23,7 @@ class Role extends Model
         'role_id',
         'role_name',
         'role_description',
+        'status',
     ];
 
     /**
@@ -33,7 +34,7 @@ class Role extends Model
     protected function casts(): array
     {
         return [
-            
+            'status' => 'string',
         ];
     }
 

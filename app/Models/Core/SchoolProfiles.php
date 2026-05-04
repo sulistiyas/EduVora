@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SchoolProfiles extends Model
 {
+    public $incrementing = true;
+    protected $keyType = 'int';
     /**
      * The primary key for the model.
      *
@@ -26,10 +28,12 @@ class SchoolProfiles extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'school_id',
+        // 'school_id',
         'school_name',
         'npsn',
         'nss',
+        'accreditation',
+        'school_type',
         'contact_email',
         'contact_phone',
         'website',
@@ -42,6 +46,7 @@ class SchoolProfiles extends Model
         'headmaster_name',
         'headmaster_nip',
         'kkm_default',
+        'status',
     ];
 
     /**

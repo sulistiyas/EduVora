@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('headmaster_name')->nullable();
             $table->string('headmaster_nip')->nullable();
             $table->tinyInteger('kkm_default')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->timestamps();
         });
     }
