@@ -11,7 +11,6 @@ use App\Models\Teacher\Teacher;
 class User extends Authenticatable
 {
     protected $table = 'users';
-    protected $primaryKey = 'id';
 
     protected $fillable = [
         'name',
@@ -20,23 +19,23 @@ class User extends Authenticatable
         'password',
         'profile_picture',
         'phone_number',
-        'token',
-        'user_agent',
-        'payload',
-        'last_activity',
+        'status',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'last_activity' => 'integer',
+            'status' => 'string',
         ];
     }
 
-    // =======================
-    // RELATIONS
-    // =======================
+    // ================= RELATIONS =================
 
     public function roles()
     {
@@ -47,7 +46,7 @@ class User extends Authenticatable
             'role_id',
             'id',
             'role_id'
-        );
+        )->withPivot('user_has_role_id')->withTimestamps();
     }
 
     public function schools()
@@ -59,7 +58,7 @@ class User extends Authenticatable
             'school_id',
             'id',
             'school_id'
-        );
+        )->withTimestamps();
     }
 
     public function student()
@@ -72,22 +71,35 @@ class User extends Authenticatable
         return $this->hasOne(Teacher::class, 'user_id', 'id');
     }
 
-    // =======================
-    // CORE HELPER
-    // =======================
+    // ================= HELPERS =================
 
     public function hasRole($roles): bool
     {
         $roles = is_array($roles) ? $roles : [$roles];
 
-        return $this->roles()
-            ->whereIn('role_name', $roles)
-            ->exists();
-    }
+        $roleNames = [];
+        $roleIds   = [];
 
-    public function hasAnyRole(array $roles): bool
-    {
-        return $this->hasRole($roles);
+        foreach ($roles as $role) {
+            if (is_numeric($role)) {
+                $roleIds[] = (int) $role;
+            } else {
+                $roleNames[] = $role;
+            }
+        }
+
+        return $this->roles()
+            ->where(function ($q) use ($roleNames, $roleIds) {
+
+                if (!empty($roleNames)) {
+                    $q->whereIn('roles.role_name', $roleNames);
+                }
+
+                if (!empty($roleIds)) {
+                    $q->orWhereIn('roles.role_id', $roleIds);
+                }
+            })
+            ->exists();
     }
 
     public function hasAllRoles(array $roles): bool
@@ -97,12 +109,12 @@ class User extends Authenticatable
             ->count() === count($roles);
     }
 
-    // =======================
-    // ACCESSOR (BONUS)
-    // =======================
+    // ================= ACCESSOR =================
 
     public function getRoleNamesAttribute()
     {
-        return $this->roles->pluck('role_name');
+        return $this->relationLoaded('roles')
+            ? $this->roles->pluck('role_name')
+            : $this->roles()->pluck('role_name');
     }
 }

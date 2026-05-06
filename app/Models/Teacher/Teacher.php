@@ -33,16 +33,20 @@ class Teacher extends Model
         'full_name',
         'birth_place',
         'birth_date',
+        'gender',
         'religion',
         'address',
         'phone',
         'email',
+        'employee_status',
         'position',
         'grade_level',
+        'education_level',
         'major',
         'certification',
         'npwp',
         'join_date',
+        'status'
     ];
 
     /**

@@ -20,16 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('pages.dash.index');
     })->name('dashboard');
-
-    Route::prefix('users')->name('users.')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::get('/create', [UserController::class, 'create'])->name('create');
-        Route::post('/', [UserController::class, 'store'])->name('store');
-        Route::get('/{id}', [UserController::class, 'show'])->name('show');
-        Route::put('/{id}', [UserController::class, 'update'])->name('update');
-        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
-    });
-
+    // Roles
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RolesController::class, 'index'])->name('index');
         Route::get('/create', [RolesController::class, 'create'])->name('create');
@@ -39,7 +30,8 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{id}/toggle-status', [RolesController::class, 'toggleStatus'])->name('toggleStatus');
         Route::delete('/{id}', [RolesController::class, 'destroy'])->name('destroy');
     });
-    
+
+    // School-management
     Route::prefix('school-management')->name('school-management.')->group(function (){
         Route::get('/',[SchoolController::class, 'index'])->name('index');
         Route::get('/create', [SchoolController::class, 'create'])->name('create');
@@ -50,4 +42,20 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{id}/toggle-status', [SchoolController::class, 'toggleStatus'])->name('toggleStatus');
         Route::delete('/{id}', [SchoolController::class, 'destroy'])->name('destroy');
     });
+
+    // Users Management
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('index');
+        Route::get('/create', [UserController::class, 'create'])->name('create');
+        Route::post('/', [UserController::class, 'store'])->name('store');
+        Route::get('/roles', [UserController::class, 'roles'])->name('roles');
+        Route::get('/schools', [UserController::class, 'schools'])->name('schools');
+        Route::get('/{id}', [UserController::class, 'show'])->name('show');
+        Route::get('/{id}/detail', [UserController::class, 'detail'])->name('detail');
+        Route::put('/{id}', [UserController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+    });
+
+    
 });

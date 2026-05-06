@@ -807,7 +807,7 @@ select.edit-input {
                             </div>
                         </template>
                         <template x-if="isEditing">
-                            <select x-model="form.accreditation"  :key="form.accreditation" class="edit-input">
+                            <select x-model="form.accreditation" class="edit-input">
                                 <option value="">— Pilih Akreditasi —</option>
                                 <template x-for="a in ['A','B','C','D','E']" :key="a">
                                     <option :value="a" x-text="'Akreditasi ' + a"></option>

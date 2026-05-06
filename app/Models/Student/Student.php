@@ -31,6 +31,7 @@ class Student extends Model
         'nick_name',
         'email',
         'birth_date',
+        'gender',
         'phone_number',
         'address',
         'city',
@@ -51,10 +52,10 @@ class Student extends Model
     {
         return [
             'school_id' => 'integer',
-        'birth_date' => 'datetime',
-        'grade_id' => 'integer',
-        'enrollment_date' => 'datetime',
-        'graduation_date' => 'datetime',
+            'birth_date' => 'datetime',
+            'grade_id' => 'integer',
+            'enrollment_date' => 'datetime',
+            'graduation_date' => 'datetime',
         ];
     }
 
