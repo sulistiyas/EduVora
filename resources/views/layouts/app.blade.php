@@ -68,8 +68,70 @@
                     <span class="notif-dot"></span>
                 </button>
 
-                <div class="topbar-avatar" title="Profil saya">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
+                <div class="topbar-avatar-wrap" x-data="{ open: false }">
+                    <div class="topbar-avatar"
+                        @click="open = !open"
+                        title="Profil saya">
+                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
+                    </div>
+
+                    <div x-show="open"
+                        @click.outside="open = false"
+                        x-transition:enter="transition ease-out duration-150"
+                        x-transition:enter-start="opacity-0 transform scale-95"
+                        x-transition:enter-end="opacity-100 transform scale-100"
+                        x-transition:leave="transition ease-in duration-100"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        style="
+                            position:absolute;
+                            top:calc(100% + 10px);
+                            right:0;
+                            width:220px;
+                            background:var(--card);
+                            border:1px solid var(--border);
+                            border-radius:var(--radius);
+                            box-shadow:var(--shadow-md);
+                            z-index:1000;
+                            overflow:hidden;
+                            display:none;
+                        ">
+
+                        {{-- Header --}}
+                        <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg);border-bottom:1px solid var(--border)">
+                            <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--primary),#60A5FA);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0">
+                                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
+                            </div>
+                            <div style="min-width:0">
+                                <div style="font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                    {{ auth()->user()->name }}
+                                </div>
+                                <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                    {{ auth()->user()->email }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Menu --}}
+                        <div style="padding:4px">
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-user-line"></i> Profil Saya
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-settings-3-line"></i> Pengaturan
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="dropdown-item dropdown-item-danger"
+                                        style="width:100%">
+                                    <i class="ri-logout-box-r-line"></i> Keluar
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
                 </div>
             </div>
 

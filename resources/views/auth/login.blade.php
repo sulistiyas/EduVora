@@ -210,7 +210,7 @@
                 <button type="button" class="demo-btn" onclick="fillDemo('superadmin@example.com')" style="justify-content:center;">
                     <span class="demo-dot" style="background:#f63b3b"></span>Super Admin
                 </button>
-                <button type="button" class="demo-btn" onclick="fillDemo('admin@school.com')" style="justify-content:center;">
+                <button type="button" class="demo-btn" onclick="fillDemo('admin1@school.com')" style="justify-content:center;">
                     <span class="demo-dot" style="background:#3B82F6"></span>Admin
                 </button>
                 <button type="button" class="demo-btn" onclick="fillDemo('teacher@school.com')" style="justify-content:center;">
