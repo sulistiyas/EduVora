@@ -13,15 +13,47 @@ return new class extends Migration
     {
         Schema::create('rooms', function (Blueprint $table) {
             $table->id('room_id');
-            $table->string('room_name')->unique();
-            $table->string('code')->unique();
-            $table->enum('type',['classroom','lab','library','office','sport']);
+
+            $table->unsignedBigInteger('school_id');
+
+            $table->foreign('school_id')
+                ->references('school_id')
+                ->on('school_profiles')
+                ->cascadeOnDelete();
+
+            $table->string('room_name');
+            $table->string('code');
+
+            $table->enum('type', [
+                'classroom',
+                'lab',
+                'library',
+                'office',
+                'sport'
+            ]);
+
             $table->tinyInteger('floor')->unsigned();
+
             $table->string('building');
+
             $table->tinyInteger('capacity')->unsigned();
-            $table->string('facility');
-            $table->tinyInteger('is_available')->default(1);
+
+            $table->string('facility')->nullable();
+
+            $table->enum('status', [
+                'available',
+                'maintenance',
+                'inactive'
+            ])->default('available');
+
             $table->timestamps();
+
+            $table->softDeletes();
+
+            $table->unique(['school_id', 'room_name']);
+            $table->unique(['school_id', 'code']);
+
+            $table->index('school_id');
         });
     }
 

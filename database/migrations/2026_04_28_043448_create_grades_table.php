@@ -13,14 +13,53 @@ return new class extends Migration
     {
         Schema::create('grades', function (Blueprint $table) {
             $table->id('grade_id');
-            $table->bigInteger('academic_year_id')->unsigned();
-            $table->bigInteger('room_id')->unsigned()->nullable();
-            $table->bigInteger('homeroom_teacher_id')->unsigned()->nullable();
-            $table->foreign('academic_year_id')->references('academic_year_id')->on('academic_years')->onDelete('cascade');
-            $table->foreign('room_id')->references('room_id')->on('rooms')->onDelete('set null');
-            $table->foreign('homeroom_teacher_id')->references('teacher_id')->on('teachers')->onDelete('set null');
-            $table->string('grade_name')->unique();
+
+            $table->unsignedBigInteger('school_id');
+
+            $table->foreign('school_id')
+                ->references('school_id')
+                ->on('school_profiles')
+                ->cascadeOnDelete();
+
+            $table->unsignedBigInteger('academic_year_id');
+
+            $table->unsignedBigInteger('room_id')->nullable();
+
+            $table->unsignedBigInteger('homeroom_teacher_id')->nullable();
+
+            $table->foreign('academic_year_id')
+                ->references('academic_year_id')
+                ->on('academic_years')
+                ->cascadeOnDelete();
+
+            $table->foreign('room_id')
+                ->references('room_id')
+                ->on('rooms')
+                ->nullOnDelete();
+
+            $table->foreign('homeroom_teacher_id')
+                ->references('teacher_id')
+                ->on('teachers')
+                ->nullOnDelete();
+
+            $table->string('grade_name');
+
+            $table->unsignedTinyInteger('level');
+
+            $table->enum('status', [
+                'active',
+                'inactive',
+                'graduated',
+                'archived'
+            ])->default('active');
+
             $table->timestamps();
+
+            $table->softDeletes();
+
+            $table->unique(['school_id', 'grade_name']);
+
+            $table->index('school_id');
         });
     }
 
