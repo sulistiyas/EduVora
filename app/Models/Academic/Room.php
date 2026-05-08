@@ -3,6 +3,8 @@
 namespace App\Models\Academic;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Core\SchoolProfile;
+use App\Models\Core\SchoolProfiles;
 
 class Room extends Model
 {
@@ -27,8 +29,10 @@ class Room extends Model
      */
     protected $fillable = [
         'room_id',
+        'school_id',
         'room_name',
         'code',
+        'type',
         'floor',
         'building',
         'capacity',
@@ -46,5 +50,10 @@ class Room extends Model
         return [
             
         ];
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(SchoolProfiles::class, 'school_id');
     }
 }

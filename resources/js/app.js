@@ -9,7 +9,8 @@ import { schoolProfilesSearch, schoolDetail } from './alpine/pages/schools';
 import { usersSearch, userDetail, userCreate } from './alpine/pages/users';
 import academicYearSearch from './alpine/pages/academicYear';
 import semesterSearch from './alpine/pages/semesters';
-
+import roomsSearch from './alpine/pages/rooms';
+import gradeSearch from './alpine/pages/grades';
 
 // Make Alpine available globally before plugins
 window.Alpine = Alpine;
@@ -28,6 +29,9 @@ Alpine.data('userCreate', userCreate);
 
 Alpine.data('academicYearSearch', academicYearSearch);
 Alpine.data('semesterSearch', semesterSearch);
+
+Alpine.data('roomsSearch', roomsSearch);
+Alpine.data('gradeSearch', gradeSearch);
 
 // Start Alpine
 Alpine.start();

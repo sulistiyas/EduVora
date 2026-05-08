@@ -47,11 +47,16 @@
             Guru & Staff
         </a>
 
-        <a href="#"
-        {{-- <a href="{{ route('classes.index') }}" --}}
-        class="nav-item {{ request()->routeIs('classes.*') ? 'active' : '' }}">
-            <i class="ri-book-open-line"></i>
-            Kelas
+        <a href="{{ route('rooms.index') }}"
+            class="nav-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
+                <i class="ri-book-open-line"></i>
+                Ruangan
+        </a>
+
+        <a href="{{ route('grades.index') }}"
+            class="nav-item {{ request()->routeIs('grades.*') ? 'active' : '' }}">
+                <i class="ri-school-line"></i>
+                Kelas
         </a>
 
         <a href="#"
@@ -69,8 +74,8 @@
         </a>
 
         <a href="#"
-        {{-- <a href="{{ route('grades.index') }}" --}}
-        class="nav-item {{ request()->routeIs('grades.*') ? 'active' : '' }}">
+        {{-- <a href="{{ route('scores.index') }}" --}}
+        class="nav-item {{ request()->routeIs('scores.*') ? 'active' : '' }}">
             <i class="ri-bar-chart-2-line"></i>
             Nilai
         </a>

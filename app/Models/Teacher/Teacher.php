@@ -2,6 +2,7 @@
 
 namespace App\Models\Teacher;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
@@ -58,8 +59,13 @@ class Teacher extends Model
     {
         return [
             'user_id' => 'integer',
-        'birth_date' => 'datetime',
-        'join_date' => 'datetime',
+            'birth_date' => 'datetime',
+            'join_date' => 'datetime',
         ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Academic\AcademicYearController;
+use App\Http\Controllers\Class\RoomsController;
 use App\Http\Controllers\Academic\SemesterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RolesController;
+use App\Http\Controllers\Class\GradesController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -81,4 +83,27 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{id}/toggle-status', [SemesterController::class, 'toggleStatus'])->name('toggleStatus');
         Route::delete('/{id}', [SemesterController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('rooms')->name('rooms.')->group(function () {
+        Route::get('/', [RoomsController::class, 'index'])->name('index');
+        Route::get('/create', [RoomsController::class, 'create'])->name('create');
+        Route::post('/', [RoomsController::class, 'store'])->name('store');
+        Route::get('/{id}', [RoomsController::class, 'show'])->name('show');
+        Route::put('/{id}', [RoomsController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [RoomsController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::delete('/{id}', [RoomsController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('grades')->name('grades.')->group(function () {
+        Route::get('/rooms', [GradesController::class, 'getRooms'])->name('rooms');
+        Route::get('/teachers', [GradesController::class, 'getTeachers'])->name('teachers');
+        Route::get('/academic-years', [GradesController::class, 'getAcademicYears'])->name('academic-years');
+        Route::get('/', [GradesController::class, 'index'])->name('index');
+        Route::post('/', [GradesController::class, 'store'])->name('store');
+        Route::get('/{id}', [GradesController::class, 'show'])->name('show');
+        Route::put('/{id}', [GradesController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [GradesController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::delete('/{id}', [GradesController::class, 'destroy'])->name('destroy');
+    });
+
 });
