@@ -60,4 +60,6 @@ class SchoolProfiles extends Model
             
         ];
     }
+
+    
 }

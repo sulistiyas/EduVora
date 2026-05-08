@@ -7,6 +7,8 @@ import datatable from './alpine/components/datatable';
 import roleSearch from './alpine/pages/roles';
 import { schoolProfilesSearch, schoolDetail } from './alpine/pages/schools';
 import { usersSearch, userDetail, userCreate } from './alpine/pages/users';
+import academicYearSearch from './alpine/pages/academicYear';
+import semesterSearch from './alpine/pages/semesters';
 
 
 // Make Alpine available globally before plugins
@@ -23,6 +25,9 @@ Alpine.data('schoolDetail', schoolDetail);
 Alpine.data('usersSearch', usersSearch);
 Alpine.data('userDetail', userDetail);
 Alpine.data('userCreate', userCreate);
+
+Alpine.data('academicYearSearch', academicYearSearch);
+Alpine.data('semesterSearch', semesterSearch);
 
 // Start Alpine
 Alpine.start();

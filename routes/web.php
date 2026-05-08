@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Academic\AcademicYearController;
+use App\Http\Controllers\Academic\SemesterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RolesController;
 use App\Http\Controllers\SchoolController;
@@ -57,5 +59,26 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
     });
 
-    
+    // school-admin section
+
+    Route::prefix('academic-year')->name('academic-year.')->group(function () {
+        Route::get('/', [AcademicYearController::class, 'index'])->name('index');
+        Route::get('/create', [AcademicYearController::class, 'create'])->name('create');
+        Route::post('/', [AcademicYearController::class, 'store'])->name('store');
+        Route::get('/{id}', [AcademicYearController::class, 'show'])->name('show');
+        Route::put('/{id}', [AcademicYearController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [AcademicYearController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::delete('/{id}', [AcademicYearController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('semesters')->name('semesters.')->group(function () {
+        Route::get('/', [SemesterController::class, 'index'])->name('index');
+        Route::get('/academic-years', [SemesterController::class, 'getAcademicYears'])->name('academic-years');
+        Route::get('/create', [SemesterController::class, 'create'])->name('create');
+        Route::post('/', [SemesterController::class, 'store'])->name('store');
+        Route::get('/{id}', [SemesterController::class, 'show'])->name('show');
+        Route::put('/{id}', [SemesterController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [SemesterController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::delete('/{id}', [SemesterController::class, 'destroy'])->name('destroy');
+    });
 });

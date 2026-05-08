@@ -12,18 +12,45 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('semesters', function (Blueprint $table) {
+            // $table->id('semester_id');
+            // $table->string('semester_name')->unique();
+            // $table->bigInteger('academic_year_id')->unsigned();
+            // $table->foreign('academic_year_id')->references('academic_year_id')->on('academic_years')->onDelete('cascade');
+            // $table->date('start_date');
+            // $table->date('end_date');
+            // $table->date('midterm_start_date')->nullable();
+            // $table->date('midterm_end_date')->nullable();
+            // $table->date('final_start_date')->nullable();
+            // $table->date('final_end_date')->nullable();
+            // $table->enum('status', ['active', 'inactive'])->default('inactive');
+            // $table->timestamps();
+
             $table->id('semester_id');
-            $table->string('semester_name')->unique();
+
+            $table->string('semester_name');
+
             $table->bigInteger('academic_year_id')->unsigned();
-            $table->foreign('academic_year_id')->references('academic_year_id')->on('academic_years')->onDelete('cascade');
+            $table->foreign('academic_year_id')
+                ->references('academic_year_id')
+                ->on('academic_years')
+                ->onDelete('cascade');
+
             $table->date('start_date');
             $table->date('end_date');
+
             $table->date('midterm_start_date')->nullable();
             $table->date('midterm_end_date')->nullable();
+
             $table->date('final_start_date')->nullable();
             $table->date('final_end_date')->nullable();
-            $table->tinyInteger('is_active')->default(0);
+
+            $table->enum('status', ['active', 'inactive'])
+                ->default('inactive');
+
             $table->timestamps();
+
+            // unique per academic year
+            $table->unique(['academic_year_id', 'semester_name']);
         });
     }
 

@@ -35,7 +35,7 @@ class Semester extends Model
         'midterm_end_date',
         'final_start_date',
         'final_end_date',
-        'is_active',
+        'status',
     ];
 
     /**
@@ -47,12 +47,17 @@ class Semester extends Model
     {
         return [
             'academic_year_id' => 'integer',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
-        'midterm_start_date' => 'datetime',
-        'midterm_end_date' => 'datetime',
-        'final_start_date' => 'datetime',
-        'final_end_date' => 'datetime',
+            'start_date' => 'date:Y-m-d',
+            'end_date' => 'date:Y-m-d',
+            'midterm_start_date' => 'date:Y-m-d',
+            'midterm_end_date' => 'date:Y-m-d',
+            'final_start_date' => 'date:Y-m-d',
+            'final_end_date' => 'date:Y-m-d',
         ];
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id', 'academic_year_id');
     }
 }

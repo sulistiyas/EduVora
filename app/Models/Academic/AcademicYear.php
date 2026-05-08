@@ -3,7 +3,7 @@
 namespace App\Models\Academic;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Core\SchoolProfiles;
 class AcademicYear extends Model
 {
     /**
@@ -27,10 +27,11 @@ class AcademicYear extends Model
      */
     protected $fillable = [
         'academic_year_id',
+        'school_id',
         'academic_year_name',
         'start_date',
         'end_date',
-        'is_active',
+        'status',
     ];
 
     /**
@@ -41,8 +42,19 @@ class AcademicYear extends Model
     protected function casts(): array
     {
         return [
-            'start_date' => 'datetime',
-        'end_date' => 'datetime',
+            'start_date' => 'date:Y-m-d',
+            'end_date' => 'date:Y-m-d',
+            'status'=> 'string',
         ];
+    }
+
+    public function schoolProfile()
+    {
+        return $this->belongsTo(SchoolProfiles::class, 'school_id', 'school_id');
+    }
+
+    public function semesters()
+    {
+        return $this->hasMany(Semester::class, 'academic_year_id', 'academic_year_id');
     }
 }

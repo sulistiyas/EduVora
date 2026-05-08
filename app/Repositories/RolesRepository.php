@@ -23,8 +23,8 @@ class RolesRepository
             $search = strtolower($filters['search']);
 
             $query->where(function ($q) use ($search) {
-                $q->whereRaw('LOWER(role_name) LIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(role_description) LIKE ?', ["%{$search}%"]);
+                $q->whereRaw('LOWER(role_name) ILIKE ?', ["%{$search}%"])
+                ->orWhereRaw('LOWER(role_description) ILIKE ?', ["%{$search}%"]);
             });
         }
 

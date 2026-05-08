@@ -20,7 +20,7 @@
         <div class="nav-section-label">Sekolah Aktif</div>
         <div class="sidebar-school-badge">
             <i class="ri-building-4-line"></i>
-            <span>{{ auth()->user()->school->name ?? '-' }}</span>
+            <span>{{ auth()->user()->schools->first()->school_name ?? '-' }}</span>
             <i class="ri-arrow-down-s-line" style="margin-left:auto;"></i>
         </div>
 
@@ -82,10 +82,10 @@
         <div class="nav-section-label" style="margin-top:8px;">Akademik</div>
 
         {{-- Tahun Ajaran (parent collapsible) --}}
-        <div class="nav-item-group {{ request()->routeIs('academic-years.*') || request()->routeIs('semesters.*') || request()->routeIs('academic-dates.*') ? 'open' : '' }}">
+        <div class="nav-item-group {{ request()->routeIs('academic-year.*') || request()->routeIs('semesters.*') || request()->routeIs('academic-dates.*') ? 'open' : '' }}">
 
             <a href="#"
-               class="nav-item nav-item--has-children {{ request()->routeIs('academic-years.*') || request()->routeIs('semesters.*') || request()->routeIs('academic-dates.*') ? 'active' : '' }}"
+               class="nav-item nav-item--has-children {{ request()->routeIs('academic-year.*') || request()->routeIs('semesters.*') || request()->routeIs('academic-dates.*') ? 'active' : '' }}"
                onclick="toggleNavGroup(this); return false;">
                 <i class="ri-calendar-2-line"></i>
                 Tahun Ajaran
@@ -94,18 +94,14 @@
 
             <div class="nav-sub-menu">
                 {{-- Sub: Tahun Ajaran --}}
-                {{-- <a href="{{ route('academic-years.index') }}" --}}
-                <a href="#"
-                {{-- <a href="#" --}}
-                   class="nav-item nav-item--sub {{ request()->routeIs('academic-years.*') ? 'active' : '' }}">
+                <a href="{{ route('academic-year.index') }}"
+                   class="nav-item nav-item--sub {{ request()->routeIs('academic-year.*') ? 'active' : '' }}">
                     <i class="ri-calendar-check-line"></i>
                     Daftar Tahun Ajaran
                 </a>
 
                 {{-- Sub: Semester --}}
-                {{-- <a href="{{ route('semesters.index') }}" --}}
-                <a href="#"
-                {{-- <a href="#" --}}
+                <a href="{{ route('semesters.index') }}"
                    class="nav-item nav-item--sub {{ request()->routeIs('semesters.*') ? 'active' : '' }}">
                     <i class="ri-split-cells-horizontal"></i>
                     Semester
