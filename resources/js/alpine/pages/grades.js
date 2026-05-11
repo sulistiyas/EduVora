@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 
-export default function gradeSearch(config = {}) {
+export function gradeSearch(config = {}) {
     return {
         // ─── URLs ──────────────────────────────────────────────────────
         indexUrl:         config.indexUrl         ?? "/grades",
@@ -446,6 +446,499 @@ export default function gradeSearch(config = {}) {
 
         getCsrfToken() {
             return document.querySelector('meta[name="csrf-token"]')?.content ?? "";
+        },
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// gradeDetail — Alpine.js component untuk halaman detail kelas
+// Tambahkan ke file JS Alpine Anda (misal: grades.js)
+// ═══════════════════════════════════════════════════════════════════
+
+export function gradeDetail(config = {}) {
+    return {
+        // ─── URLs ────────────────────────────────────────────────────
+        baseUrl:          config.baseUrl          ?? '/grades',
+        indexUrl:         config.indexUrl         ?? '/grades',
+        roomsUrl:         config.roomsUrl         ?? '/grades/rooms',
+        teachersUrl:      config.teachersUrl      ?? '/grades/teachers',
+        academicYearsUrl: config.academicYearsUrl ?? '/grades/academic-years',
+        subjectsUrl:      config.subjectsUrl      ?? '/grades/subjects',
+        gradeSubjectsUrl: config.gradeSubjectsUrl ?? '/grades/1/subjects',
+
+        // ─── State ───────────────────────────────────────────────────
+        grade:        config.gradeData ?? {},
+        isEditing:    false,
+        submitting:   false,
+        form:         {},
+        errors:       {},
+
+        // Dropdown data
+        rooms:         [],
+        teachers:      [],
+        academicYears: [],
+
+        // Subject section
+        gradeSubjects:  [],
+        allSubjects:    [],
+        loadingSubjects: true,
+        newSubjectId:   '',
+        newTeacherId:   '',
+        addingSubject:  false,
+
+        // ─── Options ─────────────────────────────────────────────────
+        levelOptions: [
+            { value: 7,  label: 'VII  — Kelas 7'  },
+            { value: 8,  label: 'VIII — Kelas 8'  },
+            { value: 9,  label: 'IX   — Kelas 9'  },
+            { value: 10, label: 'X    — Kelas 10' },
+            { value: 11, label: 'XI   — Kelas 11' },
+            { value: 12, label: 'XII  — Kelas 12' },
+        ],
+
+        // ─── Init ────────────────────────────────────────────────────
+        async init() {
+            await Promise.all([
+                this.fetchRooms(),
+                this.fetchTeachers(),
+                this.fetchAcademicYears(),
+                this.fetchAllSubjects(),
+            ]);
+            await this.fetchGradeSubjects();
+        },
+
+        // ─── Fetch dropdown data ─────────────────────────────────────
+        async fetchRooms() {
+            try {
+                const res  = await fetch(this.roomsUrl, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const json = await res.json();
+                this.rooms = json.data ?? [];
+            } catch (_) {}
+        },
+
+        async fetchTeachers() {
+            try {
+                const res  = await fetch(this.teachersUrl, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const json = await res.json();
+                this.teachers = json.data ?? [];
+            } catch (_) {}
+        },
+
+        async fetchAcademicYears() {
+            try {
+                const res  = await fetch(this.academicYearsUrl, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const json = await res.json();
+                this.academicYears = json.data ?? [];
+            } catch (_) {}
+        },
+
+        async fetchAllSubjects() {
+            try {
+                const res  = await fetch(this.subjectsUrl, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const json = await res.json();
+                this.allSubjects = json.data ?? [];
+            } catch (_) {
+                this.allSubjects = [];
+            }
+        },
+
+        // ─── Subjects for grade ───────────────────────────────────────
+        async fetchGradeSubjects() {
+            this.loadingSubjects = true;
+            try {
+                const res  = await fetch(this.gradeSubjectsUrl, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                if (!res.ok) throw new Error();
+                const json = await res.json();
+                // Tambahkan reactive edit flags ke setiap row
+                this.gradeSubjects = (json.data ?? []).map(gs => ({
+                    ...gs,
+                    _editingTeacher: false,
+                    _editingKkm:     false,
+                    _editingWeight:  false,
+                    _newTeacherId:   gs.teacher_id ?? '',
+                    _newKkm:         gs.kkm        ?? '',
+                    _newWeightH:     gs.weight_harian ?? 0,
+                    _newWeightUts:   gs.weight_uts    ?? 0,
+                    _newWeightUas:   gs.weight_uas    ?? 0,
+                }));
+            } catch (_) {
+                this.gradeSubjects = [];
+            } finally {
+                this.loadingSubjects = false;
+            }
+        },
+
+        // Mata pelajaran yang belum ada di kelas (untuk dropdown tambah)
+        get availableSubjects() {
+            const assigned = new Set(this.gradeSubjects.map(gs => String(gs.id)));
+            return this.allSubjects.filter(s => !assigned.has(String(s.id)));
+        },
+
+        // ─── Add Subject ──────────────────────────────────────────────
+        async addSubject() {
+            if (!this.newSubjectId) return;
+
+            // ── Cek duplikat di sisi client ──────────────────────────
+            const alreadyAssigned = this.gradeSubjects.some(
+                gs => String(gs.subject_id) === String(this.newSubjectId)
+            );
+            if (alreadyAssigned) {
+                const subjName = this.allSubjects.find(
+                    s => String(s.subject_id) === String(this.newSubjectId)
+                )?.subject_name ?? 'Mata pelajaran ini';
+                this.showToast('warning', `"${subjName}" sudah ada di kelas ini.`);
+                return;
+            }
+            
+            this.addingSubject = true;
+            try {
+                const res  = await fetch(this.gradeSubjectsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                    body: JSON.stringify({
+                        id: this.newSubjectId,
+                        teacher_id: this.newTeacherId || null,
+                    }),
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal menambahkan mapel.');
+
+                // Push langsung tanpa re-fetch jika response sudah lengkap
+                if (json.data) {
+                    this.gradeSubjects.push({
+                        ...json.data,
+                        _editingTeacher: false,
+                        _editingKkm:     false,
+                        _editingWeight:  false,
+                        _newTeacherId:   json.data.teacher_id ?? '',
+                        _newKkm:         json.data.kkm        ?? '',
+                        _newWeightH:     json.data.weight_harian ?? 0,
+                        _newWeightUts:   json.data.weight_uts    ?? 0,
+                        _newWeightUas:   json.data.weight_uas    ?? 0,
+                    });
+                } else {
+                    await this.fetchGradeSubjects();
+                }
+
+                this.newSubjectId = '';
+                this.newTeacherId = '';
+                this.showToast('success', json.message ?? 'Mata pelajaran berhasil ditambahkan.');
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            } finally {
+                this.addingSubject = false;
+            }
+        },
+
+        // ─── Update Teacher for Subject ───────────────────────────────
+        async updateSubjectTeacher(gs) {
+            try {
+                const res  = await fetch(`${this.gradeSubjectsUrl}/${gs.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                    body: JSON.stringify({ teacher_id: gs._newTeacherId || null }),
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal mengubah guru.');
+
+                // Update lokal
+                gs.teacher_id      = gs._newTeacherId || null;
+                gs.teacher         = json.data?.teacher ?? this.teachers.find(t => String(t.teacher_id) === String(gs._newTeacherId)) ?? null;
+                gs._editingTeacher = false;
+                this.showToast('success', 'Guru pengajar berhasil diperbarui.');
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            }
+        },
+
+        // ─── Update KKM ───────────────────────────────────────────────
+        async updateSubjectKkm(gs) {
+            try {
+                const res  = await fetch(`${this.gradeSubjectsUrl}/${gs.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                    body: JSON.stringify({ kkm: gs._newKkm !== '' ? parseInt(gs._newKkm) : null }),
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal mengubah KKM.');
+                gs.kkm       = gs._newKkm !== '' ? parseInt(gs._newKkm) : null;
+                gs._editingKkm = false;
+                this.showToast('success', 'KKM berhasil diperbarui.');
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            }
+        },
+
+        // ─── Update Weight ────────────────────────────────────────────
+        async updateSubjectWeight(gs) {
+            const total = (parseInt(gs._newWeightH) || 0)
+                        + (parseInt(gs._newWeightUts) || 0)
+                        + (parseInt(gs._newWeightUas) || 0);
+            if (total !== 100) {
+                this.showToast('error', `Total bobot harus 100% (sekarang: ${total}%)`);
+                return;
+            }
+            try {
+                const res  = await fetch(`${this.gradeSubjectsUrl}/${gs.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                    body: JSON.stringify({
+                        weight_harian: parseInt(gs._newWeightH)   || 0,
+                        weight_uts:    parseInt(gs._newWeightUts) || 0,
+                        weight_uas:    parseInt(gs._newWeightUas) || 0,
+                    }),
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal mengubah bobot.');
+                gs.weight_harian  = parseInt(gs._newWeightH)   || 0;
+                gs.weight_uts     = parseInt(gs._newWeightUts) || 0;
+                gs.weight_uas     = parseInt(gs._newWeightUas) || 0;
+                gs._editingWeight = false;
+                this.showToast('success', 'Bobot nilai berhasil diperbarui.');
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            }
+        },
+
+        // ─── Remove Subject ───────────────────────────────────────────
+        async removeSubject(gs) {
+            const result = await Swal.fire({
+                title:              `Hapus "${gs.subject?.subject_name ?? 'mapel'}" dari kelas?`,
+                text:               'Data nilai yang terkait mungkin ikut terhapus.',
+                icon:               'warning',
+                showCancelButton:   true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor:  '#94A3B8',
+                confirmButtonText:  'Ya, Hapus!',
+                cancelButtonText:   'Batal',
+                customClass: { popup: 'swal-popup-rounded' },
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const res  = await fetch(`${this.gradeSubjectsUrl}/${gs.id}`, {
+                    method:  'DELETE',
+                    headers: {
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal menghapus mapel.');
+                this.gradeSubjects = this.gradeSubjects.filter(g => g.id !== gs.id);
+                this.showToast('success', 'Mata pelajaran berhasil dihapus dari kelas.');
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            }
+        },
+
+        // ─── Edit Mode ────────────────────────────────────────────────
+        startEdit() {
+            this.form = {
+                grade_name:          this.grade.grade_name          ?? '',
+                level:               this.grade.level               ?? '',
+                academic_year_id:    this.grade.academic_year_id    ?? '',
+                room_id:             this.grade.room_id             ?? '',
+                homeroom_teacher_id: this.grade.homeroom_teacher_id ?? '',
+                status:              this.grade.status              ?? 'active',
+            };
+            this.errors    = {};
+            this.isEditing = true;
+            this.$nextTick(() => {
+                document.querySelector('[data-edit-focus]')?.focus();
+            });
+        },
+
+        cancelEdit() {
+            this.isEditing  = false;
+            this.submitting = false;
+            this.errors     = {};
+            this.form       = {};
+        },
+
+        validate() {
+            this.errors = {};
+            if (!this.form.grade_name?.trim()) this.errors.grade_name       = 'Nama kelas wajib diisi.';
+            if (!this.form.level)              this.errors.level             = 'Tingkatan wajib dipilih.';
+            if (!this.form.academic_year_id)   this.errors.academic_year_id = 'Tahun ajaran wajib dipilih.';
+            return Object.keys(this.errors).length === 0;
+        },
+
+        async submitEdit() {
+            if (!this.validate()) return;
+            this.submitting = true;
+            try {
+                const res  = await fetch(`${this.baseUrl}/${this.grade.grade_id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                    body: JSON.stringify({
+                        grade_name:          this.form.grade_name.trim(),
+                        level:               parseInt(this.form.level, 10),
+                        academic_year_id:    this.form.academic_year_id,
+                        room_id:             this.form.room_id             || null,
+                        homeroom_teacher_id: this.form.homeroom_teacher_id || null,
+                        status:              this.form.status,
+                    }),
+                });
+                const json = await res.json();
+
+                if (!res.ok) {
+                    if (res.status === 422 && json.errors) {
+                        this.errors = Object.fromEntries(
+                            Object.entries(json.errors).map(([k, v]) => [k, v[0]])
+                        );
+                        return;
+                    }
+                    throw new Error(json.message ?? 'Gagal menyimpan data.');
+                }
+
+                // Update reaktif
+                this.grade      = { ...this.grade, ...(json.data ?? {}) };
+                this.isEditing  = false;
+                this.submitting = false;
+                this.form       = {};
+                this.showToast('success', 'Data kelas berhasil diperbarui.');
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            } finally {
+                this.submitting = false;
+            }
+        },
+
+        // ─── Toggle Status ────────────────────────────────────────────
+        async toggleStatus() {
+            const cfg     = this.statusConfig(this.grade.status);
+            const result  = await Swal.fire({
+                title:              `Ubah status kelas "${this.grade.grade_name}"?`,
+                text:               `Status saat ini: ${cfg.label}. Status akan diperbarui.`,
+                icon:               'question',
+                showCancelButton:   true,
+                confirmButtonColor: '#059669',
+                cancelButtonColor:  '#94A3B8',
+                confirmButtonText:  'Ya, Ubah!',
+                cancelButtonText:   'Batal',
+                customClass: { popup: 'swal-popup-rounded' },
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const res  = await fetch(`${this.baseUrl}/${this.grade.grade_id}/toggle-status`, {
+                    method:  'PATCH',
+                    headers: {
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal mengubah status.');
+                this.grade.status = json.status;
+                this.showToast('success', json.message);
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            }
+        },
+
+        // ─── Delete ───────────────────────────────────────────────────
+        async deleteGrade() {
+            const result = await Swal.fire({
+                title:              `Hapus Kelas "${this.grade.grade_name}"?`,
+                text:               'Data yang dihapus tidak dapat dikembalikan.',
+                icon:               'warning',
+                showCancelButton:   true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor:  '#94A3B8',
+                confirmButtonText:  'Ya, Hapus!',
+                cancelButtonText:   'Batal',
+                customClass: { popup: 'swal-popup-rounded' },
+            });
+            if (!result.isConfirmed) return;
+
+            try {
+                const res  = await fetch(`${this.baseUrl}/${this.grade.grade_id}`, {
+                    method:  'DELETE',
+                    headers: {
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     this.getCsrfToken(),
+                    },
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) throw new Error(json.message ?? 'Gagal menghapus kelas.');
+                this.showToast('success', 'Kelas berhasil dihapus.');
+                setTimeout(() => { window.location.href = this.indexUrl; }, 1200);
+            } catch (err) {
+                this.showToast('error', err.message ?? 'Terjadi kesalahan.');
+            }
+        },
+
+        // ─── Helpers ─────────────────────────────────────────────────
+        initials(name) {
+            return (name || '').split(/[-_ ]/).map(w => w[0]?.toUpperCase() || '').join('').slice(0, 2);
+        },
+
+        levelLabel(level) {
+            return { 7:'VII', 8:'VIII', 9:'IX', 10:'X', 11:'XI', 12:'XII' }[level] ?? `Lvl ${level}`;
+        },
+
+        statusConfig(status) {
+            return {
+                active:    { bg: '#ECFDF5', color: '#059669', label: 'Aktif'       },
+                inactive:  { bg: '#FFF7ED', color: '#D97706', label: 'Non-Aktif'   },
+                graduated: { bg: '#EFF6FF', color: '#2563EB', label: 'Lulus'       },
+                archived:  { bg: '#F3F4F6', color: '#6B7280', label: 'Diarsipkan'  },
+            }[status] ?? { bg: '#F3F4F6', color: '#6B7280', label: status };
+        },
+
+        showToast(icon, message) {
+            Swal.fire({
+                toast: true, position: 'top-end', icon, title: message,
+                showConfirmButton: false, timer: 3500, timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+        },
+
+        getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]')?.content ?? '';
         },
     };
 }

@@ -21,6 +21,11 @@ class GradesService
         return $this->gradeRepository->getAllGrades($filters);
     }
 
+    public function getSubjectsForDropdown(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->gradeRepository->getSubjectsForDropdown();
+    }
+
     public function getGradeById($id): ?Grade
     {
         return $this->gradeRepository->getGradeById($id);

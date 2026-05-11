@@ -47,17 +47,7 @@
             Guru & Staff
         </a>
 
-        <a href="{{ route('rooms.index') }}"
-            class="nav-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
-                <i class="ri-book-open-line"></i>
-                Ruangan
-        </a>
-
-        <a href="{{ route('grades.index') }}"
-            class="nav-item {{ request()->routeIs('grades.*') ? 'active' : '' }}">
-                <i class="ri-school-line"></i>
-                Kelas
-        </a>
+        
 
         <a href="#"
         {{-- <a href="{{ route('schedules.index') }}" --}}
@@ -121,7 +111,34 @@
                     Tanggal Penting
                 </a>
             </div>
+        </div>
+        <div class="nav-item-group {{ request()->routeIs('subjects.*') || request()->routeIs('rooms.*') || request()->routeIs('grades.*') ? 'open' : '' }}">
+            
+            <a href="#"
+                class="nav-item nav-item--has-children {{ request()->routeIs('subjects.*') || request()->routeIs('rooms.*') || request()->routeIs('grades.*') ? 'active' : '' }}"
+                onclick="toggleNavGroup(this); return false;">
+                    <i class="ri-calendar-2-line"></i>
+                    Struktur Akademik
+                    <i class="ri-arrow-down-s-line nav-arrow" style="margin-left:auto;"></i>
+            </a>
+            <div class="nav-sub-menu">
+                <a href="{{ route('subjects.index') }}"
+                    class="nav-item {{ request()->routeIs('subjects.*') ? 'active' : '' }}">
+                        <i class="ri-book-open-line"></i>
+                        Mata Pelajaran
+                </a>
+                <a href="{{ route('rooms.index') }}"
+                    class="nav-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
+                        <i class="ri-book-open-line"></i>
+                        Ruangan
+                </a>
 
+                <a href="{{ route('grades.index') }}"
+                    class="nav-item {{ request()->routeIs('grades.*') ? 'active' : '' }}">
+                        <i class="ri-school-line"></i>
+                        Kelas
+                </a>
+            </div>
         </div>
         {{-- END Akademik --}}
 
@@ -235,9 +252,24 @@
      Tambahkan ke file JS/layout Anda
 ============================================== --}}
 
+{{-- <script>
+    function toggleNavGroup(el) {
+        const group = el.closest('.nav-item-group');
+        group.classList.toggle('open');
+    }
+</script> --}}
 <script>
 function toggleNavGroup(el) {
-    const group = el.closest('.nav-item-group');
-    group.classList.toggle('open');
+    const currentGroup = el.closest('.nav-item-group');
+
+    // Tutup semua group lain (optional accordion behavior)
+    document.querySelectorAll('.nav-item-group').forEach(group => {
+        if (group !== currentGroup) {
+            group.classList.remove('open');
+        }
+    });
+
+    // Toggle current group
+    currentGroup.classList.toggle('open');
 }
 </script>

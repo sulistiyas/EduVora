@@ -570,6 +570,10 @@
                                 </td>
                                 <td class="col-act">
                                     <div class="dt-actions">
+                                        <div class="dt-act" title="Detail"
+                                            @click="window.location.href = `${showUrl}/${grade.grade_id}/detail`">
+                                            <i class="ri-eye-line"></i>
+                                        </div>
                                         <div class="dt-act" title="Edit"
                                              @click="openEditModal(grade.grade_id)">
                                             <i class="ri-pencil-line"></i>

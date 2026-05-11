@@ -35,6 +35,31 @@ class GradesController extends Controller
         return response()->json(['data' => $this->gradeService->getAcademicYearsForDropdown()]);
     }
 
+    public function detail(Request $request, $id): View|JsonResponse
+    {
+        $grade = $this->gradeService->getGradeById($id);
+    
+        if (!$grade) {
+            abort(404, 'Kelas tidak ditemukan.');
+        }
+    
+        if ($request->expectsJson()) {
+            return response()->json($grade);
+        }
+    
+        return view('pages.schools.class.grades.detail', [
+            'grade' => $grade,
+        ]);
+    }
+    
+    /**
+     * Dropdown subjects
+     */
+    public function getSubjects(): JsonResponse
+    {
+        return response()->json(['data' => $this->gradeService->getSubjectsForDropdown()]);
+    }
+
     // ─── CRUD ──────────────────────────────────────────────────────────────────
 
     public function index(Request $request): View|JsonResponse

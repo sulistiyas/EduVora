@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Core\SchoolProfiles;
 use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,7 +28,7 @@ class Grade extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'grade_id',
+        // 'grade_id',
         'school_id',
         'academic_year_id',
         'room_id',
@@ -46,8 +47,8 @@ class Grade extends Model
     {
         return [
             'academic_year_id' => 'integer',
-        'room_id' => 'integer',
-        'homeroom_teacher_id' => 'integer',
+            'room_id' => 'integer',
+            'homeroom_teacher_id' => 'integer',
         ];
     }
 
@@ -75,6 +76,39 @@ class Grade extends Model
             Teacher::class,
             'homeroom_teacher_id',
             'teacher_id'
+        );
+    }
+
+    public function gradeSubjects()
+    {
+        return $this->hasMany(GradeSubject::class, 'grade_id', 'grade_id');
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(
+            Subject::class,
+            'grade_subjects',
+            'grade_id',
+            'subject_id',
+            'grade_id',
+            'id'
+        )->withPivot([
+            'teacher_id',
+            'kkm',
+            'weight_harian',
+            'weight_uts',
+            'weight_uas',
+            'status'
+        ])->withTimestamps();
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(
+            SchoolProfiles::class,
+            'school_id',
+            'school_id'
         );
     }
 }

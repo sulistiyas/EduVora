@@ -3,7 +3,6 @@
 namespace App\Models\Academic;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Core\SchoolProfile;
 use App\Models\Core\SchoolProfiles;
 
 class Room extends Model
@@ -37,7 +36,7 @@ class Room extends Model
         'building',
         'capacity',
         'facility',
-        'is_available',
+        'status',
     ];
 
     /**
@@ -54,6 +53,19 @@ class Room extends Model
 
     public function school()
     {
-        return $this->belongsTo(SchoolProfiles::class, 'school_id');
+        return $this->belongsTo(
+            SchoolProfiles::class,
+            'school_id',
+            'school_id'
+        );
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(
+            Grade::class,
+            'room_id',
+            'room_id'
+        );
     }
 }

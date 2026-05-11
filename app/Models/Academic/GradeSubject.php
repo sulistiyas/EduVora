@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class GradeSubject extends Model
@@ -26,10 +27,14 @@ class GradeSubject extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'grade_id',
+        'subject_id',
+        'teacher_id',
         'kkm',
         'weight_harian',
         'weight_uts',
         'weight_uas',
+        'status',
     ];
 
     /**
@@ -41,15 +46,32 @@ class GradeSubject extends Model
     {
         return [
             'grade_id' => 'integer',
-        'subject_id' => 'integer',
-        'teacher_id' => 'integer',
+            'subject_id' => 'integer',
+            'teacher_id' => 'integer',
+            'kkm' => 'integer',
+            'weight_harian' => 'integer',
+            'weight_uts' => 'integer',
+            'weight_uas' => 'integer',
         ];
     }
 
 
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id', 'grade_id');
+    }
 
-    public function subject() { return $this->belongsTo(\App\Models\Academic\Subject::class, 'subject_id'); }
+    public function subject()
+    {
+        return $this->belongsTo(
+            Subject::class,
+            'subject_id',
+            'id'
+        );
+    }
 
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+    }
 }

@@ -160,6 +160,8 @@ class GradesRepository
         ->get();
     }
 
+
+
     public function getAcademicYearsForDropdown(): Collection
     {
         $schoolId = $this->getAuthSchoolId();
@@ -167,6 +169,17 @@ class GradesRepository
         return \App\Models\Academic\AcademicYear::where('school_id', $schoolId)
             ->select(['academic_year_id', 'academic_year_name', 'status'])
             ->orderBy('academic_year_name', 'desc')
+            ->get();
+    }
+
+    public function getSubjectsForDropdown(): \Illuminate\Database\Eloquent\Collection
+    {
+        $schoolId = $this->getAuthSchoolId();
+    
+        return \App\Models\Academic\Subject::where('school_id', $schoolId)
+            ->where('status', 'active')
+            ->select(['id', 'subject_name', 'subject_code'])
+            ->orderBy('subject_name')
             ->get();
     }
 

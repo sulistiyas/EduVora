@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Academic\AcademicYearController;
-use App\Http\Controllers\Class\RoomsController;
 use App\Http\Controllers\Academic\SemesterController;
+use App\Http\Controllers\Academic\SubjectController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RolesController;
 use App\Http\Controllers\Class\GradesController;
+use App\Http\Controllers\Class\GradeSubjectsController;
+use App\Http\Controllers\Class\RoomsController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -98,12 +100,33 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rooms', [GradesController::class, 'getRooms'])->name('rooms');
         Route::get('/teachers', [GradesController::class, 'getTeachers'])->name('teachers');
         Route::get('/academic-years', [GradesController::class, 'getAcademicYears'])->name('academic-years');
+        Route::get('/subjects', [GradesController::class, 'getSubjects'])->name('subjects');
+        
         Route::get('/', [GradesController::class, 'index'])->name('index');
         Route::post('/', [GradesController::class, 'store'])->name('store');
+
+        Route::get('/{id}/detail', [GradesController::class, 'detail'])->name('detail');
         Route::get('/{id}', [GradesController::class, 'show'])->name('show');
         Route::put('/{id}', [GradesController::class, 'update'])->name('update');
         Route::patch('/{id}/toggle-status', [GradesController::class, 'toggleStatus'])->name('toggleStatus');
         Route::delete('/{id}', [GradesController::class, 'destroy'])->name('destroy');
+
+        Route::prefix('{gradeId}/subjects')->name('grade-subjects.')->group(function () {
+            Route::get('/',         [GradeSubjectsController::class, 'index'])->name('index');
+            Route::post('/',        [GradeSubjectsController::class, 'store'])->name('store');
+            Route::patch('/{id}',   [GradeSubjectsController::class, 'update'])->name('update');
+            Route::delete('/{id}',  [GradeSubjectsController::class, 'destroy'])->name('destroy');
+        });
+    });
+
+    Route::prefix('subjects')->name('subjects.')->group(function () {
+        Route::get('/', [SubjectController::class, 'index'])->name('index');
+        Route::get('/create', [SubjectController::class, 'create'])->name('create');
+        Route::post('/', [SubjectController::class, 'store'])->name('store');
+        Route::get('/{id}', [SubjectController::class, 'show'])->name('show');
+        Route::put('/{id}', [SubjectController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::delete('/{id}', [SubjectController::class, 'destroy'])->name('destroy');
     });
 
 });
