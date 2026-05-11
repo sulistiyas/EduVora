@@ -74,4 +74,9 @@ class GradeSubject extends Model
     {
         return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'grade_subject_id', 'id');
+    }
 }

@@ -9,19 +9,38 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('schedules', function (Blueprint $table) {
-            $table->id();
-            $table->bigInteger('grade_id')->unsigned()->constrained('grades')->onDelete('cascade');
-            $table->bigInteger('subject_id')->unsigned()->constrained('subjects')->onDelete('cascade');
-            $table->bigInteger('teacher_id')->unsigned()->nullable()->constrained('teachers')->onDelete('set null');
-            $table->bigInteger('room_id')->unsigned()->nullable()->constrained('rooms')->onDelete('set null');
-            $table->bigInteger('semester_id')->unsigned()->nullable()->constrained('semesters')->onDelete('set null');
-            $table->tinyInteger('day_of_week')->comment('1=Monday, 7=Sunday');
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->string('session_type')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->timestamps();
-        });
+
+        $table->id('schedule_id');
+
+        $table->foreignId('grade_subject_id')
+            ->constrained('grade_subjects')
+            ->cascadeOnDelete();
+
+        $table->foreignId('room_id')
+            ->nullable()
+            ->constrained('rooms', 'room_id')
+            ->nullOnDelete();
+
+        $table->foreignId('semester_id')
+            ->nullable()
+            ->constrained('semesters', 'semester_id')
+            ->nullOnDelete();
+
+        $table->tinyInteger('day_of_week');
+
+        $table->time('start_time');
+
+        $table->time('end_time');
+
+        $table->string('session_type')->nullable();
+
+        $table->enum('status', [
+            'active',
+            'inactive'
+        ])->default('active');
+
+        $table->timestamps();
+    });
     }
 
     public function down(): void

@@ -12,6 +12,7 @@ import semesterSearch from './alpine/pages/semesters';
 import roomsSearch from './alpine/pages/rooms';
 import { gradeSearch, gradeDetail } from './alpine/pages/grades';
 import subjectSearch from './alpine/pages/academic/subject';
+import scheduleSearch  from './alpine/pages/academic/schedule';
 
 // Make Alpine available globally before plugins
 window.Alpine = Alpine;
@@ -35,6 +36,8 @@ Alpine.data('subjectSearch', subjectSearch);
 Alpine.data('roomsSearch', roomsSearch);
 Alpine.data('gradeSearch', gradeSearch);
 Alpine.data('gradeDetail', gradeDetail);
+
+Alpine.data('scheduleSearch', scheduleSearch);
 
 // Start Alpine
 Alpine.start();

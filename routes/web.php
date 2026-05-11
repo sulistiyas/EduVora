@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Academic\AcademicYearController;
+use App\Http\Controllers\Academic\ScheduleController;
 use App\Http\Controllers\Academic\SemesterController;
 use App\Http\Controllers\Academic\SubjectController;
 use App\Http\Controllers\Auth\LoginController;
@@ -127,6 +128,26 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [SubjectController::class, 'update'])->name('update');
         Route::patch('/{id}/toggle-status', [SubjectController::class, 'toggleStatus'])->name('toggleStatus');
         Route::delete('/{id}', [SubjectController::class, 'destroy'])->name('destroy');
+    });
+
+    // Schedules
+
+    Route::prefix('schedules')->name('schedules.')->group(function () {
+ 
+        // Dropdown data (harus di atas resource agar tidak bentrok dengan {id})
+        Route::get('semesters',[ScheduleController::class, 'semesters'])    ->name('semesters');
+        Route::get('rooms',[ScheduleController::class, 'rooms'])        ->name('rooms');
+        Route::get('grade-subjects',[ScheduleController::class, 'gradeSubjects'])->name('grade-subjects');
+    
+        // Toggle status
+        Route::patch('{id}/toggle-status', [ScheduleController::class, 'toggleStatus'])->name('toggle-status');
+    
+        // CRUD
+        Route::get('/', [ScheduleController::class, 'index'])  ->name('index');
+        Route::post('/', [ScheduleController::class, 'store'])  ->name('store');
+        Route::get('/{id}', [ScheduleController::class, 'show'])   ->name('show');
+        Route::put('/{id}', [ScheduleController::class, 'update']) ->name('update');
+        Route::delete('/{id}', [ScheduleController::class, 'destroy'])->name('destroy');
     });
 
 });

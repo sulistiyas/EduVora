@@ -46,14 +46,10 @@
             <i class="ri-team-line"></i>
             Guru & Staff
         </a>
-
-        
-
-        <a href="#"
-        {{-- <a href="{{ route('schedules.index') }}" --}}
-        class="nav-item {{ request()->routeIs('schedules.*') ? 'active' : '' }}">
-            <i class="ri-calendar-schedule-line"></i>
-            Jadwal
+        <a href="{{ route('schedules.index') }}"
+            class="nav-item {{ request()->routeIs('schedules.*') ? 'active' : '' }}">
+                <i class="ri-calendar-schedule-line"></i>
+                Jadwal
         </a>
 
         <a href="#"
