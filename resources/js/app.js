@@ -13,6 +13,8 @@ import roomsSearch from './alpine/pages/rooms';
 import { gradeSearch, gradeDetail } from './alpine/pages/grades';
 import subjectSearch from './alpine/pages/academic/subject';
 import scheduleSearch  from './alpine/pages/academic/schedule';
+import { studentSearch, studentDetail, studentCreate } from './alpine/pages/school/student';
+import { teacherSearch, teacherDetail, teacherCreate } from './alpine/pages/school/teacher';
 
 // Make Alpine available globally before plugins
 window.Alpine = Alpine;
@@ -38,6 +40,14 @@ Alpine.data('gradeSearch', gradeSearch);
 Alpine.data('gradeDetail', gradeDetail);
 
 Alpine.data('scheduleSearch', scheduleSearch);
+
+Alpine.data('studentSearch', studentSearch);
+Alpine.data('studentDetail', studentDetail);
+Alpine.data('studentCreate', studentCreate);
+
+Alpine.data('teacherSearch', teacherSearch);
+Alpine.data('teacherDetail', teacherDetail);
+Alpine.data('teacherCreate', teacherCreate);
 
 // Start Alpine
 Alpine.start();

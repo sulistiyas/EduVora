@@ -32,17 +32,15 @@
             Dashboard
         </a>
 
-        <a href="#"
-        {{-- <a href="{{ route('students.index') }}" --}}
-        class="nav-item {{ request()->routeIs('students.*') ? 'active' : '' }}">
+        <a href="{{ route('school-admin.students.index') }}"
+        class="nav-item {{ request()->routeIs('school-admin.students.*') ? 'active' : '' }}">
             <i class="ri-user-3-line"></i>
             Siswa
             <span class="nav-badge">1.2k</span>
         </a>
 
-        <a href="#"
-        {{-- <a href="{{ route('teachers.index') }}" --}}
-        class="nav-item {{ request()->routeIs('teachers.*') ? 'active' : '' }}">
+        <a href="{{ route('school-admin.teachers.index') }}"
+        class="nav-item {{ request()->routeIs('school-admin.teachers.*') ? 'active' : '' }}">
             <i class="ri-team-line"></i>
             Guru & Staff
         </a>

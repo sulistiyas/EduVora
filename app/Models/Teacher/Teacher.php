@@ -2,6 +2,7 @@
 
 namespace App\Models\Teacher;
 
+use App\Models\Academic\Subject;
 use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -67,5 +68,17 @@ class Teacher extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(
+            Subject::class,
+            'grade_subjects',
+            'teacher_id',
+            'subject_id',
+            'teacher_id',
+            'id'
+        );
     }
 }
