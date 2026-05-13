@@ -46,40 +46,32 @@
                 </div>
                 <div class="form-card__body">
 
-                    {{-- Info role otomatis --}}
                     <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--radius-sm);margin-bottom:18px;font-size:13px;color:#15803D">
                         <i class="ri-information-line" style="font-size:16px;flex-shrink:0"></i>
                         <span>Guru akan otomatis mendapat role <strong>Teacher</strong> dan terhubung ke sekolah Anda.</span>
                     </div>
 
                     <div class="form-grid form-grid--2" style="gap:18px">
-                        {{-- Nama --}}
                         <div class="form-group" :class="{ 'has-error': errors.name }">
-                            <label class="form-label form-label--required">Nama Lengkap</label>
+                            <label class="form-label form-label--required">Nama (Akun)</label>
                             <input type="text" class="form-control" x-model="form.name"
-                                placeholder="Masukkan nama lengkap" data-edit-focus>
+                                placeholder="Nama untuk login" data-edit-focus>
                             <span class="form-error" x-show="errors.name" x-text="errors.name"></span>
                         </div>
-
-                        {{-- Email --}}
                         <div class="form-group" :class="{ 'has-error': errors.email }">
-                            <label class="form-label form-label--required">Email</label>
+                            <label class="form-label form-label--required">Email (Akun)</label>
                             <input type="email" class="form-control" x-model="form.email"
                                 placeholder="contoh@email.com">
                             <span class="form-error" x-show="errors.email" x-text="errors.email"></span>
                         </div>
-
-                        {{-- No. Telepon --}}
                         <div class="form-group" :class="{ 'has-error': errors.phone_number }">
-                            <label class="form-label">No. Telepon</label>
+                            <label class="form-label">No. Telepon (Akun)</label>
                             <input type="text" class="form-control" x-model="form.phone_number"
                                 placeholder="08xxxxxxxxxx">
                             <span class="form-error" x-show="errors.phone_number" x-text="errors.phone_number"></span>
                         </div>
-
-                        {{-- Status --}}
                         <div class="form-group" :class="{ 'has-error': errors.status }">
-                            <label class="form-label form-label--required">Status</label>
+                            <label class="form-label form-label--required">Status Akun</label>
                             <div class="radio-group">
                                 <label class="radio-card" :class="{ active: form.status === 'active' }">
                                     <input type="radio" x-model="form.status" value="active" hidden>
@@ -96,7 +88,6 @@
                         </div>
                     </div>
 
-                    {{-- Password --}}
                     <div class="form-grid form-grid--2" style="gap:18px;margin-top:18px">
                         <div class="form-group" :class="{ 'has-error': errors.password }">
                             <label class="form-label form-label--required">Password</label>
@@ -122,15 +113,15 @@
                 </div>
             </div>
 
-            {{-- ═══════════ SECTION 2 — PROFIL GURU ═══════════ --}}
+            {{-- ═══════════ SECTION 2 — DATA PRIBADI ═══════════ --}}
             <div class="form-card">
                 <div class="form-card__header">
                     <div style="display:flex;align-items:center;gap:.625rem">
                         <div class="form-card__icon form-card__icon--green">
-                            <i class="ri-user-star-line" style="font-size:18px"></i>
+                            <i class="ri-user-line" style="font-size:18px"></i>
                         </div>
                         <div>
-                            <h2 class="form-card__title">Profil Guru</h2>
+                            <h2 class="form-card__title">Data Pribadi</h2>
                             <p style="font-size:11px;color:var(--text-muted);margin:0">Opsional — dapat diisi nanti</p>
                         </div>
                     </div>
@@ -138,16 +129,20 @@
                 <div class="form-card__body">
                     <div class="form-grid form-grid--3" style="gap:16px">
                         <div class="form-group">
+                            <label class="form-label">Nama Lengkap</label>
+                            <input type="text" class="form-control" x-model="form.profile.full_name" placeholder="Sesuai KTP/SK">
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">NIP</label>
                             <input type="text" class="form-control" x-model="form.profile.nip" placeholder="Nomor Induk Pegawai">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Nama Lengkap (Profil)</label>
-                            <input type="text" class="form-control" x-model="form.profile.full_name" placeholder="Sesuai SK">
+                            <label class="form-label">NIK</label>
+                            <input type="text" class="form-control" x-model="form.profile.nik" placeholder="Nomor KTP (16 digit)">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Nama Panggilan</label>
-                            <input type="text" class="form-control" x-model="form.profile.nick_name" placeholder="Nama panggilan">
+                            <label class="form-label">Tempat Lahir</label>
+                            <input type="text" class="form-control" x-model="form.profile.birth_place" placeholder="Kota kelahiran">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tanggal Lahir</label>
@@ -162,41 +157,24 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">No. HP Guru</label>
-                            <input type="text" class="form-control" x-model="form.profile.phone_number" placeholder="08xxxxxxxxxx">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Mata Pelajaran</label>
-                            <input type="text" class="form-control" x-model="form.profile.subject" placeholder="Matematika, IPA, dll">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Tipe Pegawai</label>
-                            <select class="form-control" x-model="form.profile.employee_type">
+                            <label class="form-label">Agama</label>
+                            <select class="form-control" x-model="form.profile.religion">
                                 <option value="">— Pilih —</option>
-                                <option value="permanent">PNS / Tetap</option>
-                                <option value="honorary">Honorer</option>
-                                <option value="contract">Kontrak</option>
+                                <option>Islam</option>
+                                <option>Kristen</option>
+                                <option>Katolik</option>
+                                <option>Hindu</option>
+                                <option>Buddha</option>
+                                <option>Konghucu</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Kode Pos</label>
-                            <input type="text" class="form-control" x-model="form.profile.postal_code" placeholder="12345">
+                            <label class="form-label">No. HP</label>
+                            <input type="text" class="form-control" x-model="form.profile.phone" placeholder="08xxxxxxxxxx">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Kota</label>
-                            <input type="text" class="form-control" x-model="form.profile.city" placeholder="Kota domisili">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Provinsi</label>
-                            <input type="text" class="form-control" x-model="form.profile.province" placeholder="Provinsi">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Tanggal Masuk</label>
-                            <input type="date" class="form-control" x-model="form.profile.join_date">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Tanggal Keluar</label>
-                            <input type="date" class="form-control" x-model="form.profile.resign_date">
+                            <label class="form-label">Email Pribadi</label>
+                            <input type="email" class="form-control" x-model="form.profile.email" placeholder="Email pribadi guru">
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:16px">
@@ -206,10 +184,75 @@
                 </div>
             </div>
 
+            {{-- ═══════════ SECTION 3 — DATA KEPEGAWAIAN ═══════════ --}}
+            <div class="form-card">
+                <div class="form-card__header">
+                    <div style="display:flex;align-items:center;gap:.625rem">
+                        <div class="form-card__icon form-card__icon--green">
+                            <i class="ri-briefcase-line" style="font-size:18px"></i>
+                        </div>
+                        <div>
+                            <h2 class="form-card__title">Data Kepegawaian</h2>
+                            <p style="font-size:11px;color:var(--text-muted);margin:0">Opsional — dapat diisi nanti</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-card__body">
+                    <div class="form-grid form-grid--3" style="gap:16px">
+                        <div class="form-group">
+                            <label class="form-label">Status Kepegawaian</label>
+                            <input type="text" class="form-control" x-model="form.profile.employment_status"
+                                placeholder="PNS, Honorer, GTY, dll">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jabatan</label>
+                            <input type="text" class="form-control" x-model="form.profile.position"
+                                placeholder="Guru Kelas, Wali Kelas, dll">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tingkat Kelas (Grade Level)</label>
+                            <input type="text" class="form-control" x-model="form.profile.grade_level"
+                                placeholder="SD, SMP, SMA, dll">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pendidikan Terakhir</label>
+                            <select class="form-control" x-model="form.profile.education_level">
+                                <option value="">— Pilih —</option>
+                                <option>S1</option>
+                                <option>S2</option>
+                                <option>S3</option>
+                                <option>D4</option>
+                                <option>D3</option>
+                                <option>SMA/SMK</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jurusan / Prodi</label>
+                            <input type="text" class="form-control" x-model="form.profile.major"
+                                placeholder="Pendidikan Matematika, dll">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sertifikasi</label>
+                            <input type="text" class="form-control" x-model="form.profile.certification"
+                                placeholder="No. sertifikat pendidik">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">NPWP</label>
+                            <input type="text" class="form-control" x-model="form.profile.npwp"
+                                placeholder="Nomor NPWP">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tanggal Bergabung</label>
+                            <input type="date" class="form-control" x-model="form.profile.join_date">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- ═══════════ ACTIONS ═══════════ --}}
             <div class="form-actions" style="margin-top:10px">
                 <a href="{{ route('school-admin.teachers.index') }}" class="btn btn--secondary">Batal</a>
-                <button type="submit" class="btn btn--primary" :disabled="submitting" style="min-width:160px;justify-content:center">
+                <button type="submit" class="btn btn--primary" :disabled="submitting" style="min-width:160px;justify-content:center;background:#059669;border-color:#059669">
                     <span x-show="!submitting" style="display:inline-flex;align-items:center;gap:.4375rem">
                         <i class="ri-save-line"></i> Simpan Guru
                     </span>

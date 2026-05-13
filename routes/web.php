@@ -172,8 +172,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Teacher
         Route::prefix('teachers')->name('teachers.')->group(function () {
-            // Dropdown helpers (harus di atas /{id})
-            Route::get('/subjects', [TeacherController::class, 'subjects'])->name('subjects');
+            // Helper dropdown (harus di atas /{id})
+            Route::get('/employment-statuses', [TeacherController::class, 'employmentStatuses'])->name('employment-statuses');
     
             // CRUD
             Route::get('/', [TeacherController::class, 'index'])->name('index');

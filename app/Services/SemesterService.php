@@ -21,6 +21,11 @@ class SemesterService
         return $this->semesterRepository->getAllSemesters($filters);
     }
 
+    public function getActiveAcademicSemester(array $filters = []): LengthAwarePaginator|Collection
+    {
+        return $this->semesterRepository->getActiveAcademicSemester($filters);
+    }
+
     public function getSemesterById($id): ?Semester
     {
         return $this->semesterRepository->getSemesterById($id);

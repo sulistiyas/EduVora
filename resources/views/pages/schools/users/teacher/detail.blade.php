@@ -20,7 +20,7 @@
 .card-v2.is-editing-card { border-color:#6EE7B7;box-shadow:0 0 0 3px rgba(16,185,129,.1),var(--shadow); }
 .card-hd-v2 { display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border); }
 .card-hd-left-v2 { display:flex;align-items:center;gap:10px; }
-.card-hd-icon-v2 { width:30px;height:30px;border-radius:8px;background:var(--primary-xlight);display:grid;place-items:center;font-size:14px;color:var(--primary);flex-shrink:0; }
+.card-hd-icon-v2 { width:30px;height:30px;border-radius:8px;background:#F0FDF4;display:grid;place-items:center;font-size:14px;color:#059669;flex-shrink:0; }
 .card-hd-title-v2 { font-size:13px;font-weight:700;color:var(--text-primary); }
 .card-hd-sub-v2   { font-size:11px;color:var(--text-muted);margin-top:1px; }
 
@@ -86,7 +86,7 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
     })"
     x-init="init()">
 
-    {{-- ── BREADCRUMB & HEADER ───────────────────────── --}}
+    {{-- ── BREADCRUMB ─────────────────────────── --}}
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;animation:fadeUp .3s ease both">
         <div>
             <ul class="breadcrumb-list">
@@ -94,9 +94,10 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                 <li><i class="ri-arrow-right-s-line"></i></li>
                 <li><a href="{{ route('school-admin.teachers.index') }}" style="color:var(--text-muted);font-size:11px;font-weight:500;text-decoration:none">Manajemen Guru</a></li>
                 <li><i class="ri-arrow-right-s-line"></i></li>
-                <li><span x-text="teacher.name"></span></li>
+                <li><span x-text="teacher.profile?.full_name || teacher.name"></span></li>
             </ul>
-            <h2 style="font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;margin-top:5px" x-text="teacher.name"></h2>
+            <h2 style="font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-.5px;margin-top:5px"
+                x-text="teacher.profile?.full_name || teacher.name"></h2>
             <p style="font-size:13px;color:var(--text-muted);margin-top:3px">Detail profil dan informasi guru</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -123,7 +124,7 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
         <button class="edit-banner-cancel" @click="cancelEdit()">Batalkan</button>
     </div>
 
-    {{-- ── HERO CARD ────────────────────────── --}}
+    {{-- ── HERO ─────────────────────────── --}}
     <div class="teacher-hero">
         <div class="hero-banner"></div>
         <div class="hero-body">
@@ -134,23 +135,25 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                             style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:4px solid var(--card);box-shadow:0 8px 24px rgba(0,0,0,.15)">
                     </template>
                     <template x-if="!teacher.profile_picture">
-                        <div class="teacher-avatar" x-text="initials(teacher.name)"></div>
+                        <div class="teacher-avatar" x-text="initials(teacher.profile?.full_name || teacher.name)"></div>
                     </template>
                     <div style="padding-bottom:4px">
-                        <div style="font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.2" x-text="teacher.profile?.full_name || teacher.name"></div>
-                        <div style="font-size:13px;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:6px">
-                            <i class="ri-shield-user-line"></i>
-                            <span>Guru</span>
+                        <div style="font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.2"
+                            x-text="teacher.profile?.full_name || teacher.name"></div>
+                        <div style="font-size:13px;color:var(--text-muted);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                            <template x-if="teacher.profile?.position">
+                                <span x-text="teacher.profile.position"></span>
+                            </template>
                             <template x-if="teacher.profile?.nip">
                                 <span>· NIP: <span class="dt-mono" x-text="teacher.profile.nip"></span></span>
                             </template>
                         </div>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:8px;padding-bottom:4px">
-                    <template x-if="teacher.profile?.subject">
-                        <span style="padding:5px 14px;border-radius:999px;background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0;font-size:12px;font-weight:700"
-                            x-text="teacher.profile.subject"></span>
+                <div style="display:flex;align-items:center;gap:8px;padding-bottom:4px;flex-wrap:wrap">
+                    <template x-if="teacher.profile?.employment_status">
+                        <span style="padding:5px 14px;border-radius:999px;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;font-size:12px;font-weight:700"
+                            x-text="teacher.profile.employment_status"></span>
                     </template>
                     <span style="padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid"
                         :style="teacher.status === 'active'
@@ -166,14 +169,14 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
     {{-- ── DETAIL GRID ──────────────────────── --}}
     <div class="detail-grid">
 
-        {{-- ═══ KOLOM KIRI ═══ --}}
+        {{-- ═══ KOLOM KIRI — Informasi Akun + Data Pribadi ═══ --}}
         <div class="detail-col">
 
             {{-- Informasi Akun --}}
             <div class="card-v2" :class="{ 'is-editing-card': isEditing }">
                 <div class="card-hd-v2">
                     <div class="card-hd-left-v2">
-                        <div class="card-hd-icon-v2" style="background:#F0FDF4;color:#059669"><i class="ri-account-circle-line"></i></div>
+                        <div class="card-hd-icon-v2"><i class="ri-account-circle-line"></i></div>
                         <div>
                             <div class="card-hd-title-v2">Informasi Akun</div>
                             <div class="card-hd-sub-v2" x-show="isEditing">Mode Edit</div>
@@ -181,28 +184,28 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                     </div>
                 </div>
 
-                {{-- Nama --}}
+                {{-- Nama Akun --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
                     <div class="field-ico"><i class="ri-user-line"></i></div>
                     <div class="field-content">
-                        <div class="field-lbl-v2">Nama</div>
+                        <div class="field-lbl-v2">Nama Akun</div>
                         <template x-if="!isEditing">
                             <div class="field-val-v2" :class="teacher.name ? '' : 'is-empty'" x-text="teacher.name || 'Belum diisi'"></div>
                         </template>
                         <template x-if="isEditing">
                             <div>
-                                <input class="edit-input" type="text" x-model="form.name" data-edit-focus placeholder="Nama lengkap">
+                                <input class="edit-input" type="text" x-model="form.name" data-edit-focus placeholder="Nama akun">
                                 <span class="form-error" x-show="errors.name" x-text="errors.name"></span>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                {{-- Email --}}
+                {{-- Email Akun --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
                     <div class="field-ico"><i class="ri-mail-line"></i></div>
                     <div class="field-content">
-                        <div class="field-lbl-v2">Email</div>
+                        <div class="field-lbl-v2">Email Akun</div>
                         <template x-if="!isEditing">
                             <div class="field-val-v2 is-mono" :class="teacher.email ? '' : 'is-empty'" x-text="teacher.email || 'Belum diisi'"></div>
                         </template>
@@ -215,11 +218,11 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                     </div>
                 </div>
 
-                {{-- No Telepon --}}
+                {{-- No. Telepon Akun --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
                     <div class="field-ico"><i class="ri-phone-line"></i></div>
                     <div class="field-content">
-                        <div class="field-lbl-v2">No. Telepon</div>
+                        <div class="field-lbl-v2">No. Telepon (Akun)</div>
                         <template x-if="!isEditing">
                             <div class="field-val-v2" :class="teacher.phone_number ? '' : 'is-empty'" x-text="teacher.phone_number || 'Belum diisi'"></div>
                         </template>
@@ -249,20 +252,28 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                         </div>
                     </div>
                 </template>
+            </div>
 
-            </div>{{-- /Informasi Akun --}}
-
-        </div>
-
-        {{-- ═══ KOLOM TENGAH ═══ --}}
-        <div class="detail-col">
-
-            {{-- Profil Guru --}}
-            <div class="card-v2" :class="{ 'is-editing-card': isEditing }" style="animation-delay:.04s">
+            {{-- Data Pribadi --}}
+            <div class="card-v2" :class="{ 'is-editing-card': isEditing }" style="animation-delay:.03s">
                 <div class="card-hd-v2">
                     <div class="card-hd-left-v2">
-                        <div class="card-hd-icon-v2" style="background:#F0FDF4;color:#059669"><i class="ri-user-star-line"></i></div>
-                        <div><div class="card-hd-title-v2">Profil Guru</div></div>
+                        <div class="card-hd-icon-v2"><i class="ri-user-2-line"></i></div>
+                        <div><div class="card-hd-title-v2">Data Pribadi</div></div>
+                    </div>
+                </div>
+
+                {{-- Nama Lengkap --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-profile-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Nama Lengkap</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.full_name ? '' : 'is-empty'" x-text="teacher.profile?.full_name || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.full_name" placeholder="Nama sesuai KTP/SK">
+                        </template>
                     </div>
                 </div>
 
@@ -280,58 +291,46 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                     </div>
                 </div>
 
-                {{-- Nama Lengkap Profil --}}
+                {{-- NIK --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-profile-line"></i></div>
+                    <div class="field-ico"><i class="ri-contacts-book-line"></i></div>
                     <div class="field-content">
-                        <div class="field-lbl-v2">Nama Lengkap (SK)</div>
+                        <div class="field-lbl-v2">NIK (KTP)</div>
                         <template x-if="!isEditing">
-                            <div class="field-val-v2" :class="teacher.profile?.full_name ? '' : 'is-empty'" x-text="teacher.profile?.full_name || 'Belum diisi'"></div>
+                            <div class="field-val-v2 is-mono" :class="teacher.profile?.nik ? '' : 'is-empty'" x-text="teacher.profile?.nik || 'Belum diisi'"></div>
                         </template>
                         <template x-if="isEditing">
-                            <input class="edit-input" type="text" x-model="form.profile.full_name" placeholder="Nama sesuai SK">
+                            <input class="edit-input" type="text" x-model="form.profile.nik" placeholder="16 digit NIK">
                         </template>
                     </div>
                 </div>
 
-                {{-- Mata Pelajaran --}}
+                {{-- Tempat, Tanggal Lahir --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-book-2-line"></i></div>
+                    <div class="field-ico"><i class="ri-cake-line"></i></div>
                     <div class="field-content">
-                        <div class="field-lbl-v2">Mata Pelajaran</div>
+                        <div class="field-lbl-v2">Tempat, Tanggal Lahir</div>
                         <template x-if="!isEditing">
-                            <div class="field-val-v2" :class="teacher.profile?.subject ? '' : 'is-empty'" x-text="teacher.profile?.subject || 'Belum diisi'"></div>
-                        </template>
-                        <template x-if="isEditing">
-                            <input class="edit-input" type="text" x-model="form.profile.subject" placeholder="Matematika, IPA, dll">
-                        </template>
-                    </div>
-                </div>
-
-                {{-- Tipe Pegawai --}}
-                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-briefcase-line"></i></div>
-                    <div class="field-content">
-                        <div class="field-lbl-v2">Tipe Pegawai</div>
-                        <template x-if="!isEditing">
-                            <div class="field-val-v2" :class="teacher.profile?.employee_type ? '' : 'is-empty'"
-                                x-text="{permanent:'PNS / Tetap', honorary:'Honorer', contract:'Kontrak'}[teacher.profile?.employee_type] || 'Belum diisi'">
+                            <div class="field-val-v2"
+                                :class="(teacher.profile?.birth_place || teacher.profile?.birth_date) ? '' : 'is-empty'"
+                                x-text="[
+                                    teacher.profile?.birth_place,
+                                    teacher.profile?.birth_date ? new Date(teacher.profile.birth_date).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}) : null
+                                ].filter(Boolean).join(', ') || 'Belum diisi'">
                             </div>
                         </template>
                         <template x-if="isEditing">
-                            <select class="edit-input" x-model="form.profile.employee_type">
-                                <option value="">— Pilih —</option>
-                                <option value="permanent">PNS / Tetap</option>
-                                <option value="honorary">Honorer</option>
-                                <option value="contract">Kontrak</option>
-                            </select>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                                <input class="edit-input" type="text" x-model="form.profile.birth_place" placeholder="Kota lahir">
+                                <input class="edit-input" type="date" x-model="form.profile.birth_date">
+                            </div>
                         </template>
                     </div>
                 </div>
 
                 {{-- Gender --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-user-2-line"></i></div>
+                    <div class="field-ico"><i class="ri-genderless-line"></i></div>
                     <div class="field-content">
                         <div class="field-lbl-v2">Jenis Kelamin</div>
                         <template x-if="!isEditing">
@@ -349,20 +348,182 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                     </div>
                 </div>
 
-                {{-- Tanggal Lahir --}}
+                {{-- Agama --}}
                 <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-cake-line"></i></div>
+                    <div class="field-ico"><i class="ri-book-open-line"></i></div>
                     <div class="field-content">
-                        <div class="field-lbl-v2">Tanggal Lahir</div>
+                        <div class="field-lbl-v2">Agama</div>
                         <template x-if="!isEditing">
-                            <div class="field-val-v2" :class="teacher.profile?.birth_date ? '' : 'is-empty'"
-                                x-text="teacher.profile?.birth_date
-                                    ? new Date(teacher.profile.birth_date).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})
-                                    : 'Belum diisi'">
+                            <div class="field-val-v2" :class="teacher.profile?.religion ? '' : 'is-empty'" x-text="teacher.profile?.religion || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <select class="edit-input" x-model="form.profile.religion">
+                                <option value="">— Pilih —</option>
+                                <option>Islam</option><option>Kristen</option><option>Katolik</option>
+                                <option>Hindu</option><option>Buddha</option><option>Konghucu</option>
+                            </select>
+                        </template>
+                    </div>
+                </div>
+
+                {{-- No. HP Pribadi --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-smartphone-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">No. HP Pribadi</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.phone ? '' : 'is-empty'" x-text="teacher.profile?.phone || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.phone" placeholder="08xxxxxxxxxx">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Email Pribadi --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-mail-send-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Email Pribadi</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2 is-mono" :class="teacher.profile?.email ? '' : 'is-empty'" x-text="teacher.profile?.email || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="email" x-model="form.profile.email" placeholder="Email pribadi">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Alamat --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-map-pin-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Alamat</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" style="white-space:pre-line"
+                                :class="teacher.profile?.address ? '' : 'is-empty'"
+                                x-text="teacher.profile?.address || 'Belum diisi'">
                             </div>
                         </template>
                         <template x-if="isEditing">
-                            <input class="edit-input" type="date" x-model="form.profile.birth_date">
+                            <textarea class="edit-input" x-model="form.profile.address" placeholder="Alamat lengkap"></textarea>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- ═══ KOLOM TENGAH — Data Kepegawaian + Sekolah ═══ --}}
+        <div class="detail-col">
+
+            {{-- Data Kepegawaian --}}
+            <div class="card-v2" :class="{ 'is-editing-card': isEditing }" style="animation-delay:.04s">
+                <div class="card-hd-v2">
+                    <div class="card-hd-left-v2">
+                        <div class="card-hd-icon-v2"><i class="ri-briefcase-line"></i></div>
+                        <div><div class="card-hd-title-v2">Data Kepegawaian</div></div>
+                    </div>
+                </div>
+
+                {{-- Status Kepegawaian --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-government-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Status Kepegawaian</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.employment_status ? '' : 'is-empty'" x-text="teacher.profile?.employment_status || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.employment_status" placeholder="PNS, Honorer, GTY, dll">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Jabatan --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-award-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Jabatan</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.position ? '' : 'is-empty'" x-text="teacher.profile?.position || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.position" placeholder="Guru Kelas, Wali Kelas, dll">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Grade Level --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-bar-chart-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Tingkat Kelas</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.grade_level ? '' : 'is-empty'" x-text="teacher.profile?.grade_level || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.grade_level" placeholder="SD, SMP, SMA, dll">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Pendidikan Terakhir --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-graduation-cap-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Pendidikan Terakhir</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.education_level ? '' : 'is-empty'" x-text="teacher.profile?.education_level || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <select class="edit-input" x-model="form.profile.education_level">
+                                <option value="">— Pilih —</option>
+                                <option>S1</option><option>S2</option><option>S3</option>
+                                <option>D4</option><option>D3</option><option>SMA/SMK</option>
+                            </select>
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Jurusan --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-book-2-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">Jurusan / Prodi</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2" :class="teacher.profile?.major ? '' : 'is-empty'" x-text="teacher.profile?.major || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.major" placeholder="Pendidikan Matematika, dll">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Sertifikasi --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-shield-star-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">No. Sertifikasi</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2 is-mono" :class="teacher.profile?.certification ? '' : 'is-empty'" x-text="teacher.profile?.certification || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.certification" placeholder="No. sertifikat pendidik">
+                        </template>
+                    </div>
+                </div>
+
+                {{-- NPWP --}}
+                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
+                    <div class="field-ico"><i class="ri-bank-card-line"></i></div>
+                    <div class="field-content">
+                        <div class="field-lbl-v2">NPWP</div>
+                        <template x-if="!isEditing">
+                            <div class="field-val-v2 is-mono" :class="teacher.profile?.npwp ? '' : 'is-empty'" x-text="teacher.profile?.npwp || 'Belum diisi'"></div>
+                        </template>
+                        <template x-if="isEditing">
+                            <input class="edit-input" type="text" x-model="form.profile.npwp" placeholder="Nomor NPWP">
                         </template>
                     </div>
                 </div>
@@ -384,56 +545,13 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                         </template>
                     </div>
                 </div>
-
-                {{-- Tanggal Keluar --}}
-                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-calendar-close-line"></i></div>
-                    <div class="field-content">
-                        <div class="field-lbl-v2">Tanggal Keluar</div>
-                        <template x-if="!isEditing">
-                            <div class="field-val-v2" :class="teacher.profile?.resign_date ? '' : 'is-empty'"
-                                x-text="teacher.profile?.resign_date
-                                    ? new Date(teacher.profile.resign_date).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})
-                                    : 'Belum ada'">
-                            </div>
-                        </template>
-                        <template x-if="isEditing">
-                            <input class="edit-input" type="date" x-model="form.profile.resign_date">
-                        </template>
-                    </div>
-                </div>
-
-                {{-- Alamat --}}
-                <div class="field-row-v2" :class="{ 'is-editing': isEditing }">
-                    <div class="field-ico"><i class="ri-map-pin-line"></i></div>
-                    <div class="field-content">
-                        <div class="field-lbl-v2">Alamat</div>
-                        <template x-if="!isEditing">
-                            <div class="field-val-v2" style="white-space:pre-line"
-                                :class="(teacher.profile?.address || teacher.profile?.city) ? '' : 'is-empty'"
-                                x-text="[teacher.profile?.address, teacher.profile?.city, teacher.profile?.province, teacher.profile?.postal_code].filter(Boolean).join(', ') || 'Belum diisi'">
-                            </div>
-                        </template>
-                        <template x-if="isEditing">
-                            <div style="display:flex;flex-direction:column;gap:8px">
-                                <textarea class="edit-input" x-model="form.profile.address" placeholder="Alamat lengkap"></textarea>
-                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                                    <input class="edit-input" type="text" x-model="form.profile.city" placeholder="Kota">
-                                    <input class="edit-input" type="text" x-model="form.profile.province" placeholder="Provinsi">
-                                </div>
-                                <input class="edit-input" type="text" x-model="form.profile.postal_code" placeholder="Kode Pos">
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-            </div>{{-- /Profil Guru --}}
+            </div>
 
             {{-- Sekolah --}}
             <div class="card-v2" style="animation-delay:.08s">
                 <div class="card-hd-v2">
                     <div class="card-hd-left-v2">
-                        <div class="card-hd-icon-v2" style="background:#F0FDF4;color:#059669"><i class="ri-building-2-line"></i></div>
+                        <div class="card-hd-icon-v2"><i class="ri-building-2-line"></i></div>
                         <div><div class="card-hd-title-v2">Sekolah</div></div>
                     </div>
                 </div>
@@ -451,26 +569,30 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
                             </div>
                         </template>
                     </template>
+                    <template x-if="!teacher.schools || teacher.schools.length === 0">
+                        <p style="font-size:13px;color:var(--text-muted);font-style:italic;margin:4px 0">Belum terhubung ke sekolah.</p>
+                    </template>
                 </div>
             </div>
 
         </div>
 
-        {{-- ═══ KOLOM KANAN ═══ --}}
+        {{-- ═══ KOLOM KANAN — Status + Aksi ═══ --}}
         <div class="detail-col">
 
             {{-- Status --}}
             <div class="card-v2" style="animation-delay:.06s">
                 <div class="card-hd-v2">
                     <div class="card-hd-left-v2">
-                        <div class="card-hd-icon-v2" style="background:#F0FDF4;color:#059669"><i class="ri-pulse-line"></i></div>
+                        <div class="card-hd-icon-v2"><i class="ri-pulse-line"></i></div>
                         <div><div class="card-hd-title-v2">Status Akun</div></div>
                     </div>
                 </div>
                 <div style="padding:16px">
                     <div class="status-toggle-v2" :class="teacher.status === 'active' ? 'active' : 'inactive'" @click="toggleStatus()">
                         <div>
-                            <div style="font-size:14px;font-weight:700" :style="teacher.status === 'active' ? 'color:#065F46' : 'color:#475569'"
+                            <div style="font-size:14px;font-weight:700"
+                                :style="teacher.status === 'active' ? 'color:#065F46' : 'color:#475569'"
                                 x-text="teacher.status === 'active' ? 'Aktif' : 'Non-Aktif'"></div>
                             <div style="font-size:11px;color:var(--text-muted)">Klik untuk ubah status</div>
                         </div>
@@ -502,7 +624,7 @@ textarea.edit-input { height:80px;padding:9px 11px;resize:vertical;line-height:1
             <div class="card-v2" style="animation-delay:.1s">
                 <div class="card-hd-v2">
                     <div class="card-hd-left-v2">
-                        <div class="card-hd-icon-v2" style="background:#F0FDF4;color:#059669"><i class="ri-flashlight-line"></i></div>
+                        <div class="card-hd-icon-v2"><i class="ri-flashlight-line"></i></div>
                         <div><div class="card-hd-title-v2">Aksi Cepat</div></div>
                     </div>
                 </div>

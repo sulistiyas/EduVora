@@ -6,10 +6,10 @@
 @section('content')
 <div
     x-data="teacherSearch({
-        indexUrl:        '{{ route('school-admin.teachers.index') }}',
-        showUrl:         '{{ url('school-admin/teachers') }}',
-        toggleStatusUrl: '{{ url('school-admin/teachers') }}',
-        subjectsUrl:     '{{ route('school-admin.teachers.subjects') }}',
+        indexUrl:            '{{ route('school-admin.teachers.index') }}',
+        showUrl:             '{{ url('school-admin/teachers') }}',
+        toggleStatusUrl:     '{{ url('school-admin/teachers') }}',
+        employmentStatusUrl: '{{ route('school-admin.teachers.employment-statuses') }}',
     })"
     x-init="init()">
 
@@ -83,16 +83,16 @@
                         x-model="search"
                         @input.debounce.400ms="fetchTeachers()"
                         type="text"
-                        placeholder="Cari nama, NIP, mata pelajaran..."
+                        placeholder="Cari nama, NIP, NIK, jabatan..."
                         class="dt-search-input"
                     />
                     <button x-show="search" @click="search=''; fetchTeachers()" class="dt-search-clear">×</button>
                 </div>
 
-                {{-- Filter Status --}}
+                {{-- Filter Status Akun --}}
                 <div style="position:relative" @click.outside="filterOpen=false">
                     <div @click="filterOpen = !filterOpen" class="dt-select"
-                        style="display:flex;align-items:center;justify-content:space-between;min-width:150px;cursor:pointer">
+                        style="display:flex;align-items:center;justify-content:space-between;min-width:140px;cursor:pointer">
                         <span x-text="statusLabel()"></span>
                         <i class="ri-arrow-down-s-line" style="font-size:16px;transition:.2s"
                             :style="filterOpen ? 'transform:rotate(180deg)' : ''"></i>
@@ -116,52 +116,24 @@
                     </div>
                 </div>
 
-                {{-- Filter Tipe Pegawai --}}
-                <div style="position:relative" @click.outside="empTypeFilterOpen=false">
-                    <div @click="empTypeFilterOpen = !empTypeFilterOpen" class="dt-select"
-                        style="display:flex;align-items:center;justify-content:space-between;min-width:130px;cursor:pointer">
-                        <span x-text="empTypeLabel()"></span>
+                {{-- Filter Status Kepegawaian --}}
+                <div style="position:relative" @click.outside="empStatusFilterOpen=false">
+                    <div @click="empStatusFilterOpen = !empStatusFilterOpen" class="dt-select"
+                        style="display:flex;align-items:center;justify-content:space-between;min-width:190px;cursor:pointer">
+                        <span x-text="empStatusLabel()"></span>
                         <i class="ri-arrow-down-s-line" style="font-size:16px;transition:.2s"
-                            :style="empTypeFilterOpen ? 'transform:rotate(180deg)' : ''"></i>
+                            :style="empStatusFilterOpen ? 'transform:rotate(180deg)' : ''"></i>
                     </div>
-                    <div x-show="empTypeFilterOpen" x-transition
-                        style="position:absolute;top:calc(100% + 4px);left:0;min-width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 6px 16px rgba(0,0,0,.08);overflow:hidden;z-index:50">
-                        <template x-for="opt in [
-                            { label: 'Semua Tipe', value: '' },
-                            { label: 'PNS / Tetap', value: 'permanent' },
-                            { label: 'Honorer',     value: 'honorary' },
-                            { label: 'Kontrak',     value: 'contract' },
-                        ]" :key="opt.value">
-                            <div @click="setEmpTypeFilter(opt.value)"
-                                style="padding:9px 12px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"
-                                @mouseenter="$el.style.background='var(--bg)'"
-                                @mouseleave="$el.style.background='transparent'"
-                                :style="empTypeFilter === opt.value ? 'background:var(--bg);font-weight:600' : ''">
-                                <span x-text="opt.label"></span>
-                                <i x-show="empTypeFilter === opt.value" class="ri-check-line" style="font-size:14px;color:var(--primary)"></i>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                {{-- Filter Mata Pelajaran --}}
-                <div style="position:relative" @click.outside="subjectFilterOpen=false">
-                    <div @click="subjectFilterOpen = !subjectFilterOpen" class="dt-select"
-                        style="display:flex;align-items:center;justify-content:space-between;min-width:160px;cursor:pointer">
-                        <span x-text="subjectFilterLabel()"></span>
-                        <i class="ri-arrow-down-s-line" style="font-size:16px;transition:.2s"
-                            :style="subjectFilterOpen ? 'transform:rotate(180deg)' : ''"></i>
-                    </div>
-                    <div x-show="subjectFilterOpen" x-transition
-                        style="position:absolute;top:calc(100% + 4px);left:0;min-width:160px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 6px 16px rgba(0,0,0,.08);overflow:hidden;z-index:50;max-height:220px;overflow-y:auto">
-                        <template x-for="opt in subjects" :key="opt.value">
-                            <div @click="setSubjectFilter(opt.value)"
+                    <div x-show="empStatusFilterOpen" x-transition
+                        style="position:absolute;top:calc(100% + 4px);left:0;min-width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);box-shadow:0 6px 16px rgba(0,0,0,.08);overflow:hidden;z-index:50;max-height:220px;overflow-y:auto">
+                        <template x-for="opt in employmentStatuses" :key="opt.value">
+                            <div @click="setEmpStatusFilter(opt.value)"
                                 style="padding:9px 12px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;white-space:nowrap"
                                 @mouseenter="$el.style.background='var(--bg)'"
                                 @mouseleave="$el.style.background='transparent'"
-                                :style="subjectFilter === opt.value ? 'background:var(--bg);font-weight:600' : ''">
+                                :style="empStatusFilter === opt.value ? 'background:var(--bg);font-weight:600' : ''">
                                 <span x-text="opt.label"></span>
-                                <i x-show="subjectFilter === opt.value" class="ri-check-line" style="font-size:14px;color:var(--primary)"></i>
+                                <i x-show="empStatusFilter === opt.value" class="ri-check-line" style="font-size:14px;color:var(--primary)"></i>
                             </div>
                         </template>
                     </div>
@@ -188,8 +160,8 @@
                         <th class="col-no">#</th>
                         <th>Guru</th>
                         <th class="hide-sm">NIP</th>
-                        <th class="hide-sm">Mata Pelajaran</th>
-                        <th class="hide-sm">Tipe</th>
+                        <th class="hide-sm">Jabatan</th>
+                        <th class="hide-sm">Status Kepegawaian</th>
                         <th class="hide-sm">Status</th>
                         <th class="hide-sm">Tgl Bergabung</th>
                         <th class="col-act">Aksi</th>
@@ -212,7 +184,7 @@
                                 </td>
                                 <td class="hide-sm"><div class="dt-skel w-24"></div></td>
                                 <td class="hide-sm"><div class="dt-skel w-28"></div></td>
-                                <td class="hide-sm"><div class="dt-skel w-20"></div></td>
+                                <td class="hide-sm"><div class="dt-skel w-24"></div></td>
                                 <td class="hide-sm"><div class="dt-skel w-20"></div></td>
                                 <td class="hide-sm"><div class="dt-skel w-24"></div></td>
                                 <td class="col-act"><div class="dt-skel" style="width:60px;margin:0 auto"></div></td>
@@ -240,7 +212,7 @@
                                                 x-text="initials(teacher.name)"></div>
                                         </template>
                                         <div>
-                                            <div class="dt-user-name" x-text="teacher.name || '—'"></div>
+                                            <div class="dt-user-name" x-text="teacher.teacher?.full_name || teacher.name || '—'"></div>
                                             <div class="dt-muted" style="font-size:11px;margin-top:2px"
                                                 x-text="teacher.email || '—'"></div>
                                         </div>
@@ -250,42 +222,35 @@
                                 {{-- NIP --}}
                                 <td class="hide-sm">
                                     <span class="dt-mono" style="font-size:12px"
-                                        x-text="teacher.profile?.nip || '—'"></span>
+                                        x-text="teacher.teacher?.nip || '—'"></span>
                                 </td>
 
-                                {{-- Mata Pelajaran --}}
+                                {{-- Jabatan --}}
                                 <td class="hide-sm">
-                                    <template x-if="teacher.profile?.subject">
+                                    <template x-if="teacher.teacher?.position">
                                         <span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;background:#F0FDF4;color:#15803D"
-                                            x-text="teacher.profile.subject"></span>
+                                            x-text="teacher.teacher.position"></span>
                                     </template>
-                                    <template x-if="!teacher.profile?.subject">
+                                    <template x-if="!teacher.teacher?.position">
                                         <span class="dt-muted">—</span>
                                     </template>
                                 </td>
 
-                                {{-- Tipe Pegawai --}}
+                                {{-- Status Kepegawaian --}}
                                 <td class="hide-sm">
-                                    <template x-if="teacher.profile?.employee_type">
-                                        <span x-text="{permanent:'PNS / Tetap', honorary:'Honorer', contract:'Kontrak'}[teacher.profile.employee_type] ?? teacher.profile.employee_type"
-                                            style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600"
-                                            :style="teacher.profile.employee_type === 'permanent'
-                                                ? 'background:#EFF6FF;color:#1D4ED8'
-                                                : teacher.profile.employee_type === 'honorary'
-                                                ? 'background:#FFF7ED;color:#D97706'
-                                                : 'background:#F5F3FF;color:#7C3AED'">
-                                        </span>
+                                    <template x-if="teacher.teacher?.employment_status">
+                                        <span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600;background:#EFF6FF;color:#1D4ED8"
+                                            x-text="teacher.teacher.employment_status"></span>
                                     </template>
-                                    <template x-if="!teacher.profile?.employee_type">
+                                    <template x-if="!teacher.teacher?.employment_status">
                                         <span class="dt-muted">—</span>
                                     </template>
                                 </td>
 
-                                {{-- Status --}}
+                                {{-- Status Akun --}}
                                 <td class="hide-sm">
                                     <button
                                         @click="toggleStatus(teacher)"
-                                        :title="teacher.status === 'active' ? 'Klik untuk nonaktifkan' : 'Klik untuk aktifkan'"
                                         style="display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;border-radius:999px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font);transition:all .2s"
                                         :style="teacher.status === 'active'
                                             ? 'background:#ECFDF5;color:#059669'
@@ -301,8 +266,8 @@
 
                                 {{-- Tgl Bergabung --}}
                                 <td class="hide-sm dt-muted" style="font-size:12px"
-                                    x-text="teacher.profile?.join_date
-                                        ? new Date(teacher.profile.join_date).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})
+                                    x-text="teacher.teacher?.join_date
+                                        ? new Date(teacher.teacher.join_date).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})
                                         : '—'">
                                 </td>
 

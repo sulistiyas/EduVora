@@ -187,7 +187,7 @@ class ScheduleController extends Controller
      */
     public function semesters(): JsonResponse
     {
-        $semesters = $this->semesterService->getAllSemesters([
+        $semesters = $this->semesterService->getActiveAcademicSemester([
             'per_page' => 'all',
             'sort_by'  => 'start_date',
             'sort_order' => 'desc',

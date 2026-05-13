@@ -53,8 +53,12 @@ class SemesterRepository
                 }
             ])
             // Filter hanya semester milik sekolah yang login
-            ->whereHas('academicYear', function ($q) use ($schoolId) {
+            ->whereHas('academicYear', function ($q) use ($schoolId, $filters) {
                 $q->where('school_id', $schoolId);
+
+                if (!empty($filters['academic_year_status'])) {
+                    $q->where('status', $filters['academic_year_status']);
+                }
             });
 
         // 🔍 Search
@@ -95,6 +99,15 @@ class SemesterRepository
         }
 
         return $query->paginate((int) $perPage)->withQueryString();
+    }
+
+    public function getActiveAcademicSemester(array $filters = []): LengthAwarePaginator|Collection
+    {
+        return $this->getAllSemesters(
+            array_merge($filters, [
+                'academic_year_status' => 'active'
+            ])
+        );
     }
 
     public function getSemesterById($id): ?Semester

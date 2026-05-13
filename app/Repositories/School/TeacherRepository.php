@@ -2,7 +2,6 @@
 
 namespace App\Repositories\School;
 
-use App\Models\Academic\Subject;
 use App\Models\Core\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -11,6 +10,7 @@ class TeacherRepository
 {
     /**
      * Base query: hanya user dengan role 'teacher' dan sekolah tertentu.
+     * Pivot schools menggunakan tabel user_has_schools (school_id).
      */
     private function baseQuery(int $schoolId)
     {
@@ -56,48 +56,46 @@ class TeacherRepository
                     'npwp',
                     'join_date',
                     'status',
+                    'created_at',
+                    'updated_at',
                 ]),
             ])
             ->whereHas('roles',   fn($q) => $q->where('role_name', 'teacher'))
             ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
     }
 
+    // ─────────────────────────────────────────────────────────────
+    //  GET ALL
+    // ─────────────────────────────────────────────────────────────
     public function getAll(int $schoolId, array $filters = []): LengthAwarePaginator|Collection
     {
         $query = $this->baseQuery($schoolId);
 
-        // Search
+        // Search: nama, email, NIP, NIK, nama lengkap, jabatan
         if (!empty($filters['search'])) {
-            $search = strtolower($filters['search']);
+            $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ILIKE', "%{$search}%")
                   ->orWhere('email', 'ILIKE', "%{$search}%")
                   ->orWhere('phone_number', 'ILIKE', "%{$search}%")
                   ->orWhereHas('teacher', fn($qs) =>
                       $qs->where('nip', 'ILIKE', "%{$search}%")
+                         ->orWhere('nik', 'ILIKE', "%{$search}%")
                          ->orWhere('full_name', 'ILIKE', "%{$search}%")
-                  )->orWhereHas('teacher.subjects', function ($q) use ($search) {
-                        $q->where('subject_name', 'ILIKE', "%{$search}%");
-                    });
+                         ->orWhere('position', 'ILIKE', "%{$search}%")
+                  );
             });
         }
 
-        // Filter status
+        // Filter status akun
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        // Filter subject
-        if (!empty($filters['subject'])) {
-            $query->whereHas('teacher.subjects', function ($q) use ($filters) {
-                $q->where('subjects.id', $filters['subject']);
-            });
-        }
-
-        // Filter employee_type
-        if (!empty($filters['employee_type'])) {
+        // Filter employment_status (PNS, Honorer, dll)
+        if (!empty($filters['employment_status'])) {
             $query->whereHas('teacher', fn($q) =>
-                $q->where('employee_type', $filters['employee_type'])
+                $q->where('employment_status', $filters['employment_status'])
             );
         }
 
@@ -159,14 +157,20 @@ class TeacherRepository
     }
 
     /**
-     * Ambil daftar subject unik di sekolah ini (untuk filter dropdown).
+     * Ambil daftar employment_status unik untuk filter dropdown.
      */
-    public function getSubjects(int $schoolId): array
+    public function getEmploymentStatuses(int $schoolId): array
     {
-        return Subject::query()
-                ->where('school_id', $schoolId)
-                ->orderBy('subject_name')
-                ->pluck('subject_name', 'id')
-                ->toArray();
+        return User::whereHas('roles',   fn($q) => $q->where('role_name', 'teacher'))
+            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId))
+            ->whereHas('teacher', fn($q) => $q->whereNotNull('employment_status'))
+            ->with(['teacher:user_id,employment_status'])
+            ->get()
+            ->pluck('teacher.employment_status')
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
     }
 }

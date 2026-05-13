@@ -1,39 +1,30 @@
-// resources/js/school-admin/teachers.js
-// Import di app.js:
-//   import teachersSearch, { teacherDetail, teacherCreate } from './school-admin/teachers';
-//   window.teachersSearch = teachersSearch;
-//   window.teacherDetail  = teacherDetail;
-//   window.teacherCreate  = teacherCreate;
-
 // ═══════════════════════════════════════════════════════════════
 //  INDEX PAGE — Daftar Guru
 // ═══════════════════════════════════════════════════════════════
 export function teacherSearch(config = {}) {
     return {
         // ── URLs ──────────────────────────────────────────────
-        indexUrl:        config.indexUrl        ?? '/school-admin/teachers',
-        showUrl:         config.showUrl         ?? '/school-admin/teachers',
-        toggleStatusUrl: config.toggleStatusUrl ?? '/school-admin/teachers',
-        subjectsUrl:     config.subjectsUrl     ?? '/school-admin/teachers/subjects',
+        indexUrl:             config.indexUrl             ?? '/school-admin/teachers',
+        showUrl:              config.showUrl              ?? '/school-admin/teachers',
+        toggleStatusUrl:      config.toggleStatusUrl      ?? '/school-admin/teachers',
+        employmentStatusUrl:  config.employmentStatusUrl  ?? '/school-admin/teachers/employment-statuses',
 
         // ── State ─────────────────────────────────────────────
-        teachers:       [],
-        meta:           { current_page: 1, per_page: 10, total: 0, last_page: 1 },
-        stats:          { total: 0, active: 0, inactive: 0, unverified: 0 },
-        search:         '',
-        perPage:        10,
-        statusFilter:   '',
-        subjectFilter:  '',
-        empTypeFilter:  '',
-        subjects:       [],
-        loading:        false,
-        filterOpen:         false,
-        subjectFilterOpen:  false,
-        empTypeFilterOpen:  false,
+        teachers:             [],
+        meta:                 { current_page: 1, per_page: 10, total: 0, last_page: 1 },
+        stats:                { total: 0, active: 0, inactive: 0, unverified: 0 },
+        search:               '',
+        perPage:              10,
+        statusFilter:         '',
+        empStatusFilter:      '',
+        employmentStatuses:   [],
+        loading:              false,
+        filterOpen:           false,
+        empStatusFilterOpen:  false,
 
         // ── Init ──────────────────────────────────────────────
         init() {
-            this.fetchSubjects();
+            this.fetchEmploymentStatuses();
             this.fetchTeachers();
         },
 
@@ -44,31 +35,32 @@ export function teacherSearch(config = {}) {
             return (name || '').split(/[-_ ]/).map(w => w[0]?.toUpperCase() || '').join('').slice(0, 2);
         },
 
-        // ── Fetch subjects (dropdown filter) ──────────────────
-        async fetchSubjects() {
+        // ── Fetch employment statuses ──────────────────────────
+        async fetchEmploymentStatuses() {
             try {
-                const res  = await fetch(this.subjectsUrl, {
+                const res  = await fetch(this.employmentStatusUrl, {
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 });
                 if (!res.ok) throw new Error();
                 const data = await res.json();
-                this.subjects = [{ value: '', label: 'Semua Mata Pelajaran' }, ...data.map(s => ({ value: s, label: s }))];
+                this.employmentStatuses = [
+                    { value: '', label: 'Semua Status Kepegawaian' },
+                    ...data.map(s => ({ value: s, label: s })),
+                ];
             } catch {
-                this.subjects = [{ value: '', label: 'Semua Mata Pelajaran' }];
+                this.employmentStatuses = [{ value: '', label: 'Semua Status Kepegawaian' }];
             }
         },
 
-        subjectFilterLabel() {
-            const found = this.subjects.find(s => s.value === this.subjectFilter);
-            return found ? found.label : 'Semua Mata Pelajaran';
+        empStatusLabel() {
+            const found = this.employmentStatuses.find(s => s.value === this.empStatusFilter);
+            return found ? found.label : 'Semua Status Kepegawaian';
         },
-        setSubjectFilter(val) { this.subjectFilter = val; this.subjectFilterOpen = false; this.fetchTeachers(); },
-
-        empTypeLabel() {
-            const map = { '': 'Semua Tipe', permanent: 'PNS / Tetap', honorary: 'Honorer', contract: 'Kontrak' };
-            return map[this.empTypeFilter] ?? 'Semua Tipe';
+        setEmpStatusFilter(val) {
+            this.empStatusFilter     = val;
+            this.empStatusFilterOpen = false;
+            this.fetchTeachers();
         },
-        setEmpTypeFilter(val) { this.empTypeFilter = val; this.empTypeFilterOpen = false; this.fetchTeachers(); },
 
         // ── Fetch teachers ─────────────────────────────────────
         async fetchTeachers(page = 1) {
@@ -77,19 +69,18 @@ export function teacherSearch(config = {}) {
                 const params = new URLSearchParams({
                     page,
                     per_page: parseInt(this.perPage, 10),
-                    ...(this.search.trim()         ? { search: this.search.trim() }            : {}),
-                    ...(this.statusFilter !== ''   ? { status: this.statusFilter }             : {}),
-                    ...(this.subjectFilter !== ''  ? { subject: this.subjectFilter }           : {}),
-                    ...(this.empTypeFilter !== ''  ? { employee_type: this.empTypeFilter }     : {}),
+                    ...(this.search.trim()          ? { search: this.search.trim() }                    : {}),
+                    ...(this.statusFilter !== ''    ? { status: this.statusFilter }                     : {}),
+                    ...(this.empStatusFilter !== '' ? { employment_status: this.empStatusFilter }        : {}),
                 });
                 const res  = await fetch(`${this.indexUrl}?${params}`, {
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 });
                 if (!res.ok) throw new Error('Gagal memuat data.');
-                const json       = await res.json();
-                this.teachers    = json.data;
-                this.meta        = json.meta;
-                this.stats       = json.stats ?? { total: 0, active: 0, inactive: 0, unverified: 0 };
+                const json      = await res.json();
+                this.teachers   = json.data;
+                this.meta       = json.meta;
+                this.stats      = json.stats ?? { total: 0, active: 0, inactive: 0, unverified: 0 };
             } catch (err) {
                 this.showToast('error', err.message ?? 'Terjadi kesalahan saat memuat data.');
             } finally {
@@ -213,7 +204,26 @@ export function teacherDetail(config = {}) {
                 password:              '',
                 password_confirmation: '',
                 status:                this.teacher.status       ?? 'active',
-                profile: this.teacher.profile ? { ...this.teacher.profile } : {},
+                profile: this.teacher.profile ? {
+                    nip:               this.teacher.profile.nip               ?? '',
+                    nik:               this.teacher.profile.nik               ?? '',
+                    full_name:         this.teacher.profile.full_name         ?? '',
+                    birth_place:       this.teacher.profile.birth_place       ?? '',
+                    birth_date:        this.teacher.profile.birth_date        ?? '',
+                    gender:            this.teacher.profile.gender            ?? '',
+                    religion:          this.teacher.profile.religion          ?? '',
+                    address:           this.teacher.profile.address           ?? '',
+                    phone:             this.teacher.profile.phone             ?? '',
+                    email:             this.teacher.profile.email             ?? '',
+                    employment_status: this.teacher.profile.employment_status ?? '',
+                    position:          this.teacher.profile.position          ?? '',
+                    grade_level:       this.teacher.profile.grade_level       ?? '',
+                    education_level:   this.teacher.profile.education_level   ?? '',
+                    major:             this.teacher.profile.major             ?? '',
+                    certification:     this.teacher.profile.certification     ?? '',
+                    npwp:              this.teacher.profile.npwp              ?? '',
+                    join_date:         this.teacher.profile.join_date         ?? '',
+                } : {},
             };
             this.errors    = {};
             this.isEditing = true;
@@ -281,7 +291,7 @@ export function teacherDetail(config = {}) {
             const result = await Swal.fire({
                 title: `${willBeActive ? 'Aktifkan' : 'Nonaktifkan'} guru ini?`,
                 icon:  'question',
-                showCancelButton: true,
+                showCancelButton:   true,
                 confirmButtonColor: willBeActive ? '#10B981' : '#F59E0B',
                 cancelButtonColor:  '#94A3B8',
                 confirmButtonText:  `Ya, ${willBeActive ? 'Aktifkan' : 'Nonaktifkan'}!`,
@@ -363,20 +373,24 @@ export function teacherCreate(config = {}) {
             password_confirmation: '',
             status:                'active',
             profile: {
-                nip:           '',
-                full_name:     '',
-                nick_name:     '',
-                birth_date:    '',
-                gender:        '',
-                phone_number:  '',
-                address:       '',
-                city:          '',
-                province:      '',
-                postal_code:   '',
-                subject:       '',
-                employee_type: '',
-                join_date:     '',
-                resign_date:   '',
+                nip:               '',
+                nik:               '',
+                full_name:         '',
+                birth_place:       '',
+                birth_date:        '',
+                gender:            '',
+                religion:          '',
+                address:           '',
+                phone:             '',
+                email:             '',
+                employment_status: '',
+                position:          '',
+                grade_level:       '',
+                education_level:   '',
+                major:             '',
+                certification:     '',
+                npwp:              '',
+                join_date:         '',
             },
         },
 
@@ -384,8 +398,8 @@ export function teacherCreate(config = {}) {
 
         validate() {
             this.errors = {};
-            if (!this.form.name?.trim())  this.errors.name  = 'Nama wajib diisi.';
-            if (!this.form.email?.trim()) this.errors.email = 'Email wajib diisi.';
+            if (!this.form.name?.trim())  this.errors.name   = 'Nama wajib diisi.';
+            if (!this.form.email?.trim()) this.errors.email  = 'Email wajib diisi.';
             if (!this.form.status)        this.errors.status = 'Status wajib dipilih.';
             if (!this.form.password)      this.errors.password = 'Password wajib diisi.';
             if (this.form.password && this.form.password.length < 8) {
@@ -404,6 +418,7 @@ export function teacherCreate(config = {}) {
             }
             this.submitting = true;
             try {
+                // Hapus field profil yang kosong
                 const profile = Object.fromEntries(
                     Object.entries(this.form.profile).filter(([, v]) => v !== '' && v !== null)
                 );

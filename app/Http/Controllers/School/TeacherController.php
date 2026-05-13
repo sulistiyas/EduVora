@@ -15,7 +15,7 @@ class TeacherController extends Controller
     public function __construct(protected TeacherService $service) {}
 
     // ─────────────────────────────────────────────────────────────
-    //  Helper: ambil school_id dari admin yang login
+    //  Helper: school_id dari admin yang login
     // ─────────────────────────────────────────────────────────────
     private function schoolId(): int
     {
@@ -25,7 +25,7 @@ class TeacherController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  INDEX — list guru
+    //  INDEX
     // ─────────────────────────────────────────────────────────────
     public function index(Request $request): View|JsonResponse
     {
@@ -33,17 +33,17 @@ class TeacherController extends Controller
 
         if ($request->expectsJson()) {
             $filters = [
-                'search'        => $request->query('search'),
-                'status'        => $request->query('status'),
-                'subject'       => $request->query('subject'),
-                'employee_type' => $request->query('employee_type'),
-                'sort_by'       => $request->query('sort_by'),
-                'sort_order'    => $request->query('sort_order'),
-                'per_page'      => $request->query('per_page', 10),
+                'search'            => $request->query('search'),
+                'status'            => $request->query('status'),
+                'employment_status' => $request->query('employment_status'),
+                'sort_by'           => $request->query('sort_by'),
+                'sort_order'        => $request->query('sort_order'),
+                'per_page'          => $request->query('per_page', 10),
             ];
 
             $teachers = $this->service->getAll($schoolId, $filters);
             $stats    = $this->service->getStats($schoolId);
+            
 
             if ($teachers instanceof LengthAwarePaginator) {
                 return response()->json([
@@ -65,7 +65,7 @@ class TeacherController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  CREATE — form tambah guru
+    //  CREATE
     // ─────────────────────────────────────────────────────────────
     public function create(): View
     {
@@ -73,44 +73,49 @@ class TeacherController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  STORE — simpan guru baru
+    //  STORE
     // ─────────────────────────────────────────────────────────────
     public function store(Request $request): JsonResponse
     {
         $schoolId = $this->schoolId();
 
         $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email',
-            'phone_number'          => 'nullable|string|max:20',
-            'password'              => 'required|string|min:8|confirmed',
-            'status'                => 'required|in:active,inactive',
-            'profile'               => 'nullable|array',
-            'profile.nip'           => 'nullable|string|max:30',
-            'profile.full_name'     => 'nullable|string|max:255',
-            'profile.nick_name'     => 'nullable|string|max:100',
-            'profile.birth_date'    => 'nullable|date',
-            'profile.gender'        => 'nullable|in:male,female',
-            'profile.phone_number'  => 'nullable|string|max:20',
-            'profile.address'       => 'nullable|string',
-            'profile.city'          => 'nullable|string|max:100',
-            'profile.province'      => 'nullable|string|max:100',
-            'profile.postal_code'   => 'nullable|string|max:10',
-            'profile.subject'       => 'nullable|string|max:150',
-            'profile.employee_type' => 'nullable|in:permanent,honorary,contract',
-            'profile.join_date'     => 'nullable|date',
-            'profile.resign_date'   => 'nullable|date',
+            // ── Akun ──────────────────────────────────────────────
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'phone_number' => 'nullable|string|max:20',
+            'password'     => 'required|string|min:8|confirmed',
+            'status'       => 'required|in:active,inactive',
+
+            // ── Profil (tabel teachers) ────────────────────────────
+            'profile'                      => 'nullable|array',
+            'profile.nip'                  => 'nullable|string|max:30',
+            'profile.nik'                  => 'nullable|string|max:20',
+            'profile.full_name'            => 'nullable|string|max:255',
+            'profile.birth_place'          => 'nullable|string|max:100',
+            'profile.birth_date'           => 'nullable|date',
+            'profile.gender'               => 'nullable|in:male,female',
+            'profile.religion'             => 'nullable|string|max:50',
+            'profile.address'              => 'nullable|string',
+            'profile.phone'                => 'nullable|string|max:20',
+            'profile.email'                => 'nullable|email|max:255',
+            'profile.employment_status'    => 'nullable|string|max:50',
+            'profile.position'             => 'nullable|string|max:100',
+            'profile.grade_level'          => 'nullable|string|max:50',
+            'profile.education_level'      => 'nullable|string|max:50',
+            'profile.major'                => 'nullable|string|max:100',
+            'profile.certification'        => 'nullable|string|max:255',
+            'profile.npwp'                 => 'nullable|string|max:30',
+            'profile.join_date'            => 'nullable|date',
         ]);
 
         try {
             $teacher = $this->service->create($schoolId, $validated);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Guru berhasil ditambahkan.',
                 'data'    => $teacher,
             ], 201);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -120,7 +125,7 @@ class TeacherController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SHOW — data JSON satu guru
+    //  SHOW — JSON
     // ─────────────────────────────────────────────────────────────
     public function show($id): JsonResponse
     {
@@ -133,7 +138,7 @@ class TeacherController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  DETAIL — halaman detail guru
+    //  DETAIL — halaman detail
     // ─────────────────────────────────────────────────────────────
     public function detail(Request $request, $id): View|JsonResponse
     {
@@ -164,36 +169,42 @@ class TeacherController extends Controller
         $schoolId = $this->schoolId();
 
         $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email,' . $id,
-            'phone_number'          => 'nullable|string|max:20',
-            'password'              => 'nullable|string|min:8|confirmed',
-            'status'                => 'required|in:active,inactive',
-            'profile'               => 'nullable|array',
-            'profile.nip'           => 'nullable|string|max:30',
-            'profile.full_name'     => 'nullable|string|max:255',
-            'profile.nick_name'     => 'nullable|string|max:100',
-            'profile.birth_date'    => 'nullable|date',
-            'profile.gender'        => 'nullable|in:male,female',
-            'profile.address'       => 'nullable|string',
-            'profile.city'          => 'nullable|string|max:100',
-            'profile.province'      => 'nullable|string|max:100',
-            'profile.postal_code'   => 'nullable|string|max:10',
-            'profile.subject'       => 'nullable|string|max:150',
-            'profile.employee_type' => 'nullable|in:permanent,honorary,contract',
-            'profile.join_date'     => 'nullable|date',
-            'profile.resign_date'   => 'nullable|date',
+            // ── Akun ──────────────────────────────────────────────
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email,' . $id,
+            'phone_number' => 'nullable|string|max:20',
+            'password'     => 'nullable|string|min:8|confirmed',
+            'status'       => 'required|in:active,inactive',
+
+            // ── Profil ─────────────────────────────────────────────
+            'profile'                      => 'nullable|array',
+            'profile.nip'                  => 'nullable|string|max:30',
+            'profile.nik'                  => 'nullable|string|max:20',
+            'profile.full_name'            => 'nullable|string|max:255',
+            'profile.birth_place'          => 'nullable|string|max:100',
+            'profile.birth_date'           => 'nullable|date',
+            'profile.gender'               => 'nullable|in:male,female',
+            'profile.religion'             => 'nullable|string|max:50',
+            'profile.address'              => 'nullable|string',
+            'profile.phone'                => 'nullable|string|max:20',
+            'profile.email'                => 'nullable|email|max:255',
+            'profile.employment_status'    => 'nullable|string|max:50',
+            'profile.position'             => 'nullable|string|max:100',
+            'profile.grade_level'          => 'nullable|string|max:50',
+            'profile.education_level'      => 'nullable|string|max:50',
+            'profile.major'                => 'nullable|string|max:100',
+            'profile.certification'        => 'nullable|string|max:255',
+            'profile.npwp'                 => 'nullable|string|max:30',
+            'profile.join_date'            => 'nullable|date',
         ]);
 
         try {
             $teacher = $this->service->update($schoolId, $id, $validated);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Data guru berhasil diperbarui.',
                 'data'    => $teacher,
             ]);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -229,11 +240,11 @@ class TeacherController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SUBJECTS — untuk dropdown filter
+    //  EMPLOYMENT STATUSES — dropdown filter
     // ─────────────────────────────────────────────────────────────
-    public function subjects(): JsonResponse
+    public function employmentStatuses(): JsonResponse
     {
-        $subjects = $this->service->getSubjects($this->schoolId());
-        return response()->json($subjects);
+        $statuses = $this->service->getEmploymentStatuses($this->schoolId());
+        return response()->json($statuses);
     }
 }

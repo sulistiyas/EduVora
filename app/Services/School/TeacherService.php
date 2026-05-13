@@ -21,7 +21,7 @@ class TeacherService
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SINGLE (formatted array)
+    //  SINGLE
     // ─────────────────────────────────────────────────────────────
     public function getById(int $schoolId, $id): array
     {
@@ -47,10 +47,10 @@ class TeacherService
             $user->roles()->attach($teacherRole->role_id);
         }
 
-        // Attach sekolah admin yang login
+        // Attach sekolah dari admin yang login (pivot: user_has_schools)
         $user->schools()->sync([$schoolId]);
 
-        // Buat profil teacher jika ada
+        // Buat profil teacher
         if ($profileData) {
             $profileData['user_id'] = $user->id;
             $user->teacher()->create($profileData);
@@ -115,11 +115,11 @@ class TeacherService
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  SUBJECTS (untuk filter dropdown)
+    //  EMPLOYMENT STATUSES (dropdown filter)
     // ─────────────────────────────────────────────────────────────
-    public function getSubjects(int $schoolId): array
+    public function getEmploymentStatuses(int $schoolId): array
     {
-        return $this->repo->getSubjects($schoolId);
+        return $this->repo->getEmploymentStatuses($schoolId);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -127,8 +127,8 @@ class TeacherService
     // ─────────────────────────────────────────────────────────────
     public function getStats(int $schoolId): array
     {
-        $base = \App\Models\Core\User::whereHas('roles', fn($q) => $q->where('role_name', 'teacher'))
-            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
+        $base = \App\Models\Core\User::whereHas('roles',   fn($q) => $q->where('role_name', 'teacher'))
+                                     ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
 
         return [
             'total'      => (clone $base)->count(),
@@ -139,13 +139,14 @@ class TeacherService
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  FORMAT
+    //  FORMAT — sesuai kolom tabel teachers
     // ─────────────────────────────────────────────────────────────
     private function format(\App\Models\Core\User $user): array
     {
-        $teacher = $user->teacher;
+        $t = $user->teacher; // relasi hasOne ke tabel teachers
 
         return [
+            // ── User (accounts) ──────────────────────────────────
             'id'                => $user->id,
             'name'              => $user->name,
             'email'             => $user->email,
@@ -170,24 +171,28 @@ class TeacherService
                 'status'      => $s->status,
             ]),
 
-            'profile' => $teacher ? [
-                'teacher_id'    => $teacher->id,
-                'nip'           => $teacher->nip,
-                'full_name'     => $teacher->full_name,
-                'nick_name'     => $teacher->nick_name,
-                'birth_date'    => $teacher->birth_date,
-                'gender'        => $teacher->gender,
-                'phone_number'  => $teacher->phone_number,
-                'address'       => $teacher->address,
-                'city'          => $teacher->city,
-                'province'      => $teacher->province,
-                'postal_code'   => $teacher->postal_code,
-                'profile_photo' => $teacher->profile_photo,
-                'subject'       => $teacher->subject,
-                'employee_type' => $teacher->employee_type,
-                'status'        => $teacher->status,
-                'join_date'     => $teacher->join_date,
-                'resign_date'   => $teacher->resign_date,
+            // ── Teacher profile (tabel teachers) ─────────────────
+            'profile' => $t ? [
+                'teacher_id'        => $t->teacher_id,
+                'nip'               => $t->nip,
+                'nik'               => $t->nik,
+                'full_name'         => $t->full_name,
+                'birth_place'       => $t->birth_place,
+                'birth_date'        => $t->birth_date,
+                'gender'            => $t->gender,
+                'religion'          => $t->religion,
+                'address'           => $t->address,
+                'phone'             => $t->phone,
+                'email'             => $t->email,
+                'employment_status' => $t->employment_status,
+                'position'          => $t->position,
+                'grade_level'       => $t->grade_level,
+                'education_level'   => $t->education_level,
+                'major'             => $t->major,
+                'certification'     => $t->certification,
+                'npwp'              => $t->npwp,
+                'join_date'         => $t->join_date,
+                'status'            => $t->status,
             ] : null,
         ];
     }
