@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Core\SchoolProfiles;
 use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -11,24 +12,19 @@ class Schedule extends Model
 {
     /**
      * Primary Key
-     *
-     * @var string
      */
     protected $primaryKey = 'schedule_id';
 
     /**
-     * Table Name
-     *
-     * @var string
+     * Table
      */
     protected $table = 'schedules';
 
     /**
      * Mass Assignable
-     *
-     * @var array<int, string>
      */
     protected $fillable = [
+        'school_id',
         'grade_subject_id',
         'room_id',
         'semester_id',
@@ -41,18 +37,15 @@ class Schedule extends Model
 
     /**
      * Attribute Casting
-     *
-     * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'school_id'        => 'integer',
             'grade_subject_id' => 'integer',
             'room_id'          => 'integer',
             'semester_id'      => 'integer',
             'day_of_week'      => 'integer',
-            // 'start_time'       => 'datetime:H:i',
-            // 'end_time'         => 'datetime:H:i',
         ];
     }
 
@@ -83,13 +76,18 @@ class Schedule extends Model
     */
 
     /**
+     * School Relation
+     */
+    public function school(): BelongsTo
+    {
+        return $this->belongsTo(
+            SchoolProfiles::class,
+            'school_id'
+        );
+    }
+
+    /**
      * Grade Subject Relation
-     *
-     * schedule
-     * → grade_subject
-     * → grade
-     * → subject
-     * → teacher
      */
     public function gradeSubject(): BelongsTo
     {
@@ -128,7 +126,7 @@ class Schedule extends Model
     */
 
     /**
-     * Get day name
+     * Day Name
      */
     public function getDayNameAttribute(): string
     {
@@ -145,7 +143,7 @@ class Schedule extends Model
     }
 
     /**
-     * Get formatted time range
+     * Time Range
      */
     public function getTimeRangeAttribute(): string
     {
@@ -155,7 +153,7 @@ class Schedule extends Model
     }
 
     /**
-     * Shortcut grade
+     * Shortcut Grade
      */
     public function getGradeAttribute()
     {
@@ -163,7 +161,7 @@ class Schedule extends Model
     }
 
     /**
-     * Shortcut subject
+     * Shortcut Subject
      */
     public function getSubjectAttribute()
     {
@@ -171,7 +169,7 @@ class Schedule extends Model
     }
 
     /**
-     * Shortcut teacher
+     * Shortcut Teacher
      */
     public function getTeacherAttribute(): ?Teacher
     {
@@ -189,29 +187,53 @@ class Schedule extends Model
      */
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_ACTIVE);
+        return $query->where(
+            'status',
+            self::STATUS_ACTIVE
+        );
     }
 
     /**
-     * Filter by day
+     * Filter By School
      */
-    public function scopeDay(Builder $query, int $day): Builder
-    {
-        return $query->where('day_of_week', $day);
+    public function scopeSchool(
+        Builder $query,
+        int $schoolId
+    ): Builder {
+        return $query->where(
+            'school_id',
+            $schoolId
+        );
     }
 
     /**
-     * Filter by semester
+     * Filter By Day
+     */
+    public function scopeDay(
+        Builder $query,
+        int $day
+    ): Builder {
+        return $query->where(
+            'day_of_week',
+            $day
+        );
+    }
+
+    /**
+     * Filter By Semester
      */
     public function scopeSemester(
         Builder $query,
         int $semesterId
     ): Builder {
-        return $query->where('semester_id', $semesterId);
+        return $query->where(
+            'semester_id',
+            $semesterId
+        );
     }
 
     /**
-     * Order by schedule time
+     * Order By Time
      */
     public function scopeOrderByTime(
         Builder $query
@@ -228,7 +250,7 @@ class Schedule extends Model
     */
 
     /**
-     * Check if schedule is active
+     * Check Active
      */
     public function isActive(): bool
     {
@@ -236,7 +258,7 @@ class Schedule extends Model
     }
 
     /**
-     * Check if current session is lab
+     * Check Lab Session
      */
     public function isLabSession(): bool
     {
@@ -244,7 +266,7 @@ class Schedule extends Model
     }
 
     /**
-     * Check if current schedule overlaps another time
+     * Check Time Overlap
      */
     public function overlaps(
         string $startTime,

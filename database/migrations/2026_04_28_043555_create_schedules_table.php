@@ -10,37 +10,88 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
 
-        $table->id('schedule_id');
+            $table->id('schedule_id');
 
-        $table->foreignId('grade_subject_id')
-            ->constrained('grade_subjects')
-            ->cascadeOnDelete();
+            /**
+             * School
+             */
+            $table->foreignId('school_id')
+                ->constrained('school_profiles', 'school_id')
+                ->cascadeOnDelete();
 
-        $table->foreignId('room_id')
-            ->nullable()
-            ->constrained('rooms', 'room_id')
-            ->nullOnDelete();
+            /**
+             * Grade Subject
+             */
+            $table->foreignId('grade_subject_id')
+                ->constrained('grade_subjects')
+                ->cascadeOnDelete();
 
-        $table->foreignId('semester_id')
-            ->nullable()
-            ->constrained('semesters', 'semester_id')
-            ->nullOnDelete();
+            /**
+             * Room
+             */
+            $table->foreignId('room_id')
+                ->nullable()
+                ->constrained('rooms', 'room_id')
+                ->nullOnDelete();
 
-        $table->tinyInteger('day_of_week');
+            /**
+             * Semester
+             */
+            $table->foreignId('semester_id')
+                ->nullable()
+                ->constrained('semesters', 'semester_id')
+                ->nullOnDelete();
 
-        $table->time('start_time');
+            /**
+             * Day
+             * 1 = Monday
+             * 2 = Tuesday
+             * 3 = Wednesday
+             * 4 = Thursday
+             * 5 = Friday
+             * 6 = Saturday
+             * 7 = Sunday
+             */
+            $table->tinyInteger('day_of_week');
 
-        $table->time('end_time');
+            /**
+             * Time
+             */
+            $table->time('start_time');
+            $table->time('end_time');
 
-        $table->string('session_type')->nullable();
+            /**
+             * Session Type
+             */
+            $table->enum('session_type', [
+                'regular',
+                'lab',
+                'exam',
+                'extracurricular',
+                'remedial',
+            ])->default('regular');
 
-        $table->enum('status', [
-            'active',
-            'inactive'
-        ])->default('active');
+            /**
+             * Status
+             */
+            $table->enum('status', [
+                'active',
+                'inactive',
+            ])->default('active');
 
-        $table->timestamps();
-    });
+            $table->timestamps();
+
+            /**
+             * Prevent duplicate schedule
+             */
+            $table->unique([
+                'school_id',
+                'room_id',
+                'semester_id',
+                'day_of_week',
+                'start_time',
+            ], 'unique_room_schedule');
+        });
     }
 
     public function down(): void
