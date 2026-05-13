@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('role_id');
             $table->string('role_name')->unique();
             $table->string('role_description')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('inactive');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

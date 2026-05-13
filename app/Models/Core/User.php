@@ -111,10 +111,10 @@ class User extends Authenticatable
 
     // ================= ACCESSOR =================
 
-    public function getRoleNamesAttribute()
+    public function getRoleNameAttribute(): ?string
     {
         return $this->relationLoaded('roles')
-            ? $this->roles->pluck('role_name')
-            : $this->roles()->pluck('role_name');
+            ? $this->roles->first()?->role_name
+            : $this->roles()->value('role_name');
     }
 }
