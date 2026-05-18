@@ -30,7 +30,8 @@ class DatabaseSeeder extends Seeder
             GradeSeeder::class,
             SubjectSeeder::class,
             GradeSubjectSeeder::class,
-            ScheduleSeeder::class
+            ScheduleSeeder::class,
+            StudentGradeSeeder::class
         ]);
     }
 }

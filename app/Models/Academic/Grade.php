@@ -3,6 +3,7 @@
 namespace App\Models\Academic;
 
 use App\Models\Core\SchoolProfiles;
+use App\Models\Student\Student;
 use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
@@ -109,6 +110,15 @@ class Grade extends Model
             SchoolProfiles::class,
             'school_id',
             'school_id'
+        );
+    }
+
+    public function students()
+    {
+        return $this->hasMany(
+            Student::class,
+            'grade_id',
+            'grade_id'
         );
     }
 }

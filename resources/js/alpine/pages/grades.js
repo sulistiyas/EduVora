@@ -466,6 +466,9 @@ export function gradeDetail(config = {}) {
         subjectsUrl:      config.subjectsUrl      ?? '/grades/subjects',
         gradeSubjectsUrl: config.gradeSubjectsUrl ?? '/grades/1/subjects',
 
+        studentsUrl:       config.studentsUrl       ?? '/grades/students/list',
+        assignStudentsUrl: config.assignStudentsUrl ?? `/grades/${config.gradeId}/assign-students`,
+
         // ─── State ───────────────────────────────────────────────────
         grade:        config.gradeData ?? {},
         isEditing:    false,
@@ -479,8 +482,15 @@ export function gradeDetail(config = {}) {
         academicYears: [],
 
         // Subject section
+        activeTab: 'info',
+
         gradeSubjects:  [],
         allSubjects:    [],
+        students: [],
+        studentSearch: '',
+        selectedStudents: [],
+        loadingStudents: false,
+        assigningStudents: false,
         loadingSubjects: true,
         newSubjectId:   '',
         newTeacherId:   '',
@@ -496,6 +506,30 @@ export function gradeDetail(config = {}) {
             { value: 12, label: 'XII  — Kelas 12' },
         ],
 
+        // ─── Student Computed Helpers ─────────────────────
+
+        get enrolledStudents() {
+            return this.grade.students ?? [];
+        },
+
+        get availableStudents() {
+
+            const enrolledIds = new Set(
+                (this.grade.students ?? []).map(s => s.id)
+            );
+
+            return (this.students ?? []).filter(
+                s => !enrolledIds.has(s.id)
+            );
+        },
+
+        get loadingEnrolled() {
+            return this.loadingStudents;
+        },
+
+        get loadingAvailable() {
+            return this.loadingStudents;
+        },
         // ─── Init ────────────────────────────────────────────────────
         async init() {
             await Promise.all([
@@ -503,6 +537,7 @@ export function gradeDetail(config = {}) {
                 this.fetchTeachers(),
                 this.fetchAcademicYears(),
                 this.fetchAllSubjects(),
+                this.fetchStudents(),
             ]);
             await this.fetchGradeSubjects();
         },
@@ -906,6 +941,241 @@ export function gradeDetail(config = {}) {
             } catch (err) {
                 this.showToast('error', err.message ?? 'Terjadi kesalahan.');
             }
+        },
+
+        // ─── Students ──────────────────────────────────────────
+
+        async fetchStudents() {
+            this.loadingStudents = true;
+
+            try {
+
+                const params = new URLSearchParams({
+                    search: this.studentSearch || '',
+                });
+
+                const res = await fetch(
+                    `${this.studentsUrl}?${params}`,
+                    {
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    }
+                );
+
+                const json = await res.json();
+
+                this.students = json.data ?? [];
+
+            } catch (_) {
+
+                this.students = [];
+
+            } finally {
+
+                this.loadingStudents = false;
+
+            }
+        },
+
+        isStudentSelected(studentId) {
+            return this.selectedStudents.includes(studentId);
+        },
+
+        toggleStudent(studentId) {
+
+            if (this.isStudentSelected(studentId)) {
+
+                this.selectedStudents =
+                    this.selectedStudents.filter(
+                        id => id !== studentId
+                    );
+
+            } else {
+
+                this.selectedStudents.push(studentId);
+
+            }
+        },
+        toggleStudentSelect(studentId) {
+            this.toggleStudent(studentId);
+        },
+
+        toggleSelectAll(event) {
+
+            const checked = event.target.checked;
+
+            if (checked) {
+
+                this.selectedStudents =
+                    this.availableStudents.map(
+                        s => s.id
+                    );
+
+            } else {
+
+                this.selectedStudents = [];
+
+            }
+        },
+
+        async assignStudents() {
+
+            if (!this.selectedStudents.length) {
+                this.showToast(
+                    'warning',
+                    'Pilih minimal 1 siswa.'
+                );
+                return;
+            }
+
+            this.assigningStudents = true;
+
+            try {
+
+                const res = await fetch(
+                    this.assignStudentsUrl,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': this.getCsrfToken(),
+                        },
+                        body: JSON.stringify({
+                            student_ids: this.selectedStudents,
+                        }),
+                    }
+                );
+
+                const json = await res.json();
+
+                if (!res.ok || !json.success) {
+                    throw new Error(
+                        json.message ??
+                        'Gagal assign siswa.'
+                    );
+                }
+
+                // masukkan siswa ke enrolledStudents secara realtime
+                const newlyAssigned = this.students.filter(
+                    s => this.selectedStudents.includes(s.id)
+                );
+
+                this.grade.students = [
+                    ...(this.grade.students ?? []),
+                    ...newlyAssigned
+                ];
+
+                // hapus selection
+                this.selectedStudents = [];
+
+                // refresh available list
+                await this.fetchStudents();
+
+                this.showToast(
+                    'success',
+                    json.message ?? 'Siswa berhasil ditambahkan.'
+                );
+
+            } catch (err) {
+
+                this.showToast(
+                    'error',
+                    err.message ?? 'Terjadi kesalahan.'
+                );
+
+            } finally {
+
+                this.assigningStudents = false;
+
+            }
+        },
+
+        async removeStudent(studentId) {
+
+            const result = await Swal.fire({
+                title: 'Keluarkan siswa dari kelas?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#EF4444',
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+
+                const res = await fetch(
+                    `${this.baseUrl}/${this.grade.grade_id}/students/${studentId}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': this.getCsrfToken(),
+                        },
+                    }
+                );
+
+                const json = await res.json();
+
+                if (!res.ok || !json.success) {
+                    throw new Error(
+                        json.message ??
+                        'Gagal mengeluarkan siswa.'
+                    );
+                }
+
+                this.grade.students =
+                    (this.grade.students ?? [])
+                        .filter(s => s.id !== studentId);
+
+                this.showToast(
+                    'success',
+                    json.message
+                );
+
+            } catch (err) {
+
+                this.showToast(
+                    'error',
+                    err.message ?? 'Terjadi kesalahan.'
+                );
+
+            }
+        },
+
+        // ─── Student Helpers ─────────────────────────
+
+        // alias untuk kompatibilitas template lama
+        async fetchEnrolledStudents() {
+            return await this.fetchStudents();
+        },
+
+        toggleStudentSelect(studentId) {
+            this.toggleStudent(studentId);
+        },
+
+        toggleSelectAll(event) {
+
+            if (event.target.checked) {
+
+                this.selectedStudents =
+                    this.availableStudents.map(s => s.id);
+
+            } else {
+
+                this.selectedStudents = [];
+
+            }
+        },
+
+        async assignSelectedStudents() {
+            return await this.assignStudents();
         },
 
         // ─── Helpers ─────────────────────────────────────────────────

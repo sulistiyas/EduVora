@@ -188,18 +188,18 @@ class ScheduleController extends Controller
     public function semesters(): JsonResponse
     {
         $semesters = $this->semesterService->getActiveAcademicSemester([
-            'per_page' => 'all',
-            'sort_by'  => 'start_date',
-            'sort_order' => 'desc',
-        ]);
+                'per_page' => 'all',
+                'sort_by'  => 'start_date',
+                'sort_order' => 'desc',
+            ]);
 
-        return response()->json(
-            $semesters->map(fn ($semester) => [
-                'semester_id'   => $semester->semester_id,
-                'semester_name' => $semester->semester_name,
-                'status'        => $semester->status,
-            ])
-        );
+            return response()->json(
+                $semesters->map(fn ($semester) => [
+                    'semester_id'   => $semester->semester_id,
+                    'semester_name' => $semester->semester_name,
+                    'status'        => $semester->status,
+                ])
+            );
     }
 
     /**

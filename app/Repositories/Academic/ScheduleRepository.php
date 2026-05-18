@@ -52,6 +52,33 @@ class ScheduleRepository
             ->paginate($perPage);
     }
 
+    public function paginateByTeacher(int $teacherId, array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        return Schedule::with([
+                'gradeSubject.grade',
+                'gradeSubject.subject',
+                'gradeSubject.teacher',
+                'room',
+                'semester',
+            ])
+            ->whereHas('gradeSubject', fn ($q) => $q->where('teacher_id', $teacherId))
+            ->when(
+                ! empty($filters['semester_id']),
+                fn ($q) => $q->where('semester_id', $filters['semester_id'])
+            )
+            ->when(
+                ! empty($filters['day_of_week']),
+                fn ($q) => $q->where('day_of_week', $filters['day_of_week'])
+            )
+            ->when(
+                ! empty($filters['session_type']),
+                fn ($q) => $q->where('session_type', $filters['session_type'])
+            )
+            ->where('status', Schedule::STATUS_ACTIVE) // teacher hanya lihat yang aktif
+            ->orderByTime()
+            ->paginate($perPage);
+    }
+
     /**
      * Find a schedule by ID with relations.
      */

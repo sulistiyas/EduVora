@@ -10,6 +10,7 @@ class LoginController extends Controller
 {
     public function showForm()
     {
+        // Kalau sudah login, langsung redirect ke dashboard role-nya
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
@@ -24,17 +25,17 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            
-            Auth::user()->load(['roles', 'schools']);
-
-            return redirect()->intended(route('dashboard'));
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'Email atau password salah.']);
         }
 
-        return back()
-            ->withErrors(['email' => 'Email atau password tidak sesuai.'])
-            ->onlyInput('email');
+        $request->session()->regenerate();
+
+        // Redirect ke /dashboard — route tersebut akan meneruskan ke
+        // dashboard sesuai role (super-admin / school-admin / teacher / student)
+        return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request)

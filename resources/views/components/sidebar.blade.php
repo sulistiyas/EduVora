@@ -187,7 +187,7 @@
 
             <div class="nav-section-label" style="margin-top:8px;">Mengajar</div>
 
-            <a href="#" class="nav-item {{ request()->routeIs('schedules.*') ? 'active' : '' }}">
+            <a href="{{ route('teacher.schedules.index') }}" class="nav-item {{ request()->routeIs('teacher.schedules.*') ? 'active' : '' }}">
                 <i class="ri-calendar-schedule-line"></i>
                 Jadwal Saya
             </a>

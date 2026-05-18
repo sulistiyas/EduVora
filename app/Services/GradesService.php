@@ -16,19 +16,27 @@ class GradesService
         $this->gradeRepository = $gradeRepository;
     }
 
+    // ───────────────────────────────────────────────────────────────────────────
+    // READ
+    // ───────────────────────────────────────────────────────────────────────────
+
     public function getAllGrades(array $filters = []): LengthAwarePaginator|Collection
     {
         return $this->gradeRepository->getAllGrades($filters);
     }
 
-    public function getSubjectsForDropdown(): \Illuminate\Database\Eloquent\Collection
-    {
-        return $this->gradeRepository->getSubjectsForDropdown();
-    }
-
     public function getGradeById($id): ?Grade
     {
         return $this->gradeRepository->getGradeById($id);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // DROPDOWN
+    // ───────────────────────────────────────────────────────────────────────────
+
+    public function getSubjectsForDropdown(): Collection
+    {
+        return $this->gradeRepository->getSubjectsForDropdown();
     }
 
     public function getRoomsForDropdown(): Collection
@@ -46,6 +54,52 @@ class GradesService
         return $this->gradeRepository->getAcademicYearsForDropdown();
     }
 
+    // ───────────────────────────────────────────────────────────────────────────
+    // STUDENT ASSIGNMENT
+    // ───────────────────────────────────────────────────────────────────────────
+
+    public function getStudentsForAssign(
+        ?int $gradeId = null,
+        ?string $search = null
+    ): Collection
+    {
+        return $this->gradeRepository->getStudentsForAssign(
+            $gradeId,
+            $search
+        );
+    }
+
+    public function assignStudents(
+        int $gradeId,
+        array $studentIds
+    ): bool
+    {
+        return $this->gradeRepository->assignStudents(
+            $gradeId,
+            $studentIds
+        );
+    }
+
+    public function removeStudentFromGrade(
+        int $gradeId,
+        int $studentId
+    ): bool
+    {
+        return $this->gradeRepository->removeStudentFromGrade(
+            $gradeId,
+            $studentId
+        );
+    }
+
+    public function clearStudentsFromGrade(int $gradeId): bool
+    {
+        return $this->gradeRepository->clearStudentsFromGrade($gradeId);
+    }
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // WRITE
+    // ───────────────────────────────────────────────────────────────────────────
+
     public function createGrade(array $data): ?Grade
     {
         return $this->gradeRepository->createGrade($data);
@@ -56,10 +110,18 @@ class GradesService
         return $this->gradeRepository->updateGrade($id, $data);
     }
 
+    // ───────────────────────────────────────────────────────────────────────────
+    // STATUS
+    // ───────────────────────────────────────────────────────────────────────────
+
     public function toggleStatus($id): ?Grade
     {
         return $this->gradeRepository->toggleStatus($id);
     }
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // DELETE
+    // ───────────────────────────────────────────────────────────────────────────
 
     public function deleteGrade($id): bool
     {

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned()->unique();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             // $table->bigInteger('school_id')->unsigned()->nullable()->constrained('school_profiles')->onDelete('set null');
+
             $table->string('nis')->unique();
             $table->string('full_name');
             $table->string('nick_name')->nullable();
@@ -25,7 +26,10 @@ return new class extends Migration
             $table->string('province')->nullable();
             $table->string('postal_code')->nullable();
             $table->string('profile_photo')->nullable();
-            $table->bigInteger('grade_id')->unsigned()->nullable()->constrained('grades')->onDelete('set null');
+            $table->foreignId('grade_id')
+                ->nullable()
+                ->constrained('grades', 'grade_id')
+                ->nullOnDelete();
             $table->string('class_group')->nullable();
             $table->enum('status', ['active', 'inactive', 'graduated', 'dropped'])->default('active');
             $table->date('enrollment_date')->nullable();

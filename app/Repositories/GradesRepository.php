@@ -8,6 +8,8 @@ use App\Models\Teacher\Teacher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Student\Student;
+use Illuminate\Support\Facades\DB;
 
 class GradesRepository
 {
@@ -132,6 +134,13 @@ class GradesRepository
                 'nip',
                 'status',
             ]),
+            'students' => fn($q) => $q->select([
+                'id',
+                'grade_id',
+                'nis',
+                'full_name',
+                'gender',
+            ]),
         ])->find($id);
     }
 
@@ -237,6 +246,142 @@ class GradesRepository
         if (!$grade) return false;
 
         $grade->delete();
+        return true;
+    }
+
+    /**
+     * Ambil daftar siswa untuk assign kelas
+     */
+    public function getStudentsForAssign(
+            ?int $gradeId = null,
+            ?string $search = null
+        ): Collection
+    {
+        $schoolId = $this->getAuthSchoolId();
+
+        $query = Student::query()
+            ->select([
+                'id',
+                'user_id',
+                'nis',
+                'full_name',
+                'gender',
+                'grade_id',
+                'status',
+            ])
+            ->where('status', 'active')
+            ->whereHas('user.schools', function ($q) use ($schoolId) {
+                $q->where('school_profiles.school_id', $schoolId);
+            });
+
+        // Filter grade tertentu
+        if (!is_null($gradeId)) {
+            $query->where('grade_id', $gradeId);
+        }
+
+        // Search siswa
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'ILIKE', "%{$search}%")
+                ->orWhere('nis', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        return $query
+            ->orderBy('full_name')
+            ->get();
+    }
+
+    /**
+     * Assign banyak siswa ke grade
+     */
+    public function assignStudents(
+        int $gradeId,
+        array $studentIds
+    ): bool
+    {
+        $schoolId = $this->getAuthSchoolId();
+
+        $grade = Grade::where('school_id', $schoolId)
+                        ->where('grade_id', $gradeId)
+                        ->first();
+
+        if (!$grade) {
+            return false;
+        }
+
+        DB::transaction(function () use (
+            $studentIds,
+            $grade,
+            $schoolId
+        ) {
+
+            Student::whereIn('id', $studentIds)
+                ->whereHas('user.schools', function ($q) use ($schoolId) {
+                    $q->where('school_profiles.school_id', $schoolId);
+                })
+                ->update([
+                    'grade_id' => $grade->grade_id,
+                    'updated_at' => now(),
+                ]);
+        });
+
+        return true;
+    }
+
+    /**
+     * Remove 1 siswa dari grade
+     */
+    public function removeStudentFromGrade(
+        int $gradeId,
+        int $studentId
+    ): bool
+    {
+        $schoolId = $this->getAuthSchoolId();
+
+        $grade = Grade::where('school_id', $schoolId)
+                        ->where('grade_id', $gradeId)
+                        ->first();
+
+        if (!$grade) {
+            return false;
+        }
+
+        $student = Student::where('id', $studentId)
+            ->where('grade_id', $grade->grade_id)
+            ->first();
+
+        if (!$student) {
+            return false;
+        }
+
+        $student->grade_id = null;
+        $student->save();
+
+        return true;
+    }
+
+    /**
+     * Kosongkan semua siswa dari grade
+     */
+    public function clearStudentsFromGrade(int $gradeId): bool
+    {
+        $schoolId = $this->getAuthSchoolId();
+
+        $grade = Grade::where('school_id', $schoolId)
+                        ->where('grade_id', $gradeId)
+                        ->first();
+
+        if (!$grade) {
+            return false;
+        }
+
+        Student::where('grade_id', $grade->grade_id)
+            ->update([
+                'grade_id' => null,
+                'updated_at' => now(),
+            ]);
+
         return true;
     }
 }

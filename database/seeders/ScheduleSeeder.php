@@ -10,7 +10,45 @@ class ScheduleSeeder extends Seeder
     public function run(): void
     {
         $schoolId = 1;
-        $semesterId = 1;
+
+        /**
+         * ─────────────────────────────────────────────
+         * Academic Year aktif
+         * ─────────────────────────────────────────────
+         */
+        $activeAcademicYear = DB::table('academic_years')
+            ->where('school_id', $schoolId)
+            ->where('status', 'active')
+            ->first();
+
+        if (! $activeAcademicYear) {
+            $this->command->error('Tidak ada academic year aktif.');
+            return;
+        }
+
+        /**
+         * ─────────────────────────────────────────────
+         * Semester aktif dari academic year aktif
+         * ─────────────────────────────────────────────
+         */
+        $activeSemester = DB::table('semesters as s')
+            ->join('academic_years as ay', 'ay.academic_year_id', '=', 's.academic_year_id')
+            ->where('ay.school_id', $schoolId)
+            ->where('ay.status', 'active')
+            ->where('s.status', 'active')
+            ->select('s.*')
+            ->first();
+
+        if (! $activeSemester) {
+            $this->command->error('Tidak ada semester aktif.');
+            return;
+        }
+
+        $semesterId = $activeSemester->semester_id;
+
+        $this->command->info(
+            "Menggunakan Semester Aktif: {$activeSemester->semester_name}"
+        );
 
         /**
          * Hari sekolah
@@ -117,6 +155,19 @@ class ScheduleSeeder extends Seeder
             }
         }
 
+        /**
+         * Hapus jadwal semester aktif sebelumnya
+         * supaya tidak duplicate
+         */
+        DB::table('schedules')
+            ->where('school_id', $schoolId)
+            ->where('semester_id', $semesterId)
+            ->delete();
+
         DB::table('schedules')->insert($data);
+
+        $this->command->info(
+            count($data) . ' jadwal berhasil dibuat.'
+        );
     }
 }

@@ -12,7 +12,12 @@ use App\Http\Controllers\Class\RoomsController;
 use App\Http\Controllers\School\StudentController;
 use App\Http\Controllers\School\TeacherController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Teacher\AttendanceController;
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ───────────────────────────────────────────────
@@ -25,10 +30,35 @@ Route::post('/logout',[LoginController::class, 'logout'])->name('logout');
 // ─── Authenticated (semua role) ───────────────────────────
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/dashboard', fn () => view('pages.dash.index'))->name('dashboard');
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD — role-based redirect
+    |--------------------------------------------------------------------------
+    | Route /dashboard dipakai sebagai "hub" universal.
+    | Setiap role diarahkan ke view/controller masing-masing.
+    | Gunakan named route 'dashboard' di seluruh aplikasi (misal: setelah login,
+    | notifikasi, breadcrumb) — redirect otomatis sesuai role.
+    */
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
 
-    // ── SUPER-ADMIN only ──────────────────────────────────
+        $role = $user->role_name ?? 'guest';
+
+        return match ($role) {
+            'super-admin'  => redirect()->route('super-admin.dashboard'),
+            'school-admin' => redirect()->route('school-admin.dashboard'),
+            'teacher'      => redirect()->route('teacher.dashboard'),
+            'student'      => redirect()->route('student.dashboard'),
+            default        => abort(403, 'Role tidak dikenali.'),
+        };
+    })->name('dashboard');
+
+
+    // ── SUPER-ADMIN ──────────────────────────────────────
     Route::middleware(['role:super-admin'])->group(function () {
+
+        Route::get('/super-admin/dashboard', fn () => view('pages.dash.index'))
+            ->name('super-admin.dashboard');
 
         // Roles & Permissions
         Route::prefix('roles')->name('roles.')->group(function () {
@@ -55,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}',             [UserController::class, 'destroy'])->name('destroy');
         });
 
-        // School Management (super-admin level)
+        // School Management
         Route::prefix('school-management')->name('school-management.')->group(function () {
             Route::get('/',                    [SchoolController::class, 'index'])->name('index');
             Route::get('/create',              [SchoolController::class, 'create'])->name('create');
@@ -70,8 +100,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
 
-    // ── SCHOOL-ADMIN ────────────────────────
+    // ── SCHOOL-ADMIN ─────────────────────────────────────
     Route::middleware(['role:super-admin,school-admin'])->group(function () {
+
+        Route::get('/school-admin/dashboard', fn () => view('pages.dash.index'))
+            ->name('school-admin.dashboard');
 
         // Academic Year
         Route::prefix('academic-year')->name('academic-year.')->group(function () {
@@ -123,14 +156,34 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}',             [GradesController::class, 'destroy'])->name('destroy');
 
             Route::prefix('{gradeId}/subjects')->name('grade-subjects.')->group(function () {
-                Route::get('/',    [GradeSubjectsController::class, 'index'])->name('index');
-                Route::post('/',   [GradeSubjectsController::class, 'store'])->name('store');
+                Route::get('/',       [GradeSubjectsController::class, 'index'])->name('index');
+                Route::post('/',      [GradeSubjectsController::class, 'store'])->name('store');
                 Route::patch('/{id}', [GradeSubjectsController::class, 'update'])->name('update');
                 Route::delete('/{id}',[GradeSubjectsController::class, 'destroy'])->name('destroy');
             });
+
+            Route::get('/students/list', [
+                GradesController::class,
+                'getStudents'
+            ]);
+
+            Route::post('/{gradeId}/assign-students', [
+                GradesController::class,
+                'assignStudents'
+            ]);
+
+            Route::delete('/{gradeId}/students/{studentId}', [
+                GradesController::class,
+                'removeStudent'
+            ]);
+
+            Route::delete('/{gradeId}/students', [
+                GradesController::class,
+                'clearStudents'
+            ]);
         });
 
-        // Subjects (Mata Pelajaran)
+        // Subjects
         Route::prefix('subjects')->name('subjects.')->group(function () {
             Route::get('/',                    [SubjectController::class, 'index'])->name('index');
             Route::get('/create',              [SubjectController::class, 'create'])->name('create');
@@ -155,7 +208,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}',             [ScheduleController::class, 'destroy'])->name('destroy');
         });
 
-        // Students & Teachers (school-admin manage)
+        // Students & Teachers
         Route::prefix('school-admin')->name('school-admin.')->group(function () {
 
             Route::prefix('students')->name('students.')->group(function () {
@@ -180,20 +233,71 @@ Route::middleware(['auth'])->group(function () {
                 Route::put('/{id}',                [TeacherController::class, 'update'])->name('update');
                 Route::patch('/{id}/toggle-status',[TeacherController::class, 'toggleStatus'])->name('toggleStatus');
                 Route::delete('/{id}',             [TeacherController::class, 'destroy'])->name('destroy');
+                
             });
         });
 
     });
 
-    // ── TEACHER only ──────────────────────────────────────
-    // (siap ditambahkan route teacher-specific di sini)
-    Route::middleware(['role:teacher'])->group(function () {
-        // Route::prefix('my-schedule')-> ...
+
+    // ── TEACHER ──────────────────────────────────────────
+    Route::middleware(['role:teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+
+        Route::get('/dashboard', [TeacherDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        Route::prefix('schedules')->name('schedules.')->group(function () {
+            Route::get('/',        [TeacherScheduleController::class, 'index'])->name('index');
+            Route::get('/semesters', [TeacherScheduleController::class, 'semesters'])->name('semesters');
+            Route::get('/{id}',    [TeacherScheduleController::class, 'show'])->name('show');
+            // Tidak ada: store, update, destroy, toggle-status, rooms, grade-subjects
+        });
+
+        Route::prefix('attendance')->name('attendance.')->group(function () {
+ 
+            // Dropdown helpers
+            Route::get('/semesters', [AttendanceController::class, 'semesters'])->name('semesters');
+        
+            // Entry point dari halaman Jadwal — auto create/resume session
+            Route::get('/start/{id}',     [AttendanceController::class, 'start'])->name('start');
+        
+            // Index: list semua session milik teacher
+            Route::get('/',          [AttendanceController::class, 'index'])->name('index');
+        
+            // Show: detail form absensi per siswa
+            Route::get('/{id}',      [AttendanceController::class, 'show'])->name('show');
+        
+            // Save details (auto-save, bisa dipanggil berkali-kali)
+            Route::patch('/{id}/details', [AttendanceController::class, 'saveDetails'])->name('save-details');
+        
+            // Submit (draft → submitted)
+            Route::patch('/{id}/submit',  [AttendanceController::class, 'submit'])->name('submit');
+        
+            // Lock / Unlock
+            Route::patch('/{id}/lock',    [AttendanceController::class, 'lock'])->name('lock');
+            Route::patch('/{id}/unlock',  [AttendanceController::class, 'unlock'])->name('unlock');
+        
+        });
+
+        // Siap dikembangkan:
+        // Route::prefix('schedules')->name('schedules.')->group(function () { ... });
+        // Route::prefix('attendance')->name('attendance.')->group(function () { ... });
+        // Route::prefix('grades')->name('grades.')->group(function () { ... });
+        // Route::prefix('assignments')->name('assignments.')->group(function () { ... });
+        // Route::prefix('journal')->name('journal.')->group(function () { ... });
     });
 
-    // ── STUDENT only ──────────────────────────────────────
-    Route::middleware(['role:student'])->group(function () {
-        // Route::prefix('my-grades')-> ...
+
+    // ── STUDENT ──────────────────────────────────────────
+    Route::middleware(['role:student'])->prefix('student')->name('student.')->group(function () {
+
+        // Route::get('/dashboard', [StudentDashboardController::class, 'index'])
+        //     ->name('dashboard');
+
+        // Siap dikembangkan:
+        // Route::prefix('grades')->name('grades.')->group(function () { ... });
+        // Route::prefix('attendance')->name('attendance.')->group(function () { ... });
+        // Route::prefix('assignments')->name('assignments.')->group(function () { ... });
     });
 
 });
