@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use App\Services\Academic\ScheduleService;
 use App\Repositories\Academic\ScheduleRepository;
+use App\Services\Academic\ScheduleService;
 use App\Services\SemesterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class ScheduleController extends Controller
@@ -21,7 +22,7 @@ class ScheduleController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         if ($request->expectsJson()) {
-            $teacher   = auth()->user()->teacher; // sesuaikan relasi di User model
+            $teacher   = Auth::user()->teacher; // sesuaikan relasi di User model
             $schedules = $this->repo->paginateByTeacher(
                 teacherId: $teacher->teacher_id,
                 filters:   $request->only(['semester_id', 'day_of_week', 'session_type']),
@@ -47,7 +48,7 @@ class ScheduleController extends Controller
         $schedule = $this->service->findOrFail($id);
 
         // Pastikan jadwal ini memang milik teacher yang login
-        $teacher = auth()->user()->teacher;
+        $teacher = Auth::user()->teacher;
         abort_if(
             $schedule->gradeSubject?->teacher_id !== $teacher->teacher_id,
             403,

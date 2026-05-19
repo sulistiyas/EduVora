@@ -192,7 +192,7 @@
                 Jadwal Saya
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+            <a href="{{ route('teacher.attendance.index') }}" class="nav-item {{ request()->routeIs('teacher.attendance.*') ? 'active' : '' }}">
                 <i class="ri-checkbox-circle-line"></i>
                 Presensi
             </a>

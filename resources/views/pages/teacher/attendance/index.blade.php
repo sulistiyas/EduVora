@@ -3,124 +3,7 @@
 @section('title', 'Presensi')
 
 @push('styles')
-<style>
-/* ═══════════════════════════════════════════════════════════
-   TEACHER ATTENDANCE INDEX
-   ═══════════════════════════════════════════════════════════ */
-
-/* ── Stats ──────────────────────────────────────────────── */
-.ta-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}
-.ta-stat {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 18px;
-    position: relative;
-    overflow: hidden;
-}
-.ta-stat-icon {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: grid; place-items: center;
-    font-size: 16px; margin-bottom: 10px;
-}
-.ta-stat-val {
-    font-size: 28px; font-weight: 700;
-    color: var(--text-primary); letter-spacing: -1px; line-height: 1;
-}
-.ta-stat-label {
-    font-size: 12px; color: var(--text-muted); margin-top: 4px;
-}
-.ta-stat-bar {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 3px; border-radius: 0 0 14px 14px;
-}
-
-/* ── Table ───────────────────────────────────────────────── */
-.ta-table-wrap { overflow-x: auto; }
-.ta-table {
-    width: 100%; border-collapse: collapse; font-size: 13px;
-}
-.ta-table thead th {
-    padding: 11px 14px;
-    text-align: left;
-    font-size: 11px; font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: .06em;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    white-space: nowrap;
-}
-.ta-table tbody td {
-    padding: 13px 14px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-    color: var(--text-primary);
-}
-.ta-table tbody tr:last-child td { border-bottom: none; }
-.ta-table tbody tr:hover td { background: var(--bg); }
-.ta-table tbody tr { cursor: pointer; }
-
-/* ── Status badges ───────────────────────────────────────── */
-.ta-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 10px; border-radius: 999px;
-    font-size: 11px; font-weight: 700; white-space: nowrap;
-}
-.ta-badge-draft     { background: #F1F5F9; color: #475569; }
-.ta-badge-submitted { background: #EFF6FF; color: #1D4ED8; }
-.ta-badge-approved  { background: #F0FDF4; color: #15803D; }
-.ta-badge-locked    { background: #FEF3C7; color: #92400E; }
-
-/* ── Attendance count pills ─────────────────────────────── */
-.ta-count-row {
-    display: flex; gap: 5px; flex-wrap: wrap; align-items: center;
-}
-.ta-count {
-    display: inline-flex; align-items: center; gap: 3px;
-    font-size: 11px; font-weight: 700;
-    padding: 2px 8px; border-radius: 999px;
-}
-.ta-count-h { background: #F0FDF4; color: #15803D; }
-.ta-count-a { background: #FEF2F2; color: #B91C1C; }
-.ta-count-i { background: #FEF9C3; color: #92400E; }
-.ta-count-s { background: #EFF6FF; color: #1D4ED8; }
-.ta-count-l { background: #F5F3FF; color: #6D28D9; }
-
-/* ── Action btn ─────────────────────────────────────────── */
-.ta-action {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 12px; border-radius: 8px;
-    font-size: 12px; font-weight: 600;
-    border: 1px solid var(--border);
-    background: var(--card); color: var(--text-secondary);
-    cursor: pointer; text-decoration: none;
-    transition: all .15s; font-family: var(--font);
-}
-.ta-action:hover { background: var(--bg); }
-.ta-action.primary {
-    background: #1D4ED8; color: #fff; border-color: #1D4ED8;
-}
-.ta-action.primary:hover { background: #1E40AF; }
-
-/* ── Empty ──────────────────────────────────────────────── */
-.ta-empty {
-    padding: 52px 24px; text-align: center;
-}
-.ta-empty-icon { font-size: 44px; color: var(--border); margin-bottom: 12px; }
-.ta-empty-title { font-size: 15px; font-weight: 600; color: var(--text-secondary); }
-.ta-empty-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-
-@media (max-width: 768px) {
-    .ta-stats { grid-template-columns: repeat(2, 1fr); }
-    .hide-sm  { display: none; }
-}
-</style>
+    <link rel="stylesheet" href="{{ asset('css/pages/teacher-attendance.css') }}">
 @endpush
 
 @section('content')
@@ -410,7 +293,7 @@ function teacherAttendanceIndex(config = {}) {
         loading:        false,
         search:         '',
         perPage:        15,
-        semesterFilter: config.activeSemesterId ?? '',
+        semesterFilter: '',
         statusFilter:   '',
         dateFrom:       '',
         dateTo:         '',
@@ -447,9 +330,12 @@ function teacherAttendanceIndex(config = {}) {
                     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 });
                 if (!res.ok) throw new Error('Gagal memuat data.');
-                const json     = await res.json();
-                this.sessions  = json.data;
-                this.meta      = json.meta;
+                const json = await res.json();
+
+                console.log(json);
+
+                this.sessions = json.data;
+                this.meta = json.meta;
             } catch (err) {
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({ toast:true, position:'top-end', icon:'error', title: err.message, showConfirmButton:false, timer:3500 });

@@ -32,7 +32,7 @@ class AttendanceController extends Controller
         $teacher = Auth::user()->teacher;
         abort_if(is_null($teacher), 403, 'Akun ini tidak terhubung ke data guru.');
 
-        if ($request->expectsJson()) {
+        if ($request->ajax() || $request->wantsJson()) {
             $sessions = $this->service->paginate(
                 teacherId: $teacher->teacher_id,
                 filters:   $request->only([
@@ -58,9 +58,7 @@ class AttendanceController extends Controller
             ->getActiveAcademicSemester(['per_page' => 'all'])
             ->first();
 
-        $stats = $activeSemester
-            ? $this->service->stats($teacher->teacher_id, $activeSemester->semester_id)
-            : ['draft' => 0, 'submitted' => 0, 'approved' => 0, 'total' => 0];
+        $stats = $this->service->stats($teacher->teacher_id);
 
         return view('pages.teacher.attendance.index', compact('activeSemester', 'stats'));
     }

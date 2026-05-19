@@ -155,9 +155,9 @@ class AttendanceRepository
     public function getStudentsByGrade(int $gradeId): Collection
     {
         return Student::where('grade_id', $gradeId)
-            ->where('status', 'active')
+            // ->where('status', 'active')
             ->orderBy('full_name')
-            ->get(['id', 'full_name', 'nis', 'photo']);
+            ->get(['id', 'full_name', 'nis']);
     }
 
     /*
@@ -169,13 +169,16 @@ class AttendanceRepository
     /**
      * Count sessions by status for a teacher in a semester.
      */
-    public function countByStatus(int $teacherId, int $semesterId): array
+    public function countByStatus(int $teacherId, ?int $semesterId = null): array
     {
         $rows = AttendanceSession::where('teacher_id', $teacherId)
-            ->where('semester_id', $semesterId)
-            ->selectRaw('status, COUNT(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status');
+                ->when(
+                    $semesterId,
+                    fn ($q) => $q->where('semester_id', $semesterId)
+                )
+                ->selectRaw('status, COUNT(*) as total')
+                ->groupBy('status')
+                ->pluck('total', 'status');
 
         return [
             'draft'     => $rows[AttendanceSession::STATUS_DRAFT]     ?? 0,

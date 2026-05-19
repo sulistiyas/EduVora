@@ -259,7 +259,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/semesters', [AttendanceController::class, 'semesters'])->name('semesters');
         
             // Entry point dari halaman Jadwal — auto create/resume session
-            Route::get('/start/{id}',     [AttendanceController::class, 'start'])->name('start');
+            Route::get('/start',     [AttendanceController::class, 'start'])->name('start');
         
             // Index: list semua session milik teacher
             Route::get('/',          [AttendanceController::class, 'index'])->name('index');

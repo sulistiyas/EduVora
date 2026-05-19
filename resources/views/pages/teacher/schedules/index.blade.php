@@ -1144,24 +1144,24 @@
                             Aksi Cepat
                         </div>
                         <div style="display:flex;gap:8px">
-                            <a
-                                :href="selectedEvent
-                                    ? `/teacher/attendance/start/${selectedEvent.schedule_id}`
+                            
+                            <a  :href="selectedEvent
+                                    ? '{{ route('teacher.attendance.start') }}?schedule_id=' + selectedEvent.schedule_id
                                     : '#'"
                                 class="ts-quick-btn primary"
                             >
                                 <i class="ri-checkbox-circle-line"></i>
                                 <span>Presensi</span>
                             </a>
-                            <a
-                                :href="selectedEvent ? '/teacher/grades?schedule_id=' + selectedEvent.schedule_id : '#'"
+                            
+                            <a  :href="selectedEvent ? '/teacher/grades?schedule_id=' + selectedEvent.schedule_id : '#'"
                                 class="ts-quick-btn"
                             >
                                 <i class="ri-bar-chart-line"></i>
                                 <span>Input Nilai</span>
                             </a>
-                            <a
-                                :href="selectedEvent ? '/teacher/notes?schedule_id=' + selectedEvent.schedule_id : '#'"
+                            
+                            <a  :href="selectedEvent ? '/teacher/notes?schedule_id=' + selectedEvent.schedule_id : '#'"
                                 class="ts-quick-btn"
                             >
                                 <i class="ri-sticky-note-line"></i>

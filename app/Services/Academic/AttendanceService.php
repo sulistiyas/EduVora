@@ -78,8 +78,7 @@ class AttendanceService
         abort_if(is_null($gradeSubject), 422, 'Jadwal tidak memiliki data kelas/mapel.');
 
         $session = $this->repo->createSession([
-            'school_id'       => $schedule->semester->school_id
-                                    ?? Auth::user()->school_id,
+            'school_id'       => Auth::user()->schools()->first()?->school_id,
             'schedule_id'     => $schedule->schedule_id,
             'teacher_id'      => $teacherId,
             'subject_id'      => $gradeSubject->subject_id,
@@ -104,7 +103,7 @@ class AttendanceService
         ])->toArray();
 
         $this->repo->upsertDetails($session->attendance_session_id, $details);
-
+        
         return $this->repo->findById($session->attendance_session_id);
     }
 
@@ -112,11 +111,41 @@ class AttendanceService
      * Save attendance details (bulk upsert) for a draft session.
      * Throws ValidationException if session is locked or already approved.
      */
+    // public function saveDetails(AttendanceSession $session, array $details): AttendanceSession
+    // {
+    //     $this->guardLocked($session);
+
+    //     $this->repo->upsertDetails($session->attendance_session_id, $details);
+
+    //     return $this->repo->findById($session->attendance_session_id);
+    // }
     public function saveDetails(AttendanceSession $session, array $details): AttendanceSession
     {
         $this->guardLocked($session);
 
-        $this->repo->upsertDetails($session->attendance_session_id, $details);
+        // Approved tidak boleh diedit
+        if ($session->isApproved()) {
+            throw ValidationException::withMessages([
+                'status' => 'Sesi yang sudah disetujui tidak dapat diubah.',
+            ]);
+        }
+
+        $this->repo->upsertDetails(
+            $session->attendance_session_id,
+            $details
+        );
+
+        /**
+         * Jika sebelumnya sudah submitted,
+         * lalu diedit kembali saat unlocked,
+         * otomatis kembali ke draft.
+         */
+        if ($session->status === AttendanceSession::STATUS_SUBMITTED) {
+
+            $session = $this->repo->updateSession($session, [
+                'status' => AttendanceSession::STATUS_DRAFT,
+            ]);
+        }
 
         return $this->repo->findById($session->attendance_session_id);
     }
@@ -181,7 +210,7 @@ class AttendanceService
     |--------------------------------------------------------------------------
     */
 
-    public function stats(int $teacherId, int $semesterId): array
+    public function stats(int $teacherId, ?int $semesterId = null): array
     {
         return $this->repo->countByStatus($teacherId, $semesterId);
     }
