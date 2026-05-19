@@ -101,7 +101,7 @@ class AttendanceController extends Controller
         $session = $this->service->getOrCreateSession(
             schedule:   $schedule,
             teacherId:  $teacher->teacher_id,
-            recordedBy: auth()->id(),
+            recordedBy: Auth::id(),
         );
 
         return redirect()->route('teacher.attendance.show', $session->attendance_session_id)

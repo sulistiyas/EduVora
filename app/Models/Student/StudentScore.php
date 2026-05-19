@@ -7,50 +7,79 @@ use Illuminate\Database\Eloquent\Model;
 class StudentScore extends Model
 {
     /**
-     * The primary key for the model.
+     * Primary key.
      *
      * @var string
      */
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'student_score_id';
 
     /**
-     * The table associated with the model.
+     * Table name.
      *
      * @var string
      */
     protected $table = 'student_scores';
 
     /**
-     * The attributes that are mass assignable.
+     * Mass assignable attributes.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
-        'weight',
-        'remarks',
+        'student_id',
+        'grade_subject_id',
+        'semester_id',
+        'score_type',
+        'score',
+        'max_score',
+        'description',
+        'date',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Attribute casting.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'student_id' => 'integer',
-        'grade_subject_id' => 'integer',
-        'semester_id' => 'integer',
-        'subject_id' => 'integer',
+            'student_id'       => 'integer',
+            'grade_subject_id' => 'integer',
+            'semester_id'      => 'integer',
+            'score'            => 'decimal:2',
+            'max_score'        => 'decimal:2',
+            'date'             => 'date',
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function student()
+    {
+        return $this->belongsTo(
+            \App\Models\Student\Student::class,
+            'student_id'
+        );
+    }
 
-    public function gradesubject() { return $this->belongsTo(\App\Models\Academic\GradeSubject::class, 'grade_subject_id'); }
+    public function gradeSubject()
+    {
+        return $this->belongsTo(
+            \App\Models\Academic\GradeSubject::class,
+            'grade_subject_id'
+        );
+    }
 
-    public function semester() { return $this->belongsTo(\App\Models\Academic\Semester::class, 'semester_id'); }
-
-    public function subject() { return $this->belongsTo(\App\Models\Academic\Subject::class, 'subject_id'); }
+    public function semester()
+    {
+        return $this->belongsTo(
+            \App\Models\Academic\Semester::class,
+            'semester_id'
+        );
+    }
 }

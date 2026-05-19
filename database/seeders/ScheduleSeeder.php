@@ -28,7 +28,7 @@ class ScheduleSeeder extends Seeder
 
         /**
          * ─────────────────────────────────────────────
-         * Semester aktif dari academic year aktif
+         * Semester aktif
          * ─────────────────────────────────────────────
          */
         $activeSemester = DB::table('semesters as s')
@@ -51,12 +51,21 @@ class ScheduleSeeder extends Seeder
         );
 
         /**
+         * ─────────────────────────────────────────────
          * Hari sekolah
+         * 1 = Senin
+         * 2 = Selasa
+         * 3 = Rabu
+         * 4 = Kamis
+         * 5 = Jumat
+         * ─────────────────────────────────────────────
          */
         $days = [1, 2, 3, 4, 5];
 
         /**
-         * Jam pelajaran
+         * ─────────────────────────────────────────────
+         * Slot jam pelajaran
+         * ─────────────────────────────────────────────
          */
         $timeSlots = [
             [
@@ -82,15 +91,20 @@ class ScheduleSeeder extends Seeder
         ];
 
         /**
-         * Ambil semua grade_subject per kelas
+         * ─────────────────────────────────────────────
+         * Ambil semua grade_subject
+         * ─────────────────────────────────────────────
          */
         $gradeSubjects = DB::table('grade_subjects')
             ->join('grades', 'grade_subjects.grade_id', '=', 'grades.grade_id')
+            ->join('subjects', 'grade_subjects.subject_id', '=', 'subjects.id')
             ->where('grades.school_id', $schoolId)
             ->select(
                 'grade_subjects.id as grade_subject_id',
                 'grades.grade_id',
-                'grades.room_id'
+                'grades.room_id',
+                'subjects.subject_name',
+                'subjects.hours_per_week'
             )
             ->orderBy('grades.grade_id')
             ->get()
@@ -100,7 +114,6 @@ class ScheduleSeeder extends Seeder
 
         /**
          * Counter per room
-         * supaya jadwal tidak bentrok
          */
         $roomCounters = [];
 
@@ -117,53 +130,76 @@ class ScheduleSeeder extends Seeder
                     $roomCounters[$roomId] = 0;
                 }
 
-                $counter = $roomCounters[$roomId];
+                /**
+                 * ─────────────────────────────────────
+                 * Jumlah sesi per minggu
+                 * contoh:
+                 * hours_per_week = 4
+                 * maka jadi 2 sesi
+                 * ─────────────────────────────────────
+                 */
+                $sessionsPerWeek = max(
+                    1,
+                    ceil($subject->hours_per_week / 2)
+                );
 
                 /**
-                 * Tentukan hari
+                 * Generate beberapa sesi
                  */
-                $day = $days[
-                    floor($counter / count($timeSlots))
-                    % count($days)
-                ];
+                for ($i = 0; $i < $sessionsPerWeek; $i++) {
 
-                /**
-                 * Tentukan jam
-                 */
-                $time = $timeSlots[
-                    $counter % count($timeSlots)
-                ];
+                    $counter = $roomCounters[$roomId];
 
-                $data[] = [
-                    'school_id'        => $schoolId,
-                    'grade_subject_id' => $subject->grade_subject_id,
-                    'room_id'          => $roomId,
-                    'semester_id'      => $semesterId,
-                    'day_of_week'      => $day,
-                    'start_time'       => $time['start'],
-                    'end_time'         => $time['end'],
-                    'session_type'     => 'regular',
-                    'status'           => 'active',
-                    'created_at'       => now(),
-                    'updated_at'       => now(),
-                ];
+                    /**
+                     * Tentukan hari
+                     */
+                    $day = $days[
+                        floor($counter / count($timeSlots))
+                        % count($days)
+                    ];
 
-                /**
-                 * Increment slot room
-                 */
-                $roomCounters[$roomId]++;
+                    /**
+                     * Tentukan slot jam
+                     */
+                    $time = $timeSlots[
+                        $counter % count($timeSlots)
+                    ];
+
+                    $data[] = [
+                        'school_id'        => $schoolId,
+                        'grade_subject_id' => $subject->grade_subject_id,
+                        'room_id'          => $roomId,
+                        'semester_id'      => $semesterId,
+                        'day_of_week'      => $day,
+                        'start_time'       => $time['start'],
+                        'end_time'         => $time['end'],
+                        'session_type'     => 'regular',
+                        'status'           => 'active',
+                        'created_at'       => now(),
+                        'updated_at'       => now(),
+                    ];
+
+                    /**
+                     * Increment slot room
+                     */
+                    $roomCounters[$roomId]++;
+                }
             }
         }
 
         /**
-         * Hapus jadwal semester aktif sebelumnya
-         * supaya tidak duplicate
+         * ─────────────────────────────────────────────
+         * Hapus jadwal lama semester aktif
+         * ─────────────────────────────────────────────
          */
         DB::table('schedules')
             ->where('school_id', $schoolId)
             ->where('semester_id', $semesterId)
             ->delete();
 
+        /**
+         * Insert jadwal baru
+         */
         DB::table('schedules')->insert($data);
 
         $this->command->info(

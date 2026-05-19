@@ -136,7 +136,7 @@ $namaDepan = explode(' ', $teacher->name)[0] ?? $teacher->name;
                         </div>
                         <div class="card-subtitle">{{ now()->translatedFormat('l, d F Y') }}</div>
                     </div>
-                    <a href="#" class="card-action">Lihat Semua</a>
+                    <a href="{{ route('teacher.schedules.index') }}" class="card-action">Lihat Semua</a>
                 </div>
 
                 @if(count($todaySchedules) > 0)

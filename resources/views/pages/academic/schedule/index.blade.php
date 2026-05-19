@@ -419,7 +419,7 @@
                                 @mouseleave="$el.style.background='transparent'"
                                 :style="sessionFilter === st.value ? 'background:var(--bg);font-weight:600' : ''"
                             >
-                                <span><span x-text="st.icon"></span>&nbsp;<span x-text="st.label"></span></span>
+                                <span><span x-text=""></span>&nbsp;<span x-text="st.label"></span></span>
                                 <i x-show="sessionFilter === st.value" class="ri-check-line" style="font-size:14px;color:var(--primary)"></i>
                             </div>
                         </template>

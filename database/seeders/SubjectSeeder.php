@@ -47,6 +47,21 @@ class SubjectSeeder extends Seeder
                 'subject_code' => 'TKJ',
                 'category' => 'Kejuruan',
             ],
+            [
+                'subject_name' => 'PPKn',
+                'subject_code' => 'PPK',
+                'category' => 'Umum',
+            ],
+            [
+                'subject_name' => 'Seni Budaya',
+                'subject_code' => 'SBD',
+                'category' => 'Seni',
+            ],
+            [
+                'subject_name' => 'Agama',
+                'subject_code' => 'AGM',
+                'category' => 'Umum',
+            ],
         ];
 
         foreach ($subjects as $subject) {
