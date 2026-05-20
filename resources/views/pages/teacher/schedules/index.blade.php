@@ -1154,9 +1154,10 @@
                                 <span>Presensi</span>
                             </a>
                             
-                            <a  :href="selectedEvent ? '/teacher/grades?schedule_id=' + selectedEvent.schedule_id : '#'"
-                                class="ts-quick-btn"
-                            >
+                            <a :href="selectedEvent
+                                    ? '{{ route('teacher.scores.index') }}?schedule_id=' + selectedEvent.schedule_id
+                                    : '#'"
+                                class="ts-quick-btn">
                                 <i class="ri-bar-chart-line"></i>
                                 <span>Input Nilai</span>
                             </a>

@@ -197,7 +197,7 @@
                 Presensi
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('scores.*') ? 'active' : '' }}">
+            <a href="{{ route('teacher.scores.index') }}" class="nav-item {{ request()->routeIs('teacher.scores.*') ? 'active' : '' }}">
                 <i class="ri-bar-chart-2-line"></i>
                 Input Nilai
             </a>

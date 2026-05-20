@@ -70,4 +70,13 @@ class Student extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public function scoreDetails()
+    {
+        return $this->hasMany(
+            ScoreDetail::class,
+            'student_id',
+            'student_id'
+        );
+    }
 }

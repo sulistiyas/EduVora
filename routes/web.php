@@ -10,6 +10,7 @@ use App\Http\Controllers\Class\GradesController;
 use App\Http\Controllers\Class\GradeSubjectsController;
 use App\Http\Controllers\Class\RoomsController;
 use App\Http\Controllers\School\StudentController;
+use App\Http\Controllers\School\StudentScoreController;
 use App\Http\Controllers\School\TeacherController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -29,7 +30,6 @@ Route::post('/logout',[LoginController::class, 'logout'])->name('logout');
 
 // ─── Authenticated (semua role) ───────────────────────────
 Route::middleware(['auth'])->group(function () {
-
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD — role-based redirect
@@ -237,6 +237,16 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
+        // Student Scores
+        Route::prefix('student-scores')->name('student-scores.')->group(function () {
+            Route::get('/', [StudentScoreController::class, 'index'])->name('index');
+            Route::post('/', [StudentScoreController::class, 'store'])->name('store');
+            Route::get('/final-score', [StudentScoreController::class, 'finalScore'])->name('final-score');
+            Route::get('/{id}', [StudentScoreController::class, 'show'])->name('show');
+            Route::put('/{id}', [StudentScoreController::class, 'update'])->name('update');
+            Route::delete('/{id}', [StudentScoreController::class, 'destroy'])->name('destroy');
+        });
+
     });
 
 
@@ -279,12 +289,48 @@ Route::middleware(['auth'])->group(function () {
         
         });
 
-        // Siap dikembangkan:
-        // Route::prefix('schedules')->name('schedules.')->group(function () { ... });
-        // Route::prefix('attendance')->name('attendance.')->group(function () { ... });
-        // Route::prefix('grades')->name('grades.')->group(function () { ... });
-        // Route::prefix('assignments')->name('assignments.')->group(function () { ... });
-        // Route::prefix('journal')->name('journal.')->group(function () { ... });
+        // ── Scores ────────────────────────────────────────────────────────────────
+        Route::prefix('scores')->name('scores.')->group(function () {
+    
+            // Index — list all score sessions
+            Route::get('/',           [StudentScoreController::class, 'index'])->name('index');
+    
+            // Store — create new score session (POST from modal)
+            Route::post('/',          [StudentScoreController::class, 'store'])->name('store');
+
+            // Dropdown helpers
+            Route::get('/data/semesters',     [StudentScoreController::class, 'semesters'])->name('semesters');
+            Route::get('/data/grade-subjects',[StudentScoreController::class, 'gradeSubjects'])->name('grade-subjects');
+    
+            // Show — detail / input nilai per siswa
+            Route::get('/{id}',       [StudentScoreController::class, 'show'])->name('show');
+    
+            // Save details — PATCH bulk upsert scores
+            Route::patch('/{id}/details',  [StudentScoreController::class, 'saveDetails'])->name('save-details');
+    
+            // Toggle publish / unpublish
+            Route::patch('/{id}/publish',  [StudentScoreController::class, 'togglePublish'])->name('publish');
+    
+            // Update session metadata
+            Route::patch('/{id}',     [StudentScoreController::class, 'update'])->name('update');
+    
+            // Delete session
+            Route::delete('/{id}',    [StudentScoreController::class, 'destroy'])->name('destroy');
+    
+            // Dropdown helpers
+            Route::get('/data/semesters',     [StudentScoreController::class, 'semesters'])->name('semesters');
+            Route::get('/data/grade-subjects',[StudentScoreController::class, 'gradeSubjects'])->name('grade-subjects');
+        });
+
+        Route::get('/grade-subjects', [
+            StudentScoreController::class,
+            'gradeSubjects'
+        ])->name('grade-subjects');
+
+        Route::get('/students', [
+            StudentScoreController::class,
+            'students'
+        ])->name('students');
     });
 
 
@@ -298,6 +344,12 @@ Route::middleware(['auth'])->group(function () {
         // Route::prefix('grades')->name('grades.')->group(function () { ... });
         // Route::prefix('attendance')->name('attendance.')->group(function () { ... });
         // Route::prefix('assignments')->name('assignments.')->group(function () { ... });
+        // Route::prefix('scores')->name('scores.')->group(function () {
+        //     Route::get('/', [StudentScoreController::class, 'index'])->name('index');
+        //     Route::get('/final-score', [StudentScoreController::class, 'finalScore'])->name('final-score');
+        //     Route::get('/{id}', [StudentScoreController::class, 'show'])->name('show');
+        //     // Student hanya bisa lihat, tidak bisa store/update/delete
+        // });
     });
 
 });

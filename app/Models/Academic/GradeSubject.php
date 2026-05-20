@@ -2,6 +2,8 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Student\ScoreSession;
+use App\Models\Student\StudentScore;
 use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
@@ -78,5 +80,14 @@ class GradeSubject extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'grade_subject_id', 'id');
+    }
+
+    public function scoreSessions()
+    {
+        return $this->hasMany(
+            ScoreSession::class,
+            'grade_subject_id',
+            'grade_subject_id'
+        );
     }
 }

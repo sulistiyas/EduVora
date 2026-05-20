@@ -60,4 +60,9 @@ class Semester extends Model
     {
         return $this->belongsTo(AcademicYear::class, 'academic_year_id', 'academic_year_id');
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }

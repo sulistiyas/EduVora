@@ -15,6 +15,7 @@ import subjectSearch from './alpine/pages/academic/subject';
 import scheduleSearch  from './alpine/pages/academic/schedule';
 import { studentSearch, studentDetail, studentCreate } from './alpine/pages/school/student';
 import { teacherSearch, teacherDetail, teacherCreate } from './alpine/pages/school/teacher';
+import { teacherScore, teacherScoreForm } from './alpine/pages/school/score';
 
 // Make Alpine available globally before plugins
 window.Alpine = Alpine;
@@ -48,6 +49,9 @@ Alpine.data('studentCreate', studentCreate);
 Alpine.data('teacherSearch', teacherSearch);
 Alpine.data('teacherDetail', teacherDetail);
 Alpine.data('teacherCreate', teacherCreate);
+
+Alpine.data('teacherScore', teacherScore);
+Alpine.data('teacherScoreForm', teacherScoreForm);
 
 // Start Alpine
 Alpine.start();
