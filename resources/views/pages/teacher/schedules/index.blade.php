@@ -590,8 +590,7 @@
         todayMonth:  '{{ now()->translatedFormat('F Y') }}',
         todayDayName:'{{ now()->translatedFormat('l') }}',
     })"
-    x-init="init()"
->
+    x-init="init()">
 
     {{-- ── BREADCRUMB ──────────────────────────────────────────── --}}
     <div style="margin-bottom:16px">
@@ -1039,9 +1038,11 @@
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════
-         DETAIL DRAWER
-    ══════════════════════════════════════════════════════════════ --}}
+     TELEPORT: DRAWER + MODAL 
+══════════════════════════════════════════════════════════════════ --}}
     <template x-teleport="body">
+
+        {{-- ── DETAIL DRAWER ──────────────────────────────────── --}}
         <div
             x-show="showDetail"
             x-transition:enter="transition ease-out duration-200"
@@ -1052,8 +1053,7 @@
             x-transition:leave-end="opacity-0"
             class="ts-drawer-overlay"
             @click.self="closeDetail()"
-            @keydown.escape.window="closeDetail()"
-        >
+            @keydown.escape.window="closeDetail()">
             <div
                 x-show="showDetail"
                 x-transition:enter="transition ease-out duration-250"
@@ -1066,7 +1066,6 @@
             >
                 <div class="ts-drawer-handle"></div>
 
-                {{-- Drawer Header --}}
                 <div class="ts-drawer-head" style="position:relative">
                     <div style="display:flex;align-items:center;gap:12px">
                         <div
@@ -1084,10 +1083,7 @@
                     </button>
                 </div>
 
-                {{-- Drawer Body --}}
                 <div class="ts-drawer-body">
-
-                    {{-- Session type badge --}}
                     <div style="margin-bottom:16px">
                         <span
                             class="ts-badge"
@@ -1096,7 +1092,6 @@
                         ></span>
                     </div>
 
-                    {{-- Detail rows --}}
                     <div>
                         <div class="ts-detail-row">
                             <div class="ts-detail-icon"><i class="ri-calendar-event-line"></i></div>
@@ -1138,33 +1133,30 @@
                         </div>
                     </div>
 
-                    {{-- Quick actions --}}
                     <div style="margin-top:20px">
                         <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">
                             Aksi Cepat
                         </div>
                         <div style="display:flex;gap:8px">
-                            
-                            <a  :href="selectedEvent
-                                    ? '{{ route('teacher.attendance.start') }}?schedule_id=' + selectedEvent.schedule_id
-                                    : '#'"
+                            <button
+                                @click="startAttendance(selectedEvent?.schedule_id)"
+                                :disabled="!selectedEvent || createModal.loading"
                                 class="ts-quick-btn primary"
                             >
-                                <i class="ri-checkbox-circle-line"></i>
+                                <template x-if="createModal.loading">
+                                    <svg class="animate-spin" style="width:18px;height:18px" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                    </svg>
+                                </template>
+                                <i x-show="!createModal.loading" class="ri-checkbox-circle-line"></i>
                                 <span>Presensi</span>
-                            </a>
-                            
-                            <a :href="selectedEvent
-                                    ? '{{ route('teacher.scores.index') }}?schedule_id=' + selectedEvent.schedule_id
-                                    : '#'"
-                                class="ts-quick-btn">
+                            </button>
+                            <a :href="selectedEvent ? '{{ route('teacher.scores.index') }}?schedule_id=' + selectedEvent.schedule_id : '#'" class="ts-quick-btn">
                                 <i class="ri-bar-chart-line"></i>
                                 <span>Input Nilai</span>
                             </a>
-                            
-                            <a  :href="selectedEvent ? '/teacher/notes?schedule_id=' + selectedEvent.schedule_id : '#'"
-                                class="ts-quick-btn"
-                            >
+                            <a :href="selectedEvent ? '/teacher/notes?schedule_id=' + selectedEvent.schedule_id : '#'" class="ts-quick-btn">
                                 <i class="ri-sticky-note-line"></i>
                                 <span>Catatan</span>
                             </a>
@@ -1173,6 +1165,123 @@
                 </div>
             </div>
         </div>
+
+        
+    </template>
+
+    <template x-teleport="body">
+        {{-- ── MODAL CREATE ATTENDANCE SESSION ────────────────── --}}
+        <div
+            x-show="createModal.open"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="ts-drawer-overlay"
+            style="z-index:1100"
+            @click.self="createModal.open = false"
+            @keydown.escape.window="createModal.open = false">
+            <div
+                x-show="createModal.open"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-4"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 translate-y-4"
+                class="ts-drawer"
+                @click.stop
+            >
+                <div class="ts-drawer-handle"></div>
+
+                {{-- Header --}}
+                <div class="ts-drawer-head" style="position:relative">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:36px;height:36px;border-radius:10px;background:#EFF6FF;display:grid;place-items:center;flex-shrink:0">
+                            <i class="ri-calendar-check-line" style="font-size:17px;color:#2563EB"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:var(--text-primary)">Buat Sesi Absensi</div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-top:1px">Pilih tanggal untuk sesi ini</div>
+                        </div>
+                    </div>
+                    <button
+                        @click="createModal.open = false"
+                        class="ts-drawer-close"
+                    >
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+
+                {{-- Body --}}
+                <div class="ts-drawer-body">
+
+                    {{-- Schedule info --}}
+                    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+                        <div style="display:flex;flex-direction:column;gap:6px">
+                            <div style="display:flex;gap:8px;align-items:center;font-size:13px">
+                                <i class="ri-book-2-line" style="color:#2563EB;width:16px;flex-shrink:0"></i>
+                                <span style="color:var(--text-secondary)">Mapel:</span>
+                                <strong x-text="createModal.subject_name"></strong>
+                            </div>
+                            <div style="display:flex;gap:8px;align-items:center;font-size:13px">
+                                <i class="ri-group-line" style="color:#2563EB;width:16px;flex-shrink:0"></i>
+                                <span style="color:var(--text-secondary)">Kelas:</span>
+                                <strong x-text="createModal.grade_name"></strong>
+                            </div>
+                            <div style="display:flex;gap:8px;align-items:center;font-size:13px">
+                                <i class="ri-book-open-line" style="color:#2563EB;width:16px;flex-shrink:0"></i>
+                                <span style="color:var(--text-secondary)">Semester:</span>
+                                <strong x-text="createModal.semester_name"></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Form --}}
+                    <form :action="createModal.store_url" method="POST">
+                        @csrf
+                        <input type="hidden" name="schedule_id" :value="createModal.schedule_id">
+
+                        <div style="margin-bottom:16px">
+                            <label style="display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">
+                                <i class="ri-calendar-line" style="margin-right:4px"></i>
+                                Tanggal Absensi <span style="color:#EF4444">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                name="attendance_date"
+                                x-model="createModal.attendance_date"
+                                :max="createModal.today"
+                                required
+                                style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text-primary);background:var(--bg);outline:none;box-sizing:border-box;font-family:var(--font)"
+                                @focus="$el.style.borderColor='#2563EB';$el.style.boxShadow='0 0 0 3px rgba(37,99,235,.1)'"
+                                @blur="$el.style.borderColor='var(--border)';$el.style.boxShadow='none'"
+                            >
+                            <div style="margin-top:5px;font-size:11px;color:var(--text-muted)">
+                                <i class="ri-information-line"></i> Tidak bisa lebih dari hari ini
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:8px">
+                            <button
+                                type="button"
+                                @click="createModal.open = false"
+                                style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;color:var(--text-secondary);background:var(--bg);cursor:pointer;font-family:var(--font)"
+                            >Batal</button>
+                            <button
+                                type="submit"
+                                style="flex:2;padding:10px;background:#1D4ED8;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font)"
+                            >
+                                <i class="ri-check-line"></i> Buat Sesi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </template>
 
 </div>{{-- /x-data --}}
@@ -1253,6 +1362,19 @@ function teacherSchedule(config = {}) {
         ],
         _subjectColorCache: {},
         _colorIdx: 0,
+
+        // ─── Create Attendance Modal ────────────────────────────────
+        createModal: {
+            open:            false,
+            loading:         false,
+            schedule_id:     null,
+            subject_name:    '',
+            grade_name:      '',
+            semester_name:   '',
+            store_url:       '',
+            attendance_date: new Date().toISOString().split('T')[0],
+            today:           new Date().toISOString().split('T')[0],
+        },
 
         _getSubjectPalette(name) {
             if (!name) return this._colorPalette[0];
@@ -1397,6 +1519,49 @@ function teacherSchedule(config = {}) {
         closeDetail() {
             this.showDetail    = false;
             this.selectedEvent = null;
+        },
+
+        // ─── Start Attendance → buka modal create ───────────────────
+        async startAttendance(scheduleId) {
+            if (!scheduleId) return;
+            this.createModal.loading = true;
+            try {
+                const res  = await fetch('{{ route('teacher.attendance.start') }}', {
+                    method:  'POST',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        Accept:             'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN':     document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    },
+                    body: JSON.stringify({ schedule_id: scheduleId }),
+                });
+                const json = await res.json();
+        
+                if (!res.ok) throw new Error(json.message ?? 'Terjadi kesalahan.');
+
+                // Session hari ini sudah ada → langsung redirect
+                if (json.redirect) {
+                    window.location.href = json.redirect;
+                    return;
+                }
+
+                // Belum ada → tutup drawer, buka modal create
+                if (json.show_modal) {
+                    this.closeDetail();
+                    this.createModal.schedule_id     = json.schedule_id;
+                    this.createModal.subject_name    = json.subject_name;
+                    this.createModal.grade_name      = json.grade_name;
+                    this.createModal.semester_name   = json.semester_name;
+                    this.createModal.store_url       = json.store_url;
+                    this.createModal.attendance_date = this.createModal.today;
+                    this.createModal.open            = true;
+                }
+            } catch (err) {
+                this.showToast('error', err.message);
+            } finally {
+                this.createModal.loading = false;
+            }
         },
 
         // ─── Badge helpers ───────────────────────────────────────────

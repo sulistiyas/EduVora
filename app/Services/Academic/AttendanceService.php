@@ -53,6 +53,14 @@ class AttendanceService
     }
 
     /**
+     * Cek apakah sudah ada session untuk schedule pada hari ini.
+     */
+    public function findExistingSessionToday(int $scheduleId): ?AttendanceSession
+    {
+        return $this->repo->findByScheduleAndDate($scheduleId, now()->toDateString());
+    }
+
+    /**
      * Get or auto-create a draft session for a schedule on today's date.
      *
      * Flow:
@@ -64,16 +72,18 @@ class AttendanceService
      * Alasan auto-seed: lebih efisien — guru tinggal ubah siswa yang
      * tidak hadir, tidak perlu isi ulang dari kosong.
      */
-    public function getOrCreateSession(Schedule $schedule, int $teacherId, int $recordedBy): AttendanceSession
-    {
-        $today   = now()->toDateString();
-        $existing = $this->repo->findByScheduleAndDate($schedule->schedule_id, $today);
+    public function getOrCreateSession(
+        Schedule $schedule,
+        int      $teacherId,
+        int      $recordedBy,
+        string   $attendanceDate,   // ← wajib diisi dari luar
+    ): AttendanceSession {
+        $existing = $this->repo->findByScheduleAndDate($schedule->schedule_id, $attendanceDate);
 
         if ($existing) {
             return $existing;
         }
 
-        // Resolve FK dari schedule
         $gradeSubject = $schedule->gradeSubject;
         abort_if(is_null($gradeSubject), 422, 'Jadwal tidak memiliki data kelas/mapel.');
 
@@ -84,17 +94,16 @@ class AttendanceService
             'subject_id'      => $gradeSubject->subject_id,
             'grade_id'        => $gradeSubject->grade_id,
             'semester_id'     => $schedule->semester_id,
-            'attendance_date' => $today,
+            'attendance_date' => $attendanceDate,   // ← dari parameter
             'meeting_number'  => $this->nextMeetingNumber(
                                     $schedule->schedule_id,
                                     $schedule->semester_id
-                                 ),
+                                ),
             'status'          => AttendanceSession::STATUS_DRAFT,
             'is_locked'       => false,
             'recorded_by'     => $recordedBy,
         ]);
 
-        // Auto-seed: semua siswa di kelas default = Hadir
         $students = $this->repo->getStudentsByGrade($gradeSubject->grade_id);
         $details  = $students->map(fn ($s) => [
             'student_id' => $s->id,
@@ -103,7 +112,7 @@ class AttendanceService
         ])->toArray();
 
         $this->repo->upsertDetails($session->attendance_session_id, $details);
-        
+
         return $this->repo->findById($session->attendance_session_id);
     }
 

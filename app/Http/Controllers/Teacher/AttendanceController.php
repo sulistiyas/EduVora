@@ -65,18 +65,12 @@ class AttendanceController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | START — called when teacher clicks "Presensi" from schedule
+    | START — redirect ke form create (dengan date picker)
     |
     | GET /teacher/attendance/start?schedule_id=X
-    |
-    | Logic:
-    |   1. Validate schedule belongs to teacher
-    |   2. Get-or-create draft session for today
-    |   3. Redirect to show page
     |--------------------------------------------------------------------------
     */
-
-    public function start(Request $request): RedirectResponse
+    public function start(Request $request): JsonResponse|RedirectResponse
     {
         $request->validate([
             'schedule_id' => ['required', 'integer', 'exists:schedules,schedule_id'],
@@ -91,7 +85,86 @@ class AttendanceController extends Controller
             'semester',
         ])->findOrFail($request->schedule_id);
 
-        // Guard: jadwal harus milik teacher ini
+        abort_if(
+            $schedule->gradeSubject?->teacher_id !== $teacher->teacher_id,
+            403, 'Jadwal ini bukan milik Anda.'
+        );
+
+        // Jika sudah ada session hari ini → langsung kirim URL show
+        $existing = $this->service->findExistingSessionToday($schedule->schedule_id);
+        if ($existing) {
+            return response()->json([
+                'redirect' => route('teacher.attendance.show', $existing->attendance_session_id),
+                'message'  => 'Sesi hari ini sudah ada, melanjutkan sesi.',
+            ]);
+        }
+
+        // Belum ada → kirim data schedule untuk modal
+        return response()->json([
+            'show_modal'  => true,
+            'schedule_id' => $schedule->schedule_id,
+            'subject_name'=> $schedule->gradeSubject?->subject?->subject_name,
+            'grade_name'  => $schedule->gradeSubject?->grade?->grade_name,
+            'semester_name'=> $schedule->semester?->semester_name,
+            'store_url'   => route('teacher.attendance.store'),
+        ]);
+    }
+    
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE — form pilih tanggal sebelum buat sesi
+    |
+    | GET /teacher/attendance/create?schedule_id=X
+    |--------------------------------------------------------------------------
+    */
+    public function create(Request $request): View
+    {
+        $request->validate([
+            'schedule_id' => ['required', 'integer', 'exists:schedules,schedule_id'],
+        ]);
+
+        $teacher = Auth::user()->teacher;
+        abort_if(is_null($teacher), 403, 'Akun ini tidak terhubung ke data guru.');
+
+        $schedule = Schedule::with([
+            'gradeSubject.subject',
+            'gradeSubject.grade',
+            'semester',
+        ])->findOrFail($request->schedule_id);
+
+        abort_if(
+            $schedule->gradeSubject?->teacher_id !== $teacher->teacher_id,
+            403,
+            'Jadwal ini bukan milik Anda.'
+        );
+
+        return view('pages.teacher.attendance.create', compact('schedule'));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STORE — simpan sesi baru dengan tanggal yang dipilih guru
+    |
+    | POST /teacher/attendance
+    |--------------------------------------------------------------------------
+    */
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'schedule_id'     => ['required', 'integer', 'exists:schedules,schedule_id'],
+            'attendance_date' => ['required', 'date', 'date_format:Y-m-d'],
+        ]);
+
+        $teacher = Auth::user()->teacher;
+        abort_if(is_null($teacher), 403, 'Akun ini tidak terhubung ke data guru.');
+
+        $schedule = Schedule::with([
+            'gradeSubject.subject',
+            'gradeSubject.grade',
+            'semester',
+        ])->findOrFail($data['schedule_id']);
+
         abort_if(
             $schedule->gradeSubject?->teacher_id !== $teacher->teacher_id,
             403,
@@ -99,13 +172,14 @@ class AttendanceController extends Controller
         );
 
         $session = $this->service->getOrCreateSession(
-            schedule:   $schedule,
-            teacherId:  $teacher->teacher_id,
-            recordedBy: Auth::id(),
+            schedule:        $schedule,
+            teacherId:       $teacher->teacher_id,
+            recordedBy:      Auth::id(),
+            attendanceDate:  $data['attendance_date'],
         );
 
         return redirect()->route('teacher.attendance.show', $session->attendance_session_id)
-            ->with('info', 'Sesi absensi ' . ($session->wasRecentlyCreated ? 'dibuat' : 'dilanjutkan') . '.');
+            ->with('info', 'Sesi absensi ' . ($session->wasRecentlyCreated ? 'dibuat' : 'sudah ada, dilanjutkan') . '.');
     }
 
     /*
