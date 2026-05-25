@@ -202,6 +202,46 @@
                 Input Nilai
             </a>
 
+            <div class="nav-section-label" style="margin-top:8px;">Reports</div>
+
+            <a href="{{ route('teacher.reports.attendance.index') }}"
+            class="nav-item {{ request()->routeIs('teacher.reports.attendance.*') ? 'active' : '' }}">
+                <i class="ri-file-chart-line"></i>
+                Attendance Reports
+            </a>
+
+            <a href="#"
+            class="nav-item {{ request()->routeIs('teacher.reports.scores.*') ? 'active' : '' }}">
+                <i class="ri-bar-chart-box-line"></i>
+                Score Reports
+            </a>
+
+            <a href="#"
+            class="nav-item {{ request()->routeIs('teacher.reports.student-progress.*') ? 'active' : '' }}">
+                <i class="ri-user-star-line"></i>
+                Student Progress
+            </a>
+
+            <a href="#"
+            class="nav-item {{ request()->routeIs('teacher.reports.class-statistics.*') ? 'active' : '' }}">
+                <i class="ri-pie-chart-2-line"></i>
+                Class Statistics
+            </a>
+
+            <a href="#"
+            class="nav-item {{ request()->routeIs('teacher.reports.learning-completion.*') ? 'active' : '' }}">
+                <i class="ri-checkbox-multiple-line"></i>
+                Learning Completion
+            </a>
+
+            <a href="#"
+            class="nav-item {{ request()->routeIs('teacher.reports.export.*') ? 'active' : '' }}">
+                <i class="ri-download-2-line"></i>
+                Export Reports
+            </a>
+
+            
+
         @endif
 
         {{-- ══════════════════════════════════

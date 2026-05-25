@@ -1,0 +1,586 @@
+/* ============================================
+   ATTENDANCE REPORT — attendance.css
+   Import di blade via @push('styles')
+   Design: Soft Blue System (ikuti main.css)
+============================================ */
+
+/* ============================================
+   PAGE HEADER
+============================================ */
+.ar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ar-header-left {}
+
+.ar-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.4px;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ar-title i {
+    font-size: 22px;
+    color: var(--primary);
+}
+
+.ar-subtitle {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.ar-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ============================================
+   FILTER BAR
+============================================ */
+.ar-filter {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+}
+
+.ar-filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.ar-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ar-filter-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+
+.ar-filter-input,
+.ar-filter-select {
+    height: 38px;
+    padding: 0 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    font-family: var(--font);
+    font-size: 13px;
+    color: var(--text-primary);
+    outline: none;
+    transition: all .18s;
+    width: 100%;
+}
+
+.ar-filter-select {
+    padding-right: 32px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='%2394A3B8'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    background-color: var(--bg);
+    cursor: pointer;
+}
+
+.ar-filter-input:focus,
+.ar-filter-select:focus {
+    border-color: var(--primary);
+    background: var(--card);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+}
+
+/* Date range wrapper — litepicker target */
+.ar-date-wrap {
+    position: relative;
+}
+
+.ar-date-wrap i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.ar-date-wrap .ar-filter-input {
+    padding-left: 32px;
+}
+
+/* Filter action buttons */
+.ar-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s;
+    white-space: nowrap;
+    text-decoration: none;
+    border: none;
+    letter-spacing: -.1px;
+}
+
+.ar-btn i { font-size: 15px; }
+
+.ar-btn-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(59,130,246,.25);
+}
+
+.ar-btn-primary:hover {
+    background: var(--primary-dark);
+    box-shadow: 0 4px 14px rgba(59,130,246,.35);
+    transform: translateY(-1px);
+}
+
+.ar-btn-outline {
+    background: var(--card);
+    color: var(--text-secondary);
+    border: 1.5px solid var(--border);
+}
+
+.ar-btn-outline:hover {
+    border-color: var(--primary-light);
+    color: var(--primary);
+    background: var(--bg);
+}
+
+.ar-btn-export {
+    background: #ECFDF5;
+    color: #065F46;
+    border: 1.5px solid #A7F3D0;
+}
+
+.ar-btn-export:hover {
+    background: #10B981;
+    border-color: #10B981;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,.3);
+}
+
+/* Active filter chips */
+.ar-chips {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.ar-chips:empty { display: none; }
+
+.ar-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 10px 0 9px;
+    background: var(--primary-xlight);
+    border: 1px solid var(--primary-light);
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.ar-chip-x {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 13px;
+    line-height: 1;
+    padding: 0;
+    opacity: .65;
+    display: flex;
+    transition: opacity .15s;
+}
+
+.ar-chip-x:hover { opacity: 1; }
+
+/* ============================================
+   SUMMARY CARDS
+============================================ */
+.ar-summary {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+}
+
+.ar-sum-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .2s, transform .2s;
+    animation: fadeUp .4s ease both;
+}
+
+.ar-sum-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.ar-sum-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.ar-sum-card.blue::after    { background: linear-gradient(90deg, #3B82F6, #93C5FD); }
+.ar-sum-card.green::after   { background: linear-gradient(90deg, #10B981, #6EE7B7); }
+.ar-sum-card.sky::after     { background: linear-gradient(90deg, #0EA5E9, #7DD3FC); }
+.ar-sum-card.yellow::after  { background: linear-gradient(90deg, #F59E0B, #FCD34D); }
+.ar-sum-card.red::after     { background: linear-gradient(90deg, #EF4444, #FCA5A5); }
+.ar-sum-card.slate::after   { background: linear-gradient(90deg, #64748B, #94A3B8); }
+
+.ar-sum-card:nth-child(1) { animation-delay: .04s; }
+.ar-sum-card:nth-child(2) { animation-delay: .08s; }
+.ar-sum-card:nth-child(3) { animation-delay: .12s; }
+.ar-sum-card:nth-child(4) { animation-delay: .16s; }
+.ar-sum-card:nth-child(5) { animation-delay: .20s; }
+.ar-sum-card:nth-child(6) { animation-delay: .24s; }
+
+.ar-sum-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+}
+
+.ar-sum-icon i { font-size: 17px; }
+
+.ar-sum-icon.blue   { background: #EFF6FF; color: #3B82F6; }
+.ar-sum-icon.green  { background: #ECFDF5; color: #10B981; }
+.ar-sum-icon.sky    { background: #F0F9FF; color: #0EA5E9; }
+.ar-sum-icon.yellow { background: #FFFBEB; color: #F59E0B; }
+.ar-sum-icon.red    { background: #FEF2F2; color: #EF4444; }
+.ar-sum-icon.slate  { background: #F8FAFC; color: #64748B; }
+
+.ar-sum-val {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 3px;
+}
+
+.ar-sum-label {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.ar-sum-rate {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ar-sum-rate strong {
+    font-weight: 700;
+}
+
+.ar-rate-good  { color: #10B981; }
+.ar-rate-warn  { color: #F59E0B; }
+.ar-rate-bad   { color: #EF4444; }
+
+/* ============================================
+   TAB TOGGLE
+============================================ */
+.ar-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    width: fit-content;
+}
+
+.ar-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    border: none;
+    background: none;
+    font-family: var(--font);
+    transition: all .18s;
+}
+
+.ar-tab i { font-size: 15px; }
+
+.ar-tab:hover {
+    color: var(--text-secondary);
+    background: rgba(0,0,0,.04);
+}
+
+.ar-tab.active {
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: 0 1px 4px rgba(59,130,246,.15), 0 0 0 1px var(--border);
+}
+
+/* ============================================
+   TABLE SECTION (reuse dt-* dari datatable.css)
+   Override minor saja di sini
+============================================ */
+.ar-table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.ar-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.ar-table-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ar-table-title i { color: var(--primary); font-size: 16px; }
+
+.ar-table-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 9px;
+    border-radius: 99px;
+    margin-left: 4px;
+}
+
+/* ============================================
+   STATUS BADGES — attendance specific
+============================================ */
+.ar-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ar-status::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    display: block;
+    flex-shrink: 0;
+}
+
+.ar-status.hadir    { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+.ar-status.hadir::before    { background: #10B981; }
+
+.ar-status.izin     { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+.ar-status.izin::before     { background: #3B82F6; }
+
+.ar-status.sakit    { background: #F0F9FF; color: #0369A1; border: 1px solid #BAE6FD; }
+.ar-status.sakit::before    { background: #0EA5E9; }
+
+.ar-status.alpha    { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+.ar-status.alpha::before    { background: #EF4444; }
+
+.ar-status.terlambat { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+.ar-status.terlambat::before { background: #F59E0B; }
+
+/* ============================================
+   PER-STUDENT SUMMARY ROW
+============================================ */
+.ar-student-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 120px;
+}
+
+.ar-student-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.ar-student-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+    background: #10B981;
+}
+
+.ar-student-bar-fill.warn { background: #F59E0B; }
+.ar-student-bar-fill.bad  { background: #EF4444; }
+
+.ar-student-pct {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    min-width: 34px;
+    text-align: right;
+    font-family: var(--font-mono);
+}
+
+/* Stat mini pills (H/I/S/A/L) dalam row */
+.ar-mini-stats {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.ar-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.ar-mini.h { background: #ECFDF5; color: #065F46; }
+.ar-mini.i { background: #EFF6FF; color: #1D4ED8; }
+.ar-mini.s { background: #F0F9FF; color: #0369A1; }
+.ar-mini.a { background: #FEF2F2; color: #991B1B; }
+.ar-mini.l { background: #FFFBEB; color: #92400E; }
+
+/* ============================================
+   EMPTY STATE
+============================================ */
+.ar-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+    text-align: center;
+    gap: 10px;
+}
+
+.ar-empty-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    display: grid;
+    place-items: center;
+    margin-bottom: 6px;
+}
+
+.ar-empty-icon i { font-size: 30px; color: var(--primary-light); }
+
+.ar-empty-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -.3px;
+}
+
+.ar-empty-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 260px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 1200px) {
+    .ar-summary { grid-template-columns: repeat(3, 1fr); }
+    .ar-filter-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .ar-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
+}
+
+@media (max-width: 900px) {
+    .ar-summary { grid-template-columns: repeat(2, 1fr); }
+    .ar-filter-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+    .ar-summary { grid-template-columns: repeat(2, 1fr); }
+    .ar-filter-grid { grid-template-columns: 1fr; }
+    .ar-header { flex-direction: column; align-items: flex-start; }
+    .ar-tabs { width: 100%; }
+    .ar-tab { flex: 1; justify-content: center; }
+}

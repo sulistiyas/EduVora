@@ -16,6 +16,7 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
+use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -334,6 +335,13 @@ Route::middleware(['auth'])->group(function () {
             StudentScoreController::class,
             'students'
         ])->name('students');
+
+        Route::prefix('reports/attendance')->name('reports.attendance.')->group(function () {
+            Route::get('/',          [AttendanceReportController::class, 'index'])->name('index');
+            Route::get('/students',  [AttendanceReportController::class, 'studentSummary'])->name('students');
+            Route::get('/export',    [AttendanceReportController::class, 'export'])->name('export');
+            Route::get('/{session}', [AttendanceReportController::class, 'show'])->name('show');
+        });
     });
 
 

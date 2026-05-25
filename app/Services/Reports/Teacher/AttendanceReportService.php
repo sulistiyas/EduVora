@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Services\Teacher\Reports;
+namespace App\Services\Reports\Teacher;
 
 use App\Models\Activity\AttendanceDetail;
-use App\Models\Activity\AttendanceSession;
 use App\Repositories\Reports\Contracts\AttendanceReportRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -17,9 +16,19 @@ class AttendanceReportService
     /*
     |--------------------------------------------------------------------------
     | FILTER BUILDER
+    | Sanitize & normalize raw request input menjadi filter array standar
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Build a clean filter array from raw request input.
+     * Selalu inject teacher_id & school_id dari auth context.
+     *
+     * @param  array  $input     — dari $request->only([...])
+     * @param  int    $teacherId — dari auth teacher
+     * @param  int    $schoolId  — dari auth school
+     * @return array
+     */
     public function buildFilters(array $input, int $teacherId, int $schoolId): array
     {
         return [
@@ -34,14 +43,17 @@ class AttendanceReportService
         ];
     }
 
+    /**
+     * Validate status value against allowed constants.
+     */
     private function sanitizeStatus(?string $status): ?string
     {
         $allowed = [
-            AttendanceDetail::STATUS_PRESENT,
-            AttendanceDetail::STATUS_PERMISSION,
-            AttendanceDetail::STATUS_SICK,
-            AttendanceDetail::STATUS_ABSENT,
-            AttendanceDetail::STATUS_LATE,
+            AttendanceDetail::STATUS_PRESENT,    // H
+            AttendanceDetail::STATUS_PERMISSION, // I
+            AttendanceDetail::STATUS_SICK,       // S
+            AttendanceDetail::STATUS_ABSENT,     // A
+            AttendanceDetail::STATUS_LATE,       // L
         ];
 
         return in_array($status, $allowed, true) ? $status : null;
@@ -49,10 +61,25 @@ class AttendanceReportService
 
     /*
     |--------------------------------------------------------------------------
-    | INDEX PAGE DATA
+    | PAGE DATA
+    | Single method untuk index page — ambil semua data yang dibutuhkan view
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Get all data needed for the attendance report index page.
+     *
+     * Returns:
+     *   - sessions    : LengthAwarePaginator
+     *   - summary     : array  (aggregate counts untuk cards)
+     *   - grades      : Collection (dropdown options)
+     *   - subjects    : Collection (dropdown options)
+     *   - filters     : array  (active filters — dikirim balik ke view)
+     *
+     * @param  array  $filters
+     * @param  int    $perPage
+     * @return array
+     */
     public function getIndexData(array $filters, int $perPage = 15): array
     {
         return [
@@ -70,6 +97,13 @@ class AttendanceReportService
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Get aggregate summary with percentage calculations.
+     * Adds: attendance_rate, absence_rate — siap render di summary cards.
+     *
+     * @param  array  $filters
+     * @return array
+     */
     public function getFormattedSummary(array $filters): array
     {
         $raw = $this->repo->getAggregateSummary($filters);
@@ -80,11 +114,11 @@ class AttendanceReportService
             + $raw['total_absent']
             + $raw['total_late'];
 
-        $raw['total_detail']    = $totalDetail;
-        $raw['attendance_rate'] = $totalDetail > 0
+        $raw['total_detail']     = $totalDetail;
+        $raw['attendance_rate']  = $totalDetail > 0
             ? round(($raw['total_present'] / $totalDetail) * 100, 1)
             : 0;
-        $raw['absence_rate']    = $totalDetail > 0
+        $raw['absence_rate']     = $totalDetail > 0
             ? round(($raw['total_absent'] / $totalDetail) * 100, 1)
             : 0;
 
@@ -93,10 +127,16 @@ class AttendanceReportService
 
     /*
     |--------------------------------------------------------------------------
-    | STUDENT SUMMARY
+    | STUDENT SUMMARY (tab/view per-siswa)
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Get per-student summary with attendance rate per student.
+     *
+     * @param  array  $filters
+     * @return Collection
+     */
     public function getStudentSummary(array $filters): Collection
     {
         return $this->repo
@@ -104,8 +144,15 @@ class AttendanceReportService
             ->map(function ($row) {
                 $total = $row->total_sessions > 0 ? $row->total_sessions : 1;
 
-                $row->attendance_rate = round(($row->total_present / $total) * 100, 1);
-                $row->absence_rate    = round(($row->total_absent  / $total) * 100, 1);
+                $row->attendance_rate = round(
+                    ($row->total_present / $total) * 100,
+                    1
+                );
+
+                $row->absence_rate = round(
+                    ($row->total_absent / $total) * 100,
+                    1
+                );
 
                 return $row;
             });
@@ -117,6 +164,12 @@ class AttendanceReportService
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Get detail rows for a single session, grouped by status for easy rendering.
+     *
+     * @param  int  $sessionId
+     * @return array
+     */
     public function getSessionDetail(int $sessionId): array
     {
         $details = $this->repo->getDetailsBySession($sessionId);
@@ -139,29 +192,16 @@ class AttendanceReportService
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EXPORT PER SESI — dipakai oleh controller export()
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Flatten details 1 sesi menjadi flat rows siap export.
-     * Setiap row = 1 siswa dalam sesi tersebut.
-     *
-     * @param  int  $sessionId
-     * @return Collection
-     */
     public function getExportRowsBySession(int $sessionId): Collection
     {
         $details = $this->repo->getDetailsBySession($sessionId);
 
         return $details->map(function ($detail) {
             return [
-                'student_name'   => $detail->student?->full_name ?? '-',
-                'nis'            => $detail->student?->nis        ?? '-',
+                'student_name'   => $detail->student?->full_name  ?? '-',
+                'nis'            => $detail->student?->nis         ?? '-',
                 'status_label'   => $detail->status_label,
-                'note'           => $detail->note                 ?? '',
+                'note'           => $detail->note                  ?? '',
                 'notified_at'    => $detail->notified_at
                                     ? $detail->notified_at->format('d/m/Y H:i')
                                     : '-',
@@ -172,10 +212,52 @@ class AttendanceReportService
 
     /*
     |--------------------------------------------------------------------------
+    | EXPORT
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Flatten sessions + details menjadi array of rows siap export.
+     * Setiap baris = 1 student x 1 session.
+     *
+     * Columns:
+     *   date | meeting_number | grade | subject | student_name | nis | status | status_label | note
+     *
+     * @param  array  $filters
+     * @return Collection
+     */
+    // public function getExportRows(array $filters): Collection
+    // {
+    //     $sessions = $this->repo->getSessionsForExport($filters);
+
+    //     return $sessions->flatMap(function ($session) {
+    //         return $session->details->map(function ($detail) use ($session) {
+    //             return [
+    //                 'date'           => $session->attendance_date->format('d/m/Y'),
+    //                 'meeting_number' => $session->meeting_number,
+    //                 'grade'          => $session->grade?->grade_name ?? '-',
+    //                 'subject'        => $session->subject?->subject_name ?? '-',
+    //                 'student_name'   => $detail->student?->full_name ?? '-',
+    //                 'nis'            => $detail->student?->nis ?? '-',
+    //                 'status'         => $detail->status,
+    //                 'status_label'   => $detail->status_label,
+    //                 'note'           => $detail->note ?? '',
+    //             ];
+    //         });
+    //     });
+    // }
+
+    /*
+    |--------------------------------------------------------------------------
     | HELPERS
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Status options untuk filter dropdown di view.
+     *
+     * @return array
+     */
     public function getStatusOptions(): array
     {
         return [

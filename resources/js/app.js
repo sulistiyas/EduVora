@@ -17,6 +17,11 @@ import { studentSearch, studentDetail, studentCreate } from './alpine/pages/scho
 import { teacherSearch, teacherDetail, teacherCreate } from './alpine/pages/school/teacher';
 import { teacherScore, teacherScoreForm } from './alpine/pages/school/score';
 
+import attendanceFilter from './alpine/components/reports/attendance/filter';
+import attendanceTable from './alpine/components/reports/attendance/table';
+import attendanceSummary from './alpine/components/reports/attendance/summary';
+import attendanceExport from './alpine/components/reports/attendance/export';
+
 // Make Alpine available globally before plugins
 window.Alpine = Alpine;
 window.Swal = Swal;
@@ -52,6 +57,11 @@ Alpine.data('teacherCreate', teacherCreate);
 
 Alpine.data('teacherScore', teacherScore);
 Alpine.data('teacherScoreForm', teacherScoreForm);
+
+Alpine.data('attendanceFilter',  attendanceFilter)
+Alpine.data('attendanceTable',   attendanceTable)
+Alpine.data('attendanceSummary', attendanceSummary)
+Alpine.data('attendanceExport',  attendanceExport)
 
 // Start Alpine
 Alpine.start();
