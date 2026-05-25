@@ -19,9 +19,12 @@
         <div class="nav-section-label" style="margin-top:8px;">Menu Utama</div>
 
         <a href="{{ route('dashboard') }}"
-        class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="ri-dashboard-3-line"></i>
-            Dashboard
+            class="nav-item {{ request()->routeIs(
+                '*.dashboard',
+                'dashboard'
+            ) ? 'active' : '' }}">
+                <i class="ri-dashboard-3-line"></i>
+                Dashboard
         </a>
 
         {{-- ══════════════════════════════════

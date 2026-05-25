@@ -1,189 +1,306 @@
 <?php
 
-namespace App\Services\Teacher\Reports;
+namespace App\Services\Academic;
 
-use App\Models\Activity\AttendanceDetail;
+use App\Models\Academic\Schedule;
 use App\Models\Activity\AttendanceSession;
-use App\Repositories\Reports\Contracts\AttendanceReportRepositoryInterface;
+use App\Repositories\Academic\AttendanceRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
-class AttendanceReportService
+class AttendanceService
 {
     public function __construct(
-        protected AttendanceReportRepositoryInterface $repo
+        protected AttendanceRepository $repo
     ) {}
 
     /*
     |--------------------------------------------------------------------------
-    | FILTER BUILDER
-    |--------------------------------------------------------------------------
-    */
-
-    public function buildFilters(array $input, int $teacherId, int $schoolId): array
-    {
-        return [
-            'teacher_id'  => $teacherId,
-            'school_id'   => $schoolId,
-            'semester_id' => $input['semester_id'] ?? null,
-            'grade_id'    => $input['grade_id']    ?? null,
-            'subject_id'  => $input['subject_id']  ?? null,
-            'status'      => $this->sanitizeStatus($input['status'] ?? null),
-            'date_from'   => $input['date_from']   ?? null,
-            'date_to'     => $input['date_to']     ?? null,
-        ];
-    }
-
-    private function sanitizeStatus(?string $status): ?string
-    {
-        $allowed = [
-            AttendanceDetail::STATUS_PRESENT,
-            AttendanceDetail::STATUS_PERMISSION,
-            AttendanceDetail::STATUS_SICK,
-            AttendanceDetail::STATUS_ABSENT,
-            AttendanceDetail::STATUS_LATE,
-        ];
-
-        return in_array($status, $allowed, true) ? $status : null;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | INDEX PAGE DATA
-    |--------------------------------------------------------------------------
-    */
-
-    public function getIndexData(array $filters, int $perPage = 15): array
-    {
-        return [
-            'sessions' => $this->repo->getSessions($filters, $perPage),
-            'summary'  => $this->getFormattedSummary($filters),
-            'grades'   => $this->repo->getGradeOptions($filters['teacher_id'], $filters['school_id']),
-            'subjects' => $this->repo->getSubjectOptions($filters['teacher_id'], $filters['school_id']),
-            'filters'  => $filters,
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUMMARY CARDS
-    |--------------------------------------------------------------------------
-    */
-
-    public function getFormattedSummary(array $filters): array
-    {
-        $raw = $this->repo->getAggregateSummary($filters);
-
-        $totalDetail = $raw['total_present']
-            + $raw['total_permission']
-            + $raw['total_sick']
-            + $raw['total_absent']
-            + $raw['total_late'];
-
-        $raw['total_detail']    = $totalDetail;
-        $raw['attendance_rate'] = $totalDetail > 0
-            ? round(($raw['total_present'] / $totalDetail) * 100, 1)
-            : 0;
-        $raw['absence_rate']    = $totalDetail > 0
-            ? round(($raw['total_absent'] / $totalDetail) * 100, 1)
-            : 0;
-
-        return $raw;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | STUDENT SUMMARY
-    |--------------------------------------------------------------------------
-    */
-
-    public function getStudentSummary(array $filters): Collection
-    {
-        return $this->repo
-            ->getStudentSummary($filters)
-            ->map(function ($row) {
-                $total = $row->total_sessions > 0 ? $row->total_sessions : 1;
-
-                $row->attendance_rate = round(($row->total_present / $total) * 100, 1);
-                $row->absence_rate    = round(($row->total_absent  / $total) * 100, 1);
-
-                return $row;
-            });
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SESSION DETAIL
-    |--------------------------------------------------------------------------
-    */
-
-    public function getSessionDetail(int $sessionId): array
-    {
-        $details = $this->repo->getDetailsBySession($sessionId);
-
-        return [
-            'all'        => $details,
-            'present'    => $details->where('status', AttendanceDetail::STATUS_PRESENT),
-            'permission' => $details->where('status', AttendanceDetail::STATUS_PERMISSION),
-            'sick'       => $details->where('status', AttendanceDetail::STATUS_SICK),
-            'absent'     => $details->where('status', AttendanceDetail::STATUS_ABSENT),
-            'late'       => $details->where('status', AttendanceDetail::STATUS_LATE),
-            'counts'     => [
-                'present'    => $details->where('status', AttendanceDetail::STATUS_PRESENT)->count(),
-                'permission' => $details->where('status', AttendanceDetail::STATUS_PERMISSION)->count(),
-                'sick'       => $details->where('status', AttendanceDetail::STATUS_SICK)->count(),
-                'absent'     => $details->where('status', AttendanceDetail::STATUS_ABSENT)->count(),
-                'late'       => $details->where('status', AttendanceDetail::STATUS_LATE)->count(),
-                'total'      => $details->count(),
-            ],
-        ];
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXPORT PER SESI — dipakai oleh controller export()
+    | SESSION
     |--------------------------------------------------------------------------
     */
 
     /**
-     * Flatten details 1 sesi menjadi flat rows siap export.
-     * Setiap row = 1 siswa dalam sesi tersebut.
-     *
-     * @param  int  $sessionId
-     * @return Collection
+     * Paginate sessions for a teacher.
      */
-    public function getExportRowsBySession(int $sessionId): Collection
+    public function paginate(int $teacherId, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $details = $this->repo->getDetailsBySession($sessionId);
+        return $this->repo->paginateByTeacher($teacherId, $filters, $perPage);
+    }
 
-        return $details->map(function ($detail) {
-            return [
-                'student_name'   => $detail->student?->full_name ?? '-',
-                'nis'            => $detail->student?->nis        ?? '-',
-                'status_label'   => $detail->status_label,
-                'note'           => $detail->note                 ?? '',
-                'notified_at'    => $detail->notified_at
-                                    ? $detail->notified_at->format('d/m/Y H:i')
-                                    : '-',
-                'meeting_number' => $detail->session?->meeting_number ?? '-',
-            ];
-        });
+    /**
+     * Find a session or abort 404.
+     */
+    public function findOrFail(int $id): AttendanceSession
+    {
+        $session = $this->repo->findById($id);
+        abort_if(is_null($session), 404, 'Sesi absensi tidak ditemukan.');
+        return $session;
+    }
+
+    /**
+     * Ensure teacher owns this session, abort 403 otherwise.
+     */
+    public function authorizeTeacher(AttendanceSession $session, int $teacherId): void
+    {
+        abort_if(
+            $session->teacher_id !== $teacherId,
+            403,
+            'Anda tidak memiliki akses ke sesi ini.'
+        );
+    }
+
+    /**
+     * Cek apakah sudah ada session untuk schedule pada hari ini.
+     */
+    public function findExistingSessionToday(int $scheduleId): ?AttendanceSession
+    {
+        return $this->repo->findByScheduleAndDate($scheduleId, now()->toDateString());
+    }
+
+    /**
+     * Get or auto-create a draft session for a schedule on today's date.
+     *
+     * Flow:
+     *   1. Cek apakah sudah ada session untuk schedule + date ini.
+     *   2. Jika ada → kembalikan session yang ada.
+     *   3. Jika belum → buat session draft baru, lalu seed details
+     *      dengan semua siswa di kelas (status default = H/Hadir).
+     *
+     * Alasan auto-seed: lebih efisien — guru tinggal ubah siswa yang
+     * tidak hadir, tidak perlu isi ulang dari kosong.
+     */
+    public function getOrCreateSession(
+        Schedule $schedule,
+        int      $teacherId,
+        int      $recordedBy,
+        string   $attendanceDate,   // ← wajib diisi dari luar
+    ): AttendanceSession {
+        $existing = $this->repo->findByScheduleAndDate($schedule->schedule_id, $attendanceDate);
+
+        if ($existing) {
+            return $existing;
+        }
+
+        $gradeSubject = $schedule->gradeSubject;
+        abort_if(is_null($gradeSubject), 422, 'Jadwal tidak memiliki data kelas/mapel.');
+
+        $session = $this->repo->createSession([
+            'school_id'       => Auth::user()->schools()->first()?->school_id,
+            'schedule_id'     => $schedule->schedule_id,
+            'teacher_id'      => $teacherId,
+            'subject_id'      => $gradeSubject->subject_id,
+            'grade_id'        => $gradeSubject->grade_id,
+            'semester_id'     => $schedule->semester_id,
+            'attendance_date' => $attendanceDate,   // ← dari parameter
+            'meeting_number'  => $this->nextMeetingNumber(
+                                    $schedule->schedule_id,
+                                    $schedule->semester_id
+                                ),
+            'status'          => AttendanceSession::STATUS_DRAFT,
+            'is_locked'       => false,
+            'recorded_by'     => $recordedBy,
+        ]);
+
+        $students = $this->repo->getStudentsByGrade($gradeSubject->grade_id);
+        $details  = $students->map(fn ($s) => [
+            'student_id' => $s->id,
+            'status'     => 'H',
+            'note'       => null,
+        ])->toArray();
+
+        $this->repo->upsertDetails($session->attendance_session_id, $details);
+
+        return $this->repo->findById($session->attendance_session_id);
+    }
+
+    /**
+     * Save attendance details (bulk upsert) for a draft session.
+     * Throws ValidationException if session is locked or already approved.
+     */
+    // public function saveDetails(AttendanceSession $session, array $details): AttendanceSession
+    // {
+    //     $this->guardLocked($session);
+
+    //     $this->repo->upsertDetails($session->attendance_session_id, $details);
+
+    //     return $this->repo->findById($session->attendance_session_id);
+    // }
+    public function saveDetails(AttendanceSession $session, array $details): AttendanceSession
+    {
+        $this->guardLocked($session);
+
+        // Approved tidak boleh diedit
+        if ($session->isApproved()) {
+            throw ValidationException::withMessages([
+                'status' => 'Sesi yang sudah disetujui tidak dapat diubah.',
+            ]);
+        }
+
+        $this->repo->upsertDetails(
+            $session->attendance_session_id,
+            $details
+        );
+
+        /**
+         * Jika sebelumnya sudah submitted,
+         * lalu diedit kembali saat unlocked,
+         * otomatis kembali ke draft.
+         */
+        if ($session->status === AttendanceSession::STATUS_SUBMITTED) {
+
+            $session = $this->repo->updateSession($session, [
+                'status' => AttendanceSession::STATUS_DRAFT,
+            ]);
+        }
+
+        return $this->repo->findById($session->attendance_session_id);
+    }
+
+    /**
+     * Submit a session (draft → submitted).
+     * Optionally saves notes at the same time.
+     */
+    public function submit(AttendanceSession $session, ?string $notes = null): AttendanceSession
+    {
+        $this->guardLocked($session);
+
+        return $this->repo->updateSession($session, [
+            'status' => AttendanceSession::STATUS_SUBMITTED,
+            'notes'  => $notes ?? $session->notes,
+        ]);
+    }
+
+    /**
+     * Lock a session (teacher self-lock after submit).
+     */
+    public function lock(AttendanceSession $session): AttendanceSession
+    {
+        if ($session->is_locked) {
+            return $session;
+        }
+
+        return $this->repo->updateSession($session, ['is_locked' => true]);
+    }
+
+    /**
+     * Unlock a session (only if not approved yet).
+     */
+    public function unlock(AttendanceSession $session): AttendanceSession
+    {
+        if ($session->isApproved()) {
+            throw ValidationException::withMessages([
+                'is_locked' => 'Sesi yang sudah disetujui tidak dapat dibuka kembali.',
+            ]);
+        }
+
+        return $this->repo->updateSession($session, ['is_locked' => false]);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | HELPERS
+    | STUDENTS & DETAILS
     |--------------------------------------------------------------------------
     */
 
-    public function getStatusOptions(): array
+    /**
+     * Get students for a grade (used to render the attendance form).
+     */
+    public function getStudentsByGrade(int $gradeId): Collection
+    {
+        return $this->repo->getStudentsByGrade($gradeId);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATS
+    |--------------------------------------------------------------------------
+    */
+
+    public function stats(int $teacherId, ?int $semesterId = null): array
+    {
+        return $this->repo->countByStatus($teacherId, $semesterId);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESOURCE — shape for frontend
+    |--------------------------------------------------------------------------
+    */
+
+    public function toResource(AttendanceSession $session): array
     {
         return [
-            AttendanceDetail::STATUS_PRESENT    => 'Hadir',
-            AttendanceDetail::STATUS_PERMISSION => 'Izin',
-            AttendanceDetail::STATUS_SICK       => 'Sakit',
-            AttendanceDetail::STATUS_ABSENT     => 'Alpha',
-            AttendanceDetail::STATUS_LATE       => 'Terlambat',
+            'attendance_session_id' => $session->attendance_session_id,
+            'schedule_id'           => $session->schedule_id,
+            'attendance_date'       => $session->attendance_date?->toDateString(),
+            'attendance_date_label' => $session->attendance_date?->translatedFormat('l, d F Y'),
+            'meeting_number'        => $session->meeting_number,
+            'status'                => $session->status,
+            'is_locked'             => $session->is_locked,
+            'notes'                 => $session->notes,
+
+            // Relations
+            'subject_name'          => $session->subject?->subject_name,
+            'grade_name'            => $session->grade?->grade_name,
+            'semester_name'         => $session->semester?->semester_name,
+
+            // Counts (dari appends di model)
+            'present_count'         => $session->present_count,
+            'absent_count'          => $session->absent_count,
+            'permission_count'      => $session->permission_count,
+            'sick_count'            => $session->sick_count,
+            'late_count'            => $session->late_count,
+            'total_students'        => $session->details->count(),
         ];
+    }
+
+    public function toDetailResource(AttendanceSession $session): array
+    {
+        $base    = $this->toResource($session);
+        $details = $session->details->map(fn ($d) => [
+            'attendance_detail_id' => $d->attendance_detail_id,
+            'student_id'           => $d->student_id,
+            'student_name'         => $d->student?->full_name,
+            'nis'                  => $d->student?->nis,
+            'photo'                => $d->student?->photo,
+            'status'               => $d->status,
+            'status_label'         => $d->status_label,
+            'note'                 => $d->note,
+        ]);
+
+        return array_merge($base, ['details' => $details]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRIVATE HELPERS
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Auto-increment meeting number for a schedule in a semester.
+     */
+    private function nextMeetingNumber(int $scheduleId, int $semesterId): int
+    {
+        $last = AttendanceSession::where('schedule_id', $scheduleId)
+            ->where('semester_id', $semesterId)
+            ->max('meeting_number');
+
+        return ($last ?? 0) + 1;
+    }
+
+    /**
+     * Throw 403 if session is locked.
+     */
+    private function guardLocked(AttendanceSession $session): void
+    {
+        if ($session->is_locked) {
+            throw ValidationException::withMessages([
+                'is_locked' => 'Sesi ini sudah dikunci dan tidak dapat diubah.',
+            ]);
+        }
     }
 }
