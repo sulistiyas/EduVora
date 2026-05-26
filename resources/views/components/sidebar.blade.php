@@ -213,8 +213,8 @@
                 Attendance Reports
             </a>
 
-            <a href="#"
-            class="nav-item {{ request()->routeIs('teacher.reports.scores.*') ? 'active' : '' }}">
+            <a href="{{ route('teacher.reports.score.index') }}"
+            class="nav-item {{ request()->routeIs('teacher.reports.score.*') ? 'active' : '' }}">
                 <i class="ri-bar-chart-box-line"></i>
                 Score Reports
             </a>

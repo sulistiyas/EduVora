@@ -22,6 +22,13 @@ import attendanceTable from './alpine/components/reports/attendance/table';
 import attendanceSummary from './alpine/components/reports/attendance/summary';
 import attendanceExport from './alpine/components/reports/attendance/export';
 
+import scoreFilter from './alpine/components/reports/score/filter';
+import scoreTable from './alpine/components/reports/score/table';
+import scoreSummary from './alpine/components/reports/score/summary';
+import scoreExport from './alpine/components/reports/score/export';
+
+import scoreReport from './alpine/components/reports/score/score';
+
 // Make Alpine available globally before plugins
 window.Alpine = Alpine;
 window.Swal = Swal;
@@ -62,6 +69,13 @@ Alpine.data('attendanceFilter',  attendanceFilter)
 Alpine.data('attendanceTable',   attendanceTable)
 Alpine.data('attendanceSummary', attendanceSummary)
 Alpine.data('attendanceExport',  attendanceExport)
+
+Alpine.data('scoreFilter', scoreFilter)
+Alpine.data('scoreTable', scoreTable)
+Alpine.data('scoreSummary', scoreSummary)
+Alpine.data('scoreExport', scoreExport)
+
+Alpine.data('scoreReport', scoreReport)
 
 // Start Alpine
 Alpine.start();
