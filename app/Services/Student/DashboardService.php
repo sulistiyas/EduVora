@@ -21,12 +21,12 @@ class DashboardService
         $gradeId = $studentRecord?->grade_id;
 
         $student = (object) [
-            'name'       => $studentRecord?->full_name ?? '-',
-            'gender'     => $studentRecord?->gender ?? 'male',
-            'nis'        => $studentRecord?->nis ?? '-',
-            'photo'      => null,
+            'name' => $studentRecord?->full_name ?? '-',
+            'gender' => $studentRecord?->gender ?? 'male',
+            'nis' => $studentRecord?->nis ?? '-',
+            'photo' => null,
             'grade_name' => '—',
-            'semester'   => '—',
+            'semester' => '—',
         ];
 
         if ($gradeId) {
@@ -120,15 +120,15 @@ class DashboardService
             }
 
             return [
-                'schedule_id'      => $s->schedule_id,
+                'schedule_id' => $s->schedule_id,
                 'grade_subject_id' => $s->grade_subject_id,
-                'subject_id'       => $s->subject_id,
-                'jam'              => substr($s->start_time, 0, 5) . '–' . substr($s->end_time, 0, 5),
-                'mapel'            => $s->mapel,
-                'guru'             => $s->guru,
-                'ruangan'          => $s->ruangan_kode ?: $s->ruangan,
-                'status_badge'     => $badge,
-                'status_label'     => $label,
+                'subject_id' => $s->subject_id,
+                'jam' => substr($s->start_time, 0, 5).'–'.substr($s->end_time, 0, 5),
+                'mapel' => $s->mapel,
+                'guru' => $s->guru,
+                'ruangan' => $s->ruangan_kode ?: $s->ruangan,
+                'status_badge' => $badge,
+                'status_label' => $label,
             ];
         })->toArray();
 
@@ -152,11 +152,11 @@ class DashboardService
 
             if ($attRows) {
                 $attendanceSummary = [
-                    'H'     => (int) ($attRows->cnt_h ?? 0),
-                    'I'     => (int) ($attRows->cnt_i ?? 0),
-                    'S'     => (int) ($attRows->cnt_s ?? 0),
-                    'A'     => (int) ($attRows->cnt_a ?? 0),
-                    'L'     => (int) ($attRows->cnt_l ?? 0),
+                    'H' => (int) ($attRows->cnt_h ?? 0),
+                    'I' => (int) ($attRows->cnt_i ?? 0),
+                    'S' => (int) ($attRows->cnt_s ?? 0),
+                    'A' => (int) ($attRows->cnt_a ?? 0),
+                    'L' => (int) ($attRows->cnt_l ?? 0),
                     'total' => (int) ($attRows->total ?? 0),
                 ];
             }
@@ -179,27 +179,27 @@ class DashboardService
                 ->where('ss.semester_id', $semesterId)
                 ->where('ss.is_published', true)
                 ->groupBy('sub.id', 'sub.subject_name')
-                ->selectRaw("
+                ->selectRaw('
                     sub.id as subject_id,
                     sub.subject_name,
                     ROUND(AVG(sd.score), 1) as avg_score,
                     MAX(sd.score) as max_score,
                     MIN(sd.score) as min_score,
                     COUNT(sd.score_detail_id) as total_entries
-                ")
+                ')
                 ->orderByDesc('avg_score')
                 ->get();
 
             foreach ($nilaiRaw as $n) {
                 $nilaiPerMapel[] = [
                     'subject_id' => $n->subject_id,
-                    'mapel'      => $n->subject_name,
-                    'avg'        => (float) $n->avg_score,
-                    'max'        => (float) $n->max_score,
-                    'min'        => (float) $n->min_score,
-                    'total'      => (int) $n->total_entries,
-                    'persen'     => min(100, round($n->avg_score, 0)),
-                    'color'      => $this->scoreColor((float) $n->avg_score),
+                    'mapel' => $n->subject_name,
+                    'avg' => (float) $n->avg_score,
+                    'max' => (float) $n->max_score,
+                    'min' => (float) $n->min_score,
+                    'total' => (int) $n->total_entries,
+                    'persen' => min(100, round($n->avg_score, 0)),
+                    'color' => $this->scoreColor((float) $n->avg_score),
                 ];
             }
 
@@ -221,7 +221,7 @@ class DashboardService
                 ->where('ss.is_published', true)
                 ->where('stu.status', 'active')
                 ->groupBy('sd.student_id', 'stu.full_name')
-                ->selectRaw("sd.student_id, stu.full_name, ROUND(AVG(sd.score), 1) as avg_score")
+                ->selectRaw('sd.student_id, stu.full_name, ROUND(AVG(sd.score), 1) as avg_score')
                 ->orderByDesc('avg_score')
                 ->get();
 
@@ -229,11 +229,11 @@ class DashboardService
             foreach ($rankingRaw as $r) {
                 $isMe = ($r->student_id == $studentId);
                 $entry = [
-                    'rank'       => $rank,
+                    'rank' => $rank,
                     'student_id' => $r->student_id,
-                    'nama'       => $r->full_name,
-                    'avg'        => (float) $r->avg_score,
-                    'is_me'      => $isMe,
+                    'nama' => $r->full_name,
+                    'avg' => (float) $r->avg_score,
+                    'is_me' => $isMe,
                 ];
 
                 if ($isMe) {
@@ -275,12 +275,12 @@ class DashboardService
                 $daysLeft = (int) now()->diffInDays($dueDate, false);
 
                 $tugasPending[] = [
-                    'id'        => $t->assigment_id,
-                    'nama'      => $t->title,
-                    'mapel'     => $t->mapel,
-                    'due_date'  => $dueDate->translatedFormat('d M Y'),
+                    'id' => $t->assigment_id,
+                    'nama' => $t->title,
+                    'mapel' => $t->mapel,
+                    'due_date' => $dueDate->translatedFormat('d M Y'),
                     'days_left' => $daysLeft,
-                    'urgency'   => $daysLeft <= 1 ? 'danger' : ($daysLeft <= 3 ? 'warning' : 'secondary'),
+                    'urgency' => $daysLeft <= 1 ? 'danger' : ($daysLeft <= 3 ? 'warning' : 'secondary'),
                 ];
             }
         }
@@ -299,23 +299,23 @@ class DashboardService
 
             foreach ($submittedRaw as $t) {
                 $tugasSubmitted[] = [
-                    'id'           => $t->assigment_id,
-                    'nama'         => $t->title,
-                    'mapel'        => $t->mapel,
+                    'id' => $t->assigment_id,
+                    'nama' => $t->title,
+                    'mapel' => $t->mapel,
                     'submitted_at' => Carbon::parse($t->submitted_at)->translatedFormat('d M Y, H:i'),
-                    'feedback'     => $t->feedback,
-                    'graded'       => $t->feedback !== null,
+                    'feedback' => $t->feedback,
+                    'graded' => $t->feedback !== null,
                 ];
             }
         }
 
         $statistics = [
-            'rata_rata_nilai'   => $rataRataKeseluruhan,
-            'persen_kehadiran'  => $attendanceSummary['persen_hadir'],
-            'tugas_pending'     => count($tugasPending),
-            'ranking'           => $rankingSiswaIni['rank'] ?? '-',
+            'rata_rata_nilai' => $rataRataKeseluruhan,
+            'persen_kehadiran' => $attendanceSummary['persen_hadir'],
+            'tugas_pending' => count($tugasPending),
+            'ranking' => $rankingSiswaIni['rank'] ?? '-',
             'total_siswa_kelas' => $totalSiswaKelas,
-            'jadwal_hari_ini'   => count($todaySchedules),
+            'jadwal_hari_ini' => count($todaySchedules),
         ];
 
         $announcements = [];
@@ -339,9 +339,16 @@ class DashboardService
 
     private function scoreColor(float $score): string
     {
-        if ($score >= 85) return '#10B981';
-        if ($score >= 75) return '#3B82F6';
-        if ($score >= 65) return '#F59E0B';
+        if ($score >= 85) {
+            return '#10B981';
+        }
+        if ($score >= 75) {
+            return '#3B82F6';
+        }
+        if ($score >= 65) {
+            return '#F59E0B';
+        }
+
         return '#EF4444';
     }
 }

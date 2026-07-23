@@ -2,7 +2,6 @@
 
 namespace App\Services\Academic;
 
-use App\Models\Academic\AcademicYear;
 use App\Models\Academic\Subject;
 use App\Repositories\Academic\SubjectsRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

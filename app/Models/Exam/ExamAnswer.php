@@ -39,13 +39,18 @@ class ExamAnswer extends Model
     {
         return [
             'exam_session_id' => 'integer',
-        'exam_question_id' => 'integer',
-        'is_correct' => 'boolean',
+            'exam_question_id' => 'integer',
+            'is_correct' => 'boolean',
         ];
     }
 
+    public function examsession()
+    {
+        return $this->belongsTo(ExamSession::class, 'exam_session_id');
+    }
 
-    public function examsession() { return $this->belongsTo(\App\Models\Exam\ExamSession::class, 'exam_session_id'); }
-
-    public function examquestion() { return $this->belongsTo(\App\Models\Exam\ExamQuestion::class, 'exam_question_id'); }
+    public function examquestion()
+    {
+        return $this->belongsTo(ExamQuestion::class, 'exam_question_id');
+    }
 }

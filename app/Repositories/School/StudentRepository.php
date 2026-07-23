@@ -26,14 +26,14 @@ class StudentRepository
                 'updated_at',
             ])
             ->with([
-                'roles' => fn($q) => $q->select(['roles.role_id', 'roles.role_name']),
-                'schools' => fn($q) => $q->select([
+                'roles' => fn ($q) => $q->select(['roles.role_id', 'roles.role_name']),
+                'schools' => fn ($q) => $q->select([
                     'school_profiles.school_id',
                     'school_profiles.school_name',
                     'school_profiles.school_type',
                     'school_profiles.status',
                 ]),
-                'student' => fn($q) => $q->select([
+                'student' => fn ($q) => $q->select([
                     'id', 'user_id', 'nis', 'full_name', 'nick_name', 'email',
                     'birth_date', 'gender', 'phone_number', 'address',
                     'city', 'province', 'postal_code', 'profile_photo',
@@ -41,8 +41,8 @@ class StudentRepository
                     'enrollment_date', 'graduation_date',
                 ]),
             ])
-            ->whereHas('roles', fn($q) => $q->where('role_name', 'student'))
-            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
+            ->whereHas('roles', fn ($q) => $q->where('role_name', 'student'))
+            ->whereHas('schools', fn ($q) => $q->where('school_profiles.school_id', $schoolId));
     }
 
     public function getAll(int $schoolId, array $filters = []): LengthAwarePaginator|Collection
@@ -50,35 +50,33 @@ class StudentRepository
         $query = $this->baseQuery($schoolId);
 
         // Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = strtolower($filters['search']);
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ILIKE', "%{$search}%")
-                  ->orWhere('email', 'ILIKE', "%{$search}%")
-                  ->orWhere('phone_number', 'ILIKE', "%{$search}%")
-                  ->orWhereHas('student', fn($qs) =>
-                      $qs->where('nis', 'ILIKE', "%{$search}%")
-                         ->orWhere('full_name', 'ILIKE', "%{$search}%")
-                         ->orWhere('class_group', 'ILIKE', "%{$search}%")
-                  );
+                    ->orWhere('email', 'ILIKE', "%{$search}%")
+                    ->orWhere('phone_number', 'ILIKE', "%{$search}%")
+                    ->orWhereHas('student', fn ($qs) => $qs->where('nis', 'ILIKE', "%{$search}%")
+                        ->orWhere('full_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('class_group', 'ILIKE', "%{$search}%")
+                    );
             });
         }
 
         // Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Filter class_group
-        if (!empty($filters['class_group'])) {
-            $query->whereHas('student', fn($q) =>
-                $q->where('class_group', $filters['class_group'])
+        if (! empty($filters['class_group'])) {
+            $query->whereHas('student', fn ($q) => $q->where('class_group', $filters['class_group'])
             );
         }
 
         // Sorting
-        $allowed   = ['name', 'email', 'created_at', 'updated_at', 'status'];
-        $sortBy    = in_array($filters['sort_by'] ?? '', $allowed) ? $filters['sort_by'] : 'created_at';
+        $allowed = ['name', 'email', 'created_at', 'updated_at', 'status'];
+        $sortBy = in_array($filters['sort_by'] ?? '', $allowed) ? $filters['sort_by'] : 'created_at';
         $sortOrder = in_array($filters['sort_order'] ?? '', ['asc', 'desc']) ? $filters['sort_order'] : 'asc';
         $query->orderBy($sortBy, $sortOrder);
 
@@ -106,8 +104,10 @@ class StudentRepository
         $user = User::find($id);
         if ($user) {
             $user->update($data);
+
             return $user;
         }
+
         return null;
     }
 
@@ -118,8 +118,10 @@ class StudentRepository
             $user->update([
                 'status' => $user->status === 'active' ? 'inactive' : 'active',
             ]);
+
             return $user;
         }
+
         return null;
     }
 
@@ -128,8 +130,10 @@ class StudentRepository
         $user = User::find($id);
         if ($user) {
             $user->delete();
+
             return true;
         }
+
         return false;
     }
 
@@ -138,9 +142,9 @@ class StudentRepository
      */
     public function getClassGroups(int $schoolId): array
     {
-        return User::whereHas('roles', fn($q) => $q->where('role_name', 'student'))
-            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId))
-            ->whereHas('student', fn($q) => $q->whereNotNull('class_group'))
+        return User::whereHas('roles', fn ($q) => $q->where('role_name', 'student'))
+            ->whereHas('schools', fn ($q) => $q->where('school_profiles.school_id', $schoolId))
+            ->whereHas('student', fn ($q) => $q->whereNotNull('class_group'))
             ->with(['student:user_id,class_group'])
             ->get()
             ->pluck('student.class_group')

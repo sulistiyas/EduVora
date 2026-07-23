@@ -51,7 +51,7 @@ class RoomSeeder extends Seeder
                 'facility' => json_encode([
                     'AC',
                     'Projector',
-                    'WiFi'
+                    'WiFi',
                 ]),
                 'status' => 'available',
                 'created_at' => now(),

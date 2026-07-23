@@ -2,6 +2,9 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Academic\Grade;
+use App\Models\Academic\Semester;
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class ReportCard extends Model
@@ -38,15 +41,23 @@ class ReportCard extends Model
     {
         return [
             'student_id' => 'integer',
-        'grade_id' => 'integer',
-        'semester_id' => 'integer',
+            'grade_id' => 'integer',
+            'semester_id' => 'integer',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
-
-    public function semester() { return $this->belongsTo(\App\Models\Academic\Semester::class, 'semester_id'); }
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id');
+    }
 }

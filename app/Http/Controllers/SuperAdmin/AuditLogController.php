@@ -16,14 +16,14 @@ class AuditLogController extends Controller
     {
         if ($request->expectsJson()) {
             $filters = [
-                'search'     => $request->query('search'),
+                'search' => $request->query('search'),
                 'table_name' => $request->query('table_name'),
-                'user_id'    => $request->query('user_id'),
-                'date_from'  => $request->query('date_from'),
-                'date_to'    => $request->query('date_to'),
-                'sort_by'    => $request->query('sort_by'),
+                'user_id' => $request->query('user_id'),
+                'date_from' => $request->query('date_from'),
+                'date_to' => $request->query('date_to'),
+                'sort_by' => $request->query('sort_by'),
                 'sort_order' => $request->query('sort_order'),
-                'per_page'   => $request->query('per_page', 15),
+                'per_page' => $request->query('per_page', 15),
             ];
 
             $logs = $this->service->getAll($filters);
@@ -32,9 +32,9 @@ class AuditLogController extends Controller
                 'data' => $logs->items(),
                 'meta' => [
                     'current_page' => $logs->currentPage(),
-                    'per_page'     => $logs->perPage(),
-                    'total'        => $logs->total(),
-                    'last_page'    => $logs->lastPage(),
+                    'per_page' => $logs->perPage(),
+                    'total' => $logs->total(),
+                    'last_page' => $logs->lastPage(),
                 ],
             ]);
         }

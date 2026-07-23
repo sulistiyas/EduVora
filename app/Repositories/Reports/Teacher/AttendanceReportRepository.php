@@ -38,30 +38,30 @@ class AttendanceReportRepository implements AttendanceReportRepositoryInterface
                 fn ($q) => $q->bySchool($filters['school_id'])
             )
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('semester_id', $filters['semester_id'])
             )
             ->when(
-                !empty($filters['grade_id']),
+                ! empty($filters['grade_id']),
                 fn ($q) => $q->byGrade($filters['grade_id'])
             )
             ->when(
-                !empty($filters['subject_id']),
+                ! empty($filters['subject_id']),
                 fn ($q) => $q->where('subject_id', $filters['subject_id'])
             )
             ->when(
-                !empty($filters['status']),
+                ! empty($filters['status']),
                 fn ($q) => $q->whereHas(
                     'details',
                     fn ($d) => $d->where('status', $filters['status'])
                 )
             )
             ->when(
-                !empty($filters['date_from']),
+                ! empty($filters['date_from']),
                 fn ($q) => $q->whereDate('attendance_date', '>=', $filters['date_from'])
             )
             ->when(
-                !empty($filters['date_to']),
+                ! empty($filters['date_to']),
                 fn ($q) => $q->whereDate('attendance_date', '<=', $filters['date_to'])
             )
             ->orderByDesc('attendance_date')
@@ -133,23 +133,23 @@ class AttendanceReportRepository implements AttendanceReportRepositoryInterface
                 fn ($q) => $q->where('attendance_sessions.school_id', $filters['school_id'])
             )
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('attendance_sessions.semester_id', $filters['semester_id'])
             )
             ->when(
-                !empty($filters['grade_id']),
+                ! empty($filters['grade_id']),
                 fn ($q) => $q->where('attendance_sessions.grade_id', $filters['grade_id'])
             )
             ->when(
-                !empty($filters['subject_id']),
+                ! empty($filters['subject_id']),
                 fn ($q) => $q->where('attendance_sessions.subject_id', $filters['subject_id'])
             )
             ->when(
-                !empty($filters['date_from']),
+                ! empty($filters['date_from']),
                 fn ($q) => $q->whereDate('attendance_sessions.attendance_date', '>=', $filters['date_from'])
             )
             ->when(
-                !empty($filters['date_to']),
+                ! empty($filters['date_to']),
                 fn ($q) => $q->whereDate('attendance_sessions.attendance_date', '<=', $filters['date_to'])
             )
             ->groupBy('students.id', 'students.full_name', 'students.nis')
@@ -192,34 +192,34 @@ class AttendanceReportRepository implements AttendanceReportRepositoryInterface
                 fn ($q) => $q->where('attendance_sessions.school_id', $filters['school_id'])
             )
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('attendance_sessions.semester_id', $filters['semester_id'])
             )
             ->when(
-                !empty($filters['grade_id']),
+                ! empty($filters['grade_id']),
                 fn ($q) => $q->where('attendance_sessions.grade_id', $filters['grade_id'])
             )
             ->when(
-                !empty($filters['subject_id']),
+                ! empty($filters['subject_id']),
                 fn ($q) => $q->where('attendance_sessions.subject_id', $filters['subject_id'])
             )
             ->when(
-                !empty($filters['date_from']),
+                ! empty($filters['date_from']),
                 fn ($q) => $q->whereDate('attendance_sessions.attendance_date', '>=', $filters['date_from'])
             )
             ->when(
-                !empty($filters['date_to']),
+                ! empty($filters['date_to']),
                 fn ($q) => $q->whereDate('attendance_sessions.attendance_date', '<=', $filters['date_to'])
             )
             ->first();
 
         return [
-            'total_sessions'    => (int) ($row->total_sessions    ?? 0),
-            'total_present'     => (int) ($row->total_present     ?? 0),
-            'total_permission'  => (int) ($row->total_permission  ?? 0),
-            'total_sick'        => (int) ($row->total_sick        ?? 0),
-            'total_absent'      => (int) ($row->total_absent      ?? 0),
-            'total_late'        => (int) ($row->total_late        ?? 0),
+            'total_sessions' => (int) ($row->total_sessions ?? 0),
+            'total_present' => (int) ($row->total_present ?? 0),
+            'total_permission' => (int) ($row->total_permission ?? 0),
+            'total_sick' => (int) ($row->total_sick ?? 0),
+            'total_absent' => (int) ($row->total_absent ?? 0),
+            'total_late' => (int) ($row->total_late ?? 0),
         ];
     }
 

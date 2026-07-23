@@ -2,6 +2,7 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 
 class FinanceTransaction extends Model
@@ -41,10 +42,12 @@ class FinanceTransaction extends Model
     {
         return [
             'transaction_date' => 'datetime',
-        'recorded_by' => 'integer',
+            'recorded_by' => 'integer',
         ];
     }
 
-
-    public function user() { return $this->belongsTo(\App\Models\Core\User::class, 'recorded_by'); }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'recorded_by');
+    }
 }

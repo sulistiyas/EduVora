@@ -40,7 +40,7 @@ class UserHasSchool extends Model
     {
         return [
             'user_id' => 'integer',
-        'school_id' => 'integer',
+            'school_id' => 'integer',
         ];
     }
 }

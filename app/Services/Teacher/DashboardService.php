@@ -30,12 +30,12 @@ class DashboardService
         $semesterId = $activeSemester?->semester_id;
 
         $teacher = (object) [
-            'name'     => $teacherRecord?->full_name ?? '-',
-            'gender'   => $teacherRecord?->gender ?? 'male',
-            'nip'      => $teacherRecord?->nip ?? '-',
-            'photo'    => null,
+            'name' => $teacherRecord?->full_name ?? '-',
+            'gender' => $teacherRecord?->gender ?? 'male',
+            'nip' => $teacherRecord?->nip ?? '-',
+            'photo' => null,
             'semester' => $activeSemester?->semester_name ?? '-',
-            'mapel'    => [],
+            'mapel' => [],
         ];
 
         $mapelList = DB::table('grade_subjects as gs')
@@ -85,13 +85,13 @@ class DashboardService
 
         $todaySchedules = $todaySchedulesRaw->map(function ($s) {
             return [
-                'schedule_id'    => $s->schedule_id,
-                'jam'            => substr($s->start_time, 0, 5) . '–' . substr($s->end_time, 0, 5),
-                'kelas'          => $s->kelas,
-                'mapel'          => $s->mapel,
-                'ruangan'        => $s->ruangan_kode ?: $s->ruangan,
+                'schedule_id' => $s->schedule_id,
+                'jam' => substr($s->start_time, 0, 5).'–'.substr($s->end_time, 0, 5),
+                'kelas' => $s->kelas,
+                'mapel' => $s->mapel,
+                'ruangan' => $s->ruangan_kode ?: $s->ruangan,
                 'status_absensi' => 'belum',
-                'status_jurnal'  => 'belum',
+                'status_jurnal' => 'belum',
             ];
         })->toArray();
 
@@ -113,9 +113,9 @@ class DashboardService
         $jadwalHariIni = count($todaySchedules);
 
         $statistics = [
-            'total_kelas'         => $totalKelas,
-            'total_siswa'         => $totalSiswa,
-            'jadwal_hari_ini'     => $jadwalHariIni,
+            'total_kelas' => $totalKelas,
+            'total_siswa' => $totalSiswa,
+            'jadwal_hari_ini' => $jadwalHariIni,
             'tugas_belum_dinilai' => 0,
             'absensi_belum_diisi' => 0,
         ];
@@ -123,7 +123,7 @@ class DashboardService
         $pendingAssignments = [];
         $attendanceSummary = [
             'hadir' => 0,
-            'izin'  => 0,
+            'izin' => 0,
             'sakit' => 0,
             'alpha' => 0,
             'total' => $totalSiswa ?: 1,

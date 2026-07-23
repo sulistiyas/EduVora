@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Academic\GradeSubject;
 use App\Models\Academic\Room;
 use App\Models\Academic\Schedule;
-use App\Models\Academic\Semester;
 use App\Services\Academic\ScheduleService;
 use App\Services\SemesterService;
 use Illuminate\Http\JsonResponse;
@@ -39,9 +38,9 @@ class ScheduleController extends Controller
                 'data' => $schedules->map(fn ($s) => $this->service->toResource($s)),
                 'meta' => [
                     'current_page' => $schedules->currentPage(),
-                    'per_page'     => $schedules->perPage(),
-                    'total'        => $schedules->total(),
-                    'last_page'    => $schedules->lastPage(),
+                    'per_page' => $schedules->perPage(),
+                    'total' => $schedules->total(),
+                    'last_page' => $schedules->lastPage(),
                 ],
             ]);
         }
@@ -72,19 +71,19 @@ class ScheduleController extends Controller
     {
         $data = $request->validate([
             'grade_subject_id' => ['required', 'integer', 'exists:grade_subjects,id'],
-            'room_id'          => ['required', 'integer', 'exists:rooms,room_id'],
-            'semester_id'      => ['required', 'integer', 'exists:semesters,semester_id'],
-            'day_of_week'      => ['required', 'integer', 'between:1,7'],
-            'start_time'       => ['required', 'date_format:H:i'],
-            'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
-            'session_type'     => ['required', Rule::in([
+            'room_id' => ['required', 'integer', 'exists:rooms,room_id'],
+            'semester_id' => ['required', 'integer', 'exists:semesters,semester_id'],
+            'day_of_week' => ['required', 'integer', 'between:1,7'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'session_type' => ['required', Rule::in([
                 Schedule::SESSION_REGULAR,
                 Schedule::SESSION_LAB,
                 Schedule::SESSION_EXAM,
                 Schedule::SESSION_EXTRACURRICULAR,
                 Schedule::SESSION_REMEDIAL,
             ])],
-            'status'           => ['sometimes', Rule::in([
+            'status' => ['sometimes', Rule::in([
                 Schedule::STATUS_ACTIVE,
                 Schedule::STATUS_INACTIVE,
             ])],
@@ -97,7 +96,7 @@ class ScheduleController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Schedule berhasil ditambahkan.',
-            'data'    => $this->service->toResource($schedule),
+            'data' => $this->service->toResource($schedule),
         ], 201);
     }
 
@@ -113,19 +112,19 @@ class ScheduleController extends Controller
 
         $data = $request->validate([
             'grade_subject_id' => ['required', 'integer', 'exists:grade_subjects,id'],
-            'room_id'          => ['required', 'integer', 'exists:rooms,room_id'],
-            'semester_id'      => ['required', 'integer', 'exists:semesters,semester_id'],
-            'day_of_week'      => ['required', 'integer', 'between:1,7'],
-            'start_time'       => ['required', 'date_format:H:i'],
-            'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
-            'session_type'     => ['required', Rule::in([
+            'room_id' => ['required', 'integer', 'exists:rooms,room_id'],
+            'semester_id' => ['required', 'integer', 'exists:semesters,semester_id'],
+            'day_of_week' => ['required', 'integer', 'between:1,7'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'session_type' => ['required', Rule::in([
                 Schedule::SESSION_REGULAR,
                 Schedule::SESSION_LAB,
                 Schedule::SESSION_EXAM,
                 Schedule::SESSION_EXTRACURRICULAR,
                 Schedule::SESSION_REMEDIAL,
             ])],
-            'status'           => ['sometimes', Rule::in([
+            'status' => ['sometimes', Rule::in([
                 Schedule::STATUS_ACTIVE,
                 Schedule::STATUS_INACTIVE,
             ])],
@@ -136,7 +135,7 @@ class ScheduleController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Schedule berhasil diperbarui.',
-            'data'    => $this->service->toResource($updated),
+            'data' => $this->service->toResource($updated),
         ]);
     }
 
@@ -166,12 +165,12 @@ class ScheduleController extends Controller
     public function toggleStatus(int $id): JsonResponse
     {
         $schedule = $this->service->findOrFail($id);
-        $updated  = $this->service->toggleStatus($schedule);
+        $updated = $this->service->toggleStatus($schedule);
 
         return response()->json([
             'success' => true,
             'message' => 'Status schedule berhasil diubah.',
-            'status'  => $updated->status,
+            'status' => $updated->status,
         ]);
     }
 
@@ -188,18 +187,18 @@ class ScheduleController extends Controller
     public function semesters(): JsonResponse
     {
         $semesters = $this->semesterService->getActiveAcademicSemester([
-                'per_page' => 'all',
-                'sort_by'  => 'start_date',
-                'sort_order' => 'desc',
-            ]);
+            'per_page' => 'all',
+            'sort_by' => 'start_date',
+            'sort_order' => 'desc',
+        ]);
 
-            return response()->json(
-                $semesters->map(fn ($semester) => [
-                    'semester_id'   => $semester->semester_id,
-                    'semester_name' => $semester->semester_name,
-                    'status'        => $semester->status,
-                ])
-            );
+        return response()->json(
+            $semesters->map(fn ($semester) => [
+                'semester_id' => $semester->semester_id,
+                'semester_name' => $semester->semester_name,
+                'status' => $semester->status,
+            ])
+        );
     }
 
     /**
@@ -224,9 +223,9 @@ class ScheduleController extends Controller
             ->where('status', 'active')
             ->get()
             ->map(fn ($gs) => [
-                'id'           => $gs->id,
-                'label'        => "{$gs->grade?->grade_name} — {$gs->subject?->subject_name}",
-                'grade_name'   => $gs->grade?->grade_name,
+                'id' => $gs->id,
+                'label' => "{$gs->grade?->grade_name} — {$gs->subject?->subject_name}",
+                'grade_name' => $gs->grade?->grade_name,
                 'subject_name' => $gs->subject?->subject_name,
                 'teacher_name' => $gs->teacher?->full_name,
             ]);

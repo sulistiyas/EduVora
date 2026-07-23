@@ -2,6 +2,7 @@
 
 namespace App\Models\Library;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class BookLoan extends Model
@@ -41,15 +42,20 @@ class BookLoan extends Model
     {
         return [
             'student_id' => 'integer',
-        'book_copy_id' => 'integer',
-        'loan_date' => 'datetime',
-        'due_date' => 'datetime',
-        'return_date' => 'datetime',
+            'book_copy_id' => 'integer',
+            'loan_date' => 'datetime',
+            'due_date' => 'datetime',
+            'return_date' => 'datetime',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
-
-    public function bookcopy() { return $this->belongsTo(\App\Models\Library\BookCopy::class, 'book_copy_id'); }
+    public function bookcopy()
+    {
+        return $this->belongsTo(BookCopy::class, 'book_copy_id');
+    }
 }

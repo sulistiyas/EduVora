@@ -48,7 +48,7 @@ class Teacher extends Model
         'certification',
         'npwp',
         'join_date',
-        'status'
+        'status',
     ];
 
     /**

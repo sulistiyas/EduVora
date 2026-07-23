@@ -61,8 +61,7 @@ class GradesService
     public function getStudentsForAssign(
         ?int $gradeId = null,
         ?string $search = null
-    ): Collection
-    {
+    ): Collection {
         return $this->gradeRepository->getStudentsForAssign(
             $gradeId,
             $search
@@ -72,8 +71,7 @@ class GradesService
     public function assignStudents(
         int $gradeId,
         array $studentIds
-    ): bool
-    {
+    ): bool {
         return $this->gradeRepository->assignStudents(
             $gradeId,
             $studentIds
@@ -83,8 +81,7 @@ class GradesService
     public function removeStudentFromGrade(
         int $gradeId,
         int $studentId
-    ): bool
-    {
+    ): bool {
         return $this->gradeRepository->removeStudentFromGrade(
             $gradeId,
             $studentId

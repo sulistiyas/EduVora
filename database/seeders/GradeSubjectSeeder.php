@@ -50,16 +50,16 @@ class GradeSubjectSeeder extends Seeder
                 $teacherId = $teachers[$index % count($teachers)] ?? null;
 
                 $data[] = [
-                    'grade_id'      => $grade->grade_id,
-                    'subject_id'    => $subject->id,
-                    'teacher_id'    => $teacherId,
-                    'kkm'           => 75,
+                    'grade_id' => $grade->grade_id,
+                    'subject_id' => $subject->id,
+                    'teacher_id' => $teacherId,
+                    'kkm' => 75,
                     'weight_harian' => 40,
-                    'weight_uts'    => 30,
-                    'weight_uas'    => 30,
-                    'status'        => 'active',
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
+                    'weight_uts' => 30,
+                    'weight_uas' => 30,
+                    'status' => 'active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             }
         }

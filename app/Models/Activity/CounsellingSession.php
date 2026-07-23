@@ -2,6 +2,8 @@
 
 namespace App\Models\Activity;
 
+use App\Models\Student\Student;
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class CounsellingSession extends Model
@@ -41,13 +43,18 @@ class CounsellingSession extends Model
     {
         return [
             'student_id' => 'integer',
-        'counselor_id' => 'integer',
-        'session_date' => 'datetime',
+            'counselor_id' => 'integer',
+            'session_date' => 'datetime',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
-
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'counselor_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'counselor_id');
+    }
 }

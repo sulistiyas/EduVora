@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -63,13 +64,13 @@ class AttendanceController extends Controller
                 $summary['total']++;
 
                 $attendanceHistory[] = [
-                    'date'       => \Carbon\Carbon::parse($row->attendance_date)->translatedFormat('d M Y'),
-                    'day'        => \Carbon\Carbon::parse($row->attendance_date)->translatedFormat('l'),
-                    'mapel'      => $row->mapel,
-                    'jam'        => substr($row->start_time, 0, 5) . ' – ' . substr($row->end_time, 0, 5),
-                    'status'     => $statusLabel[$row->status] ?? $row->status,
-                    'badge'      => $statusBadge[$row->status] ?? 'secondary',
-                    'note'       => $row->note,
+                    'date' => Carbon::parse($row->attendance_date)->translatedFormat('d M Y'),
+                    'day' => Carbon::parse($row->attendance_date)->translatedFormat('l'),
+                    'mapel' => $row->mapel,
+                    'jam' => substr($row->start_time, 0, 5).' – '.substr($row->end_time, 0, 5),
+                    'status' => $statusLabel[$row->status] ?? $row->status,
+                    'badge' => $statusBadge[$row->status] ?? 'secondary',
+                    'note' => $row->note,
                 ];
             }
         }

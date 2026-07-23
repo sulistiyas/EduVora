@@ -44,7 +44,7 @@ class Asset extends Model
     {
         return [
             'quantity' => 'integer',
-        'purchase_date' => 'datetime',
+            'purchase_date' => 'datetime',
         ];
     }
 }

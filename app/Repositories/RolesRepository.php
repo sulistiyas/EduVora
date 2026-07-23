@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Repositories;
-use App\Models\Core\Role;
 
+use App\Models\Core\Role;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -19,17 +19,17 @@ class RolesRepository
             ]);
 
         // 🔍 Search (hanya kalau ada input)
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = strtolower($filters['search']);
 
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(role_name) ILIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(role_description) ILIKE ?', ["%{$search}%"]);
+                    ->orWhereRaw('LOWER(role_description) ILIKE ?', ["%{$search}%"]);
             });
         }
 
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
@@ -68,8 +68,10 @@ class RolesRepository
         $role = Role::find($id);
         if ($role) {
             $role->update($data);
+
             return $role;
         }
+
         return null;
     }
 
@@ -80,8 +82,10 @@ class RolesRepository
             $role->update([
                 'status' => $role->status === 'active' ? 'inactive' : 'active',
             ]);
+
             return $role;
         }
+
         return null;
     }
 
@@ -90,8 +94,10 @@ class RolesRepository
         $role = Role::find($id);
         if ($role) {
             $role->delete();
+
             return true;
         }
+
         return false;
     }
 }

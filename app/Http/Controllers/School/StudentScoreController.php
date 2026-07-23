@@ -16,7 +16,7 @@ use Illuminate\View\View;
 class StudentScoreController extends Controller
 {
     public function __construct(
-        protected StudentScoreService    $service,
+        protected StudentScoreService $service,
         protected ScheduleService $scheduleService,
         protected SemesterService $semesterService,
     ) {}
@@ -43,7 +43,7 @@ class StudentScoreController extends Controller
             $sessions = $isSchoolAdmin
                 ? $this->service->paginateBySchool(
                     schoolId: $schoolId,
-                    filters:  $request->only([
+                    filters: $request->only([
                         'semester_id', 'grade_subject_id', 'score_type',
                         'is_published', 'search', 'date_from', 'date_to',
                     ]),
@@ -51,7 +51,7 @@ class StudentScoreController extends Controller
                 )
                 : $this->service->paginate(
                     teacherId: $teacher->teacher_id,
-                    filters:   $request->only([
+                    filters: $request->only([
                         'semester_id', 'grade_subject_id', 'score_type',
                         'is_published', 'search', 'date_from', 'date_to',
                     ]),
@@ -62,9 +62,9 @@ class StudentScoreController extends Controller
                 'data' => $sessions->map(fn ($s) => $this->service->toResource($s)),
                 'meta' => [
                     'current_page' => $sessions->currentPage(),
-                    'per_page'     => $sessions->perPage(),
-                    'total'        => $sessions->total(),
-                    'last_page'    => $sessions->lastPage(),
+                    'per_page' => $sessions->perPage(),
+                    'total' => $sessions->total(),
+                    'last_page' => $sessions->lastPage(),
                 ],
             ]);
         }
@@ -88,13 +88,13 @@ class StudentScoreController extends Controller
             if ($schedule && $schedule->gradeSubject?->teacher_id === $teacher->teacher_id) {
                 $gs = $schedule->gradeSubject;
                 $scheduleInfo = [
-                    'schedule_id'      => $schedule->schedule_id,
+                    'schedule_id' => $schedule->schedule_id,
                     'grade_subject_id' => $gs->id,
-                    'semester_id'      => $schedule->semester_id,
-                    'subject_name'     => $gs->subject?->subject_name,
-                    'grade_name'       => $gs->grade?->grade_name,
-                    'semester_name'    => $schedule->semester?->semester_name,
-                    'label'            => ($gs->subject?->subject_name ?? '?') . ' — ' . ($gs->grade?->grade_name ?? '?'),
+                    'semester_id' => $schedule->semester_id,
+                    'subject_name' => $gs->subject?->subject_name,
+                    'grade_name' => $gs->grade?->grade_name,
+                    'semester_name' => $schedule->semester?->semester_name,
+                    'label' => ($gs->subject?->subject_name ?? '?').' — '.($gs->grade?->grade_name ?? '?'),
                 ];
             }
         }
@@ -120,11 +120,11 @@ class StudentScoreController extends Controller
 
         $data = $request->validate([
             'grade_subject_id' => ['required', 'integer', 'exists:grade_subjects,id'],
-            'semester_id'      => ['required', 'integer', 'exists:semesters,semester_id'],
-            'score_type'       => ['required', 'in:daily,mid_exam,final_exam,assignment'],
-            'title'            => ['required', 'string', 'max:255'],
-            'description'      => ['nullable', 'string', 'max:1000'],
-            'score_date'       => ['required', 'date'],
+            'semester_id' => ['required', 'integer', 'exists:semesters,semester_id'],
+            'score_type' => ['required', 'in:daily,mid_exam,final_exam,assignment'],
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'score_date' => ['required', 'date'],
             // 'max_score'        => ['required', 'numeric', 'min:1', 'max:1000'],
         ]);
 
@@ -137,12 +137,12 @@ class StudentScoreController extends Controller
         $session = $this->service->createSession(
             data: [
                 'grade_subject_id' => $data['grade_subject_id'],
-                'semester_id'      => $data['semester_id'],
-                'score_type'       => $data['score_type'],
-                'title'            => $data['title'],
-                'description'      => $data['description'] ?? null,
-                'score_date'       => $data['score_date'],
-                'is_published'     => false,
+                'semester_id' => $data['semester_id'],
+                'score_type' => $data['score_type'],
+                'title' => $data['title'],
+                'description' => $data['description'] ?? null,
+                'score_date' => $data['score_date'],
+                'is_published' => false,
                 // 'max_score'        => $data['max_score'],
             ],
             gradeId: $gradeSubject->grade_id
@@ -151,7 +151,7 @@ class StudentScoreController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sesi nilai berhasil dibuat.',
-            'data'    => $this->service->toDetailResource($session),
+            'data' => $this->service->toDetailResource($session),
         ], 201);
     }
 
@@ -194,16 +194,16 @@ class StudentScoreController extends Controller
         $this->service->authorizeTeacher($session, $teacher->teacher_id);
 
         $data = $request->validate([
-            'details'                 => ['required', 'array', 'min:1'],
-            'details.*.student_id'    => ['required', 'integer', 'exists:students,id'],
-            'details.*.score'         => ['nullable', 'numeric', 'min:0', 'max:1000'],
-            'details.*.max_score'     => ['nullable', 'numeric', 'min:1', 'max:1000'],
-            'details.*.notes'         => ['nullable', 'string', 'max:500'],
+            'details' => ['required', 'array', 'min:1'],
+            'details.*.student_id' => ['required', 'integer', 'exists:students,id'],
+            'details.*.score' => ['nullable', 'numeric', 'min:0', 'max:1000'],
+            'details.*.max_score' => ['nullable', 'numeric', 'min:1', 'max:1000'],
+            'details.*.notes' => ['nullable', 'string', 'max:500'],
             // Optional session-level updates
-            'title'                   => ['sometimes', 'string', 'max:255'],
-            'description'             => ['sometimes', 'nullable', 'string', 'max:1000'],
-            'score_date'              => ['sometimes', 'date'],
-            'max_score'               => ['sometimes', 'numeric', 'min:1', 'max:1000'],
+            'title' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'score_date' => ['sometimes', 'date'],
+            'max_score' => ['sometimes', 'numeric', 'min:1', 'max:1000'],
         ]);
 
         $sessionUpdate = collect(['title', 'description', 'score_date'])
@@ -220,7 +220,7 @@ class StudentScoreController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Nilai berhasil disimpan.',
-            'data'    => $this->service->toDetailResource($session),
+            'data' => $this->service->toDetailResource($session),
         ]);
     }
 
@@ -238,12 +238,12 @@ class StudentScoreController extends Controller
         $this->service->authorizeTeacher($session, $teacher->teacher_id);
 
         $session = $this->service->togglePublish($session);
-        $label   = $session->is_published ? 'dipublikasikan' : 'disembunyikan';
+        $label = $session->is_published ? 'dipublikasikan' : 'disembunyikan';
 
         return response()->json([
             'success' => true,
             'message' => "Nilai berhasil {$label}.",
-            'data'    => $this->service->toResource($session),
+            'data' => $this->service->toResource($session),
         ]);
     }
 
@@ -262,10 +262,10 @@ class StudentScoreController extends Controller
         $this->service->authorizeTeacher($session, $teacher->teacher_id);
 
         $data = $request->validate([
-            'score_type'  => ['sometimes', 'in:daily,mid_exam,final_exam,assignment'],
-            'title'       => ['sometimes', 'string', 'max:255'],
+            'score_type' => ['sometimes', 'in:daily,mid_exam,final_exam,assignment'],
+            'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string', 'max:1000'],
-            'score_date'  => ['sometimes', 'date'],
+            'score_date' => ['sometimes', 'date'],
         ]);
 
         $session = $this->service->updateSession($session, $data);
@@ -273,7 +273,7 @@ class StudentScoreController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sesi nilai berhasil diperbarui.',
-            'data'    => $this->service->toResource($session),
+            'data' => $this->service->toResource($session),
         ]);
     }
 
@@ -315,16 +315,16 @@ class StudentScoreController extends Controller
     public function semesters(): JsonResponse
     {
         $semesters = $this->semesterService->getActiveAcademicSemester([
-            'per_page'   => 'all',
-            'sort_by'    => 'start_date',
+            'per_page' => 'all',
+            'sort_by' => 'start_date',
             'sort_order' => 'desc',
         ]);
 
         return response()->json(
             $semesters->map(fn ($s) => [
-                'semester_id'   => $s->semester_id,
+                'semester_id' => $s->semester_id,
                 'semester_name' => $s->semester_name,
-                'status'        => $s->status,
+                'status' => $s->status,
             ])
         );
     }
@@ -345,11 +345,11 @@ class StudentScoreController extends Controller
                 ->get()
                 ->map(fn ($gs) => [
                     'grade_subject_id' => $gs->id,
-                    'subject_name'     => $gs->subject?->subject_name,
-                    'grade_name'       => $gs->grade?->grade_name,
-                    'teacher_name'     => $gs->teacher?->full_name,
-                    'grade_id'         => $gs->grade_id,
-                    'label'            => ($gs->subject?->subject_name ?? '?') . ' — ' . ($gs->grade?->grade_name ?? '?'),
+                    'subject_name' => $gs->subject?->subject_name,
+                    'grade_name' => $gs->grade?->grade_name,
+                    'teacher_name' => $gs->teacher?->full_name,
+                    'grade_id' => $gs->grade_id,
+                    'label' => ($gs->subject?->subject_name ?? '?').' — '.($gs->grade?->grade_name ?? '?'),
                 ]);
         } else {
             $teacher = $user->teacher;
@@ -360,10 +360,10 @@ class StudentScoreController extends Controller
                 ->get()
                 ->map(fn ($gs) => [
                     'grade_subject_id' => $gs->id,
-                    'subject_name'     => $gs->subject?->subject_name,
-                    'grade_name'       => $gs->grade?->grade_name,
-                    'grade_id'         => $gs->grade_id,
-                    'label'            => ($gs->subject?->subject_name ?? '?') . ' — ' . ($gs->grade?->grade_name ?? '?'),
+                    'subject_name' => $gs->subject?->subject_name,
+                    'grade_name' => $gs->grade?->grade_name,
+                    'grade_id' => $gs->grade_id,
+                    'label' => ($gs->subject?->subject_name ?? '?').' — '.($gs->grade?->grade_name ?? '?'),
                 ]);
         }
 

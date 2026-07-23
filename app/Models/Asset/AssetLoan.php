@@ -2,6 +2,7 @@
 
 namespace App\Models\Asset;
 
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class AssetLoan extends Model
@@ -41,15 +42,20 @@ class AssetLoan extends Model
     {
         return [
             'asset_id' => 'integer',
-        'teacher_id' => 'integer',
-        'loan_date' => 'datetime',
-        'return_date' => 'datetime',
-        'quantity' => 'integer',
+            'teacher_id' => 'integer',
+            'loan_date' => 'datetime',
+            'return_date' => 'datetime',
+            'quantity' => 'integer',
         ];
     }
 
+    public function asset()
+    {
+        return $this->belongsTo(Asset::class, 'asset_id');
+    }
 
-    public function asset() { return $this->belongsTo(\App\Models\Asset\Asset::class, 'asset_id'); }
-
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 }

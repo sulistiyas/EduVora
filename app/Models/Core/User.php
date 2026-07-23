@@ -2,11 +2,9 @@
 
 namespace App\Models\Core;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Models\Core\Role;
-use App\Models\Core\SchoolProfiles;
 use App\Models\Student\Student;
 use App\Models\Teacher\Teacher;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
@@ -78,7 +76,7 @@ class User extends Authenticatable
         $roles = is_array($roles) ? $roles : [$roles];
 
         $roleNames = [];
-        $roleIds   = [];
+        $roleIds = [];
 
         foreach ($roles as $role) {
             if (is_numeric($role)) {
@@ -91,11 +89,11 @@ class User extends Authenticatable
         return $this->roles()
             ->where(function ($q) use ($roleNames, $roleIds) {
 
-                if (!empty($roleNames)) {
+                if (! empty($roleNames)) {
                     $q->whereIn('roles.role_name', $roleNames);
                 }
 
-                if (!empty($roleIds)) {
+                if (! empty($roleIds)) {
                     $q->orWhereIn('roles.role_id', $roleIds);
                 }
             })

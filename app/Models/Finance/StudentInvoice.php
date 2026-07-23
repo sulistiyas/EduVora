@@ -2,6 +2,7 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentInvoice extends Model
@@ -40,13 +41,18 @@ class StudentInvoice extends Model
     {
         return [
             'student_id' => 'integer',
-        'fee_setting_id' => 'integer',
-        'due_date' => 'datetime',
+            'fee_setting_id' => 'integer',
+            'due_date' => 'datetime',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
-
-    public function feesetting() { return $this->belongsTo(\App\Models\Finance\FeeSetting::class, 'fee_setting_id'); }
+    public function feesetting()
+    {
+        return $this->belongsTo(FeeSetting::class, 'fee_setting_id');
+    }
 }

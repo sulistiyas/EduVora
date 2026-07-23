@@ -42,7 +42,7 @@ class Notification extends Model
     {
         return [
             'user_id' => 'integer',
-        'is_read' => 'boolean',
+            'is_read' => 'boolean',
         ];
     }
 }

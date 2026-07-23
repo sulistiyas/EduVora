@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Repositories\SchoolRepository;
@@ -8,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 class SchoolService
 {
     protected $schoolRepository;
+
     public function __construct(SchoolRepository $schoolRepository)
     {
         $this->schoolRepository = $schoolRepository;
@@ -17,6 +19,7 @@ class SchoolService
     {
         return $this->schoolRepository->getAllSchools($filters);
     }
+
     public function getSchoolById($id)
     {
         return $this->schoolRepository->getSchoolById($id);
@@ -37,10 +40,8 @@ class SchoolService
         return $this->schoolRepository->toggleStatus($id);
     }
 
-
     public function deleteSchool($id)
     {
         return $this->schoolRepository->deleteSchool($id);
     }
-    
 }

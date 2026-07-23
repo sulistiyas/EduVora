@@ -4,26 +4,20 @@ namespace App\Exports\Teacher\Reports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AttendanceReportExport implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithTitle,
-    WithColumnWidths,
-    WithEvents
+class AttendanceReportExport implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     /*
     |--------------------------------------------------------------------------
@@ -31,20 +25,31 @@ class AttendanceReportExport implements
     |--------------------------------------------------------------------------
     */
 
-    private const COLOR_HEADER_BG   = '1E3A8A';
+    private const COLOR_HEADER_BG = '1E3A8A';
+
     private const COLOR_HEADER_FONT = 'FFFFFF';
-    private const COLOR_ROW_ALT     = 'EFF6FF';
-    private const COLOR_PRESENT     = 'ECFDF5';
-    private const COLOR_PERMISSION  = 'DBEAFE';
-    private const COLOR_SICK        = 'FEF9C3';
-    private const COLOR_ABSENT      = 'FEE2E2';
-    private const COLOR_LATE        = 'FEF3C7';
-    private const LAST_COL          = 'G';
+
+    private const COLOR_ROW_ALT = 'EFF6FF';
+
+    private const COLOR_PRESENT = 'ECFDF5';
+
+    private const COLOR_PERMISSION = 'DBEAFE';
+
+    private const COLOR_SICK = 'FEF9C3';
+
+    private const COLOR_ABSENT = 'FEE2E2';
+
+    private const COLOR_LATE = 'FEF3C7';
+
+    private const LAST_COL = 'G';
 
     // Row positions — satu tempat, tidak tersebar
-    private const ROW_TITLE     = 1;
-    private const ROW_INFO      = 2;
-    private const ROW_HEADER    = 3; // headings dari WithHeadings
+    private const ROW_TITLE = 1;
+
+    private const ROW_INFO = 2;
+
+    private const ROW_HEADER = 3; // headings dari WithHeadings
+
     private const ROW_DATA_START = 4; // data mulai sini
 
     private int $rowNumber = 0;
@@ -57,7 +62,7 @@ class AttendanceReportExport implements
 
     public function __construct(
         protected Collection $rows,
-        protected array      $meta = []
+        protected array $meta = []
     ) {}
 
     /*
@@ -105,7 +110,7 @@ class AttendanceReportExport implements
             $row['student_name'],
             $row['nis'],
             $row['status_label'],
-            $row['note']        ?? '',
+            $row['note'] ?? '',
             $row['notified_at'] ?? '-',
             $row['meeting_number'],
         ];
@@ -119,8 +124,9 @@ class AttendanceReportExport implements
 
     public function title(): string
     {
-        $grade   = $this->meta['grade']   ?? '';
+        $grade = $this->meta['grade'] ?? '';
         $subject = $this->meta['subject'] ?? '';
+
         return substr("Presensi {$grade} {$subject}", 0, 31);
     }
 
@@ -164,8 +170,8 @@ class AttendanceReportExport implements
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet    = $event->sheet->getDelegate();
-                $last     = self::LAST_COL;
+                $sheet = $event->sheet->getDelegate();
+                $last = self::LAST_COL;
                 $dataRows = $this->rows->count();
 
                 // ── Struktur row setelah insertNewRowBefore ───────────────
@@ -177,8 +183,8 @@ class AttendanceReportExport implements
                 //   row 4+ = data
                 $sheet->insertNewRowBefore(1, 2);
 
-                $headerRow   = self::ROW_HEADER;   // 3
-                $dataStart   = self::ROW_DATA_START; // 4
+                $headerRow = self::ROW_HEADER;   // 3
+                $dataStart = self::ROW_DATA_START; // 4
                 $lastDataRow = $dataStart + $dataRows - 1;
 
                 // 1. Meta (title + info)
@@ -188,22 +194,22 @@ class AttendanceReportExport implements
                 $sheet->getStyle("A{$headerRow}:{$last}{$headerRow}")
                     ->applyFromArray([
                         'font' => [
-                            'bold'  => true,
-                            'size'  => 10,
-                            'color' => ['argb' => 'FF' . self::COLOR_HEADER_FONT],
+                            'bold' => true,
+                            'size' => 10,
+                            'color' => ['argb' => 'FF'.self::COLOR_HEADER_FONT],
                         ],
                         'fill' => [
-                            'fillType'   => Fill::FILL_SOLID,
-                            'startColor' => ['argb' => 'FF' . self::COLOR_HEADER_BG],
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['argb' => 'FF'.self::COLOR_HEADER_BG],
                         ],
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
-                            'vertical'   => Alignment::VERTICAL_CENTER,
+                            'vertical' => Alignment::VERTICAL_CENTER,
                         ],
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color'       => ['argb' => 'FFD1D5DB'],
+                                'color' => ['argb' => 'FFD1D5DB'],
                             ],
                         ],
                     ]);
@@ -214,7 +220,7 @@ class AttendanceReportExport implements
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
-                                'color'       => ['argb' => 'FFE5E7EB'],
+                                'color' => ['argb' => 'FFE5E7EB'],
                             ],
                         ],
                         'alignment' => [
@@ -256,7 +262,7 @@ class AttendanceReportExport implements
                 // 10. Print setup
                 $sheet->getPageSetup()
                     ->setOrientation(
-                        \PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE
+                        PageSetup::ORIENTATION_LANDSCAPE
                     )
                     ->setFitToWidth(1)
                     ->setFitToHeight(0);
@@ -283,13 +289,13 @@ class AttendanceReportExport implements
         $sheet->setCellValue('A1', $this->meta['title'] ?? 'Laporan Presensi Siswa');
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
-                'bold'  => true,
-                'size'  => 14,
-                'color' => ['argb' => 'FF' . self::COLOR_HEADER_BG],
+                'bold' => true,
+                'size' => 14,
+                'color' => ['argb' => 'FF'.self::COLOR_HEADER_BG],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
@@ -298,18 +304,18 @@ class AttendanceReportExport implements
         $sheet->setCellValue('A2', $this->_buildInfoString());
         $sheet->getStyle('A2')->applyFromArray([
             'font' => [
-                'size'   => 9,
+                'size' => 9,
                 'italic' => true,
-                'color'  => ['argb' => 'FF64748B'],
+                'color' => ['argb' => 'FF64748B'],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'borders' => [
                 'bottom' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FFBFDBFE'],
+                    'color' => ['argb' => 'FFBFDBFE'],
                 ],
             ],
         ]);
@@ -319,13 +325,23 @@ class AttendanceReportExport implements
     {
         $parts = [];
 
-        if (!empty($this->meta['grade']))   $parts[] = "Kelas: {$this->meta['grade']}";
-        if (!empty($this->meta['subject'])) $parts[] = "Mapel: {$this->meta['subject']}";
-        if (!empty($this->meta['date']))    $parts[] = "Tanggal: {$this->meta['date']}";
-        if (!empty($this->meta['meeting'])) $parts[] = "Pertemuan ke-{$this->meta['meeting']}";
-        if (!empty($this->meta['teacher'])) $parts[] = "Guru: {$this->meta['teacher']}";
+        if (! empty($this->meta['grade'])) {
+            $parts[] = "Kelas: {$this->meta['grade']}";
+        }
+        if (! empty($this->meta['subject'])) {
+            $parts[] = "Mapel: {$this->meta['subject']}";
+        }
+        if (! empty($this->meta['date'])) {
+            $parts[] = "Tanggal: {$this->meta['date']}";
+        }
+        if (! empty($this->meta['meeting'])) {
+            $parts[] = "Pertemuan ke-{$this->meta['meeting']}";
+        }
+        if (! empty($this->meta['teacher'])) {
+            $parts[] = "Guru: {$this->meta['teacher']}";
+        }
 
-        $parts[] = 'Dicetak: ' . now()->translatedFormat('d F Y H:i');
+        $parts[] = 'Dicetak: '.now()->translatedFormat('d F Y H:i');
 
         return implode('   ·   ', $parts);
     }
@@ -340,23 +356,23 @@ class AttendanceReportExport implements
         $last = self::LAST_COL;
 
         $statusColorMap = [
-            'Hadir'     => self::COLOR_PRESENT,
-            'Izin'      => self::COLOR_PERMISSION,
-            'Sakit'     => self::COLOR_SICK,
-            'Alpha'     => self::COLOR_ABSENT,
+            'Hadir' => self::COLOR_PRESENT,
+            'Izin' => self::COLOR_PERMISSION,
+            'Sakit' => self::COLOR_SICK,
+            'Alpha' => self::COLOR_ABSENT,
             'Terlambat' => self::COLOR_LATE,
         ];
 
         for ($i = 0; $i < $dataRows; $i++) {
-            $row    = $dataStart + $i; // pakai $dataStart, bukan hardcode
+            $row = $dataStart + $i; // pakai $dataStart, bukan hardcode
             $status = $sheet->getCell("D{$row}")->getValue();
-            $color  = $statusColorMap[$status]
+            $color = $statusColorMap[$status]
                       ?? ($i % 2 === 0 ? 'FFFFFF' : self::COLOR_ROW_ALT);
 
             $sheet->getStyle("A{$row}:{$last}{$row}")->applyFromArray([
                 'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
-                    'startColor' => ['argb' => 'FF' . $color],
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF'.$color],
                 ],
             ]);
         }

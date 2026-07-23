@@ -50,7 +50,7 @@ return new class extends Migration
                 'active',
                 'inactive',
                 'graduated',
-                'archived'
+                'archived',
             ])->default('active');
 
             $table->timestamps();

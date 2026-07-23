@@ -45,6 +45,8 @@ class StudentParent extends Model
         ];
     }
 
-
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 }

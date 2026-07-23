@@ -26,7 +26,7 @@ class ExamQuestion extends Model
      * @var list<string>
      */
     protected $fillable = [
-        
+
     ];
 
     /**
@@ -38,12 +38,17 @@ class ExamQuestion extends Model
     {
         return [
             'exam_id' => 'integer',
-        'question_bank_id' => 'integer',
+            'question_bank_id' => 'integer',
         ];
     }
 
+    public function exam()
+    {
+        return $this->belongsTo(Exam::class, 'exam_id');
+    }
 
-    public function exam() { return $this->belongsTo(\App\Models\Exam\Exam::class, 'exam_id'); }
-
-    public function questionbank() { return $this->belongsTo(\App\Models\Exam\QuestionBank::class, 'question_bank_id'); }
+    public function questionbank()
+    {
+        return $this->belongsTo(QuestionBank::class, 'question_bank_id');
+    }
 }

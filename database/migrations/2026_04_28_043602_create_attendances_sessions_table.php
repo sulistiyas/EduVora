@@ -23,7 +23,7 @@ return new class extends Migration
              * RELATIONS
              */
             $table->foreignId('schedule_id')
-                ->constrained('schedules','schedule_id')
+                ->constrained('schedules', 'schedule_id')
                 ->cascadeOnDelete();
 
             $table->foreignId('teacher_id')
@@ -35,11 +35,11 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->foreignId('grade_id')
-                ->constrained('grades','grade_id')
+                ->constrained('grades', 'grade_id')
                 ->cascadeOnDelete();
 
             $table->foreignId('semester_id')
-                ->constrained('semesters','semester_id')
+                ->constrained('semesters', 'semester_id')
                 ->cascadeOnDelete();
 
             /**
@@ -61,7 +61,7 @@ return new class extends Migration
             $table->enum('status', [
                 'draft',
                 'submitted',
-                'approved'
+                'approved',
             ])->default('draft');
 
             /**
@@ -96,7 +96,7 @@ return new class extends Migration
              */
             $table->unique([
                 'schedule_id',
-                'attendance_date'
+                'attendance_date',
             ], 'unique_schedule_attendance');
         });
     }

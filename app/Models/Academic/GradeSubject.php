@@ -3,7 +3,6 @@
 namespace App\Models\Academic;
 
 use App\Models\Student\ScoreSession;
-use App\Models\Student\StudentScore;
 use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
@@ -56,7 +55,6 @@ class GradeSubject extends Model
             'weight_uas' => 'integer',
         ];
     }
-
 
     public function grade()
     {

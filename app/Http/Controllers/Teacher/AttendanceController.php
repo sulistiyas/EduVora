@@ -17,8 +17,8 @@ class AttendanceController extends Controller
 {
     public function __construct(
         protected AttendanceService $service,
-        protected ScheduleService   $scheduleService,
-        protected SemesterService   $semesterService,
+        protected ScheduleService $scheduleService,
+        protected SemesterService $semesterService,
     ) {}
 
     /*
@@ -35,7 +35,7 @@ class AttendanceController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             $sessions = $this->service->paginate(
                 teacherId: $teacher->teacher_id,
-                filters:   $request->only([
+                filters: $request->only([
                     'semester_id', 'grade_id', 'subject_id',
                     'status', 'date_from', 'date_to',
                 ]),
@@ -46,9 +46,9 @@ class AttendanceController extends Controller
                 'data' => $sessions->map(fn ($s) => $this->service->toResource($s)),
                 'meta' => [
                     'current_page' => $sessions->currentPage(),
-                    'per_page'     => $sessions->perPage(),
-                    'total'        => $sessions->total(),
-                    'last_page'    => $sessions->lastPage(),
+                    'per_page' => $sessions->perPage(),
+                    'total' => $sessions->total(),
+                    'last_page' => $sessions->lastPage(),
                 ],
             ]);
         }
@@ -95,21 +95,20 @@ class AttendanceController extends Controller
         if ($existing) {
             return response()->json([
                 'redirect' => route('teacher.attendance.show', $existing->attendance_session_id),
-                'message'  => 'Sesi hari ini sudah ada, melanjutkan sesi.',
+                'message' => 'Sesi hari ini sudah ada, melanjutkan sesi.',
             ]);
         }
 
         // Belum ada → kirim data schedule untuk modal
         return response()->json([
-            'show_modal'  => true,
+            'show_modal' => true,
             'schedule_id' => $schedule->schedule_id,
-            'subject_name'=> $schedule->gradeSubject?->subject?->subject_name,
-            'grade_name'  => $schedule->gradeSubject?->grade?->grade_name,
-            'semester_name'=> $schedule->semester?->semester_name,
-            'store_url'   => route('teacher.attendance.store'),
+            'subject_name' => $schedule->gradeSubject?->subject?->subject_name,
+            'grade_name' => $schedule->gradeSubject?->grade?->grade_name,
+            'semester_name' => $schedule->semester?->semester_name,
+            'store_url' => route('teacher.attendance.store'),
         ]);
     }
-    
 
     /*
     |--------------------------------------------------------------------------
@@ -152,7 +151,7 @@ class AttendanceController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'schedule_id'     => ['required', 'integer', 'exists:schedules,schedule_id'],
+            'schedule_id' => ['required', 'integer', 'exists:schedules,schedule_id'],
             'attendance_date' => ['required', 'date', 'date_format:Y-m-d'],
         ]);
 
@@ -172,14 +171,14 @@ class AttendanceController extends Controller
         );
 
         $session = $this->service->getOrCreateSession(
-            schedule:        $schedule,
-            teacherId:       $teacher->teacher_id,
-            recordedBy:      Auth::id(),
-            attendanceDate:  $data['attendance_date'],
+            schedule: $schedule,
+            teacherId: $teacher->teacher_id,
+            recordedBy: Auth::id(),
+            attendanceDate: $data['attendance_date'],
         );
 
         return redirect()->route('teacher.attendance.show', $session->attendance_session_id)
-            ->with('info', 'Sesi absensi ' . ($session->wasRecentlyCreated ? 'dibuat' : 'sudah ada, dilanjutkan') . '.');
+            ->with('info', 'Sesi absensi '.($session->wasRecentlyCreated ? 'dibuat' : 'sudah ada, dilanjutkan').'.');
     }
 
     /*
@@ -219,10 +218,10 @@ class AttendanceController extends Controller
         $this->service->authorizeTeacher($session, $teacher->teacher_id);
 
         $data = $request->validate([
-            'details'                => ['required', 'array', 'min:1'],
-            'details.*.student_id'   => ['required', 'integer', 'exists:students,id'],
-            'details.*.status'       => ['required', 'in:H,I,S,A,L'],
-            'details.*.note'         => ['nullable', 'string', 'max:500'],
+            'details' => ['required', 'array', 'min:1'],
+            'details.*.student_id' => ['required', 'integer', 'exists:students,id'],
+            'details.*.status' => ['required', 'in:H,I,S,A,L'],
+            'details.*.note' => ['nullable', 'string', 'max:500'],
         ]);
 
         $session = $this->service->saveDetails($session, $data['details']);
@@ -230,7 +229,7 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Absensi berhasil disimpan.',
-            'data'    => $this->service->toDetailResource($session),
+            'data' => $this->service->toDetailResource($session),
         ]);
     }
 
@@ -247,7 +246,7 @@ class AttendanceController extends Controller
 
         $this->service->authorizeTeacher($session, $teacher->teacher_id);
 
-        $data    = $request->validate([
+        $data = $request->validate([
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -256,7 +255,7 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Absensi berhasil disubmit.',
-            'data'    => $this->service->toResource($session),
+            'data' => $this->service->toResource($session),
         ]);
     }
 
@@ -278,7 +277,7 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sesi berhasil dikunci.',
-            'data'    => $this->service->toResource($session),
+            'data' => $this->service->toResource($session),
         ]);
     }
 
@@ -300,7 +299,7 @@ class AttendanceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sesi berhasil dibuka kembali.',
-            'data'    => $this->service->toResource($session),
+            'data' => $this->service->toResource($session),
         ]);
     }
 
@@ -313,16 +312,16 @@ class AttendanceController extends Controller
     public function semesters(): JsonResponse
     {
         $semesters = $this->semesterService->getActiveAcademicSemester([
-            'per_page'   => 'all',
-            'sort_by'    => 'start_date',
+            'per_page' => 'all',
+            'sort_by' => 'start_date',
             'sort_order' => 'desc',
         ]);
 
         return response()->json(
             $semesters->map(fn ($s) => [
-                'semester_id'   => $s->semester_id,
+                'semester_id' => $s->semester_id,
                 'semester_name' => $s->semester_name,
-                'status'        => $s->status,
+                'status' => $s->status,
             ])
         );
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models\Activity;
 
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class Extracurriculars extends Model
@@ -46,6 +47,8 @@ class Extracurriculars extends Model
         ];
     }
 
-
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 }

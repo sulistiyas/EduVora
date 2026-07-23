@@ -3,6 +3,7 @@
 namespace App\Services\School;
 
 use App\Models\Core\Role;
+use App\Models\Core\User;
 use App\Repositories\School\StudentRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,6 +27,7 @@ class StudentService
     public function getById(int $schoolId, $id): array
     {
         $user = $this->repo->findById($schoolId, $id);
+
         return $this->format($user);
     }
 
@@ -67,14 +69,14 @@ class StudentService
         $profileData = $data['profile'] ?? null;
         unset($data['profile'], $data['password_confirmation']);
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
         }
 
         $user = $this->repo->update($id, $data);
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('Siswa tidak ditemukan.');
         }
 
@@ -127,13 +129,13 @@ class StudentService
     // ─────────────────────────────────────────────────────────────
     public function getStats(int $schoolId): array
     {
-        $base = \App\Models\Core\User::whereHas('roles', fn($q) => $q->where('role_name', 'student'))
-            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
+        $base = User::whereHas('roles', fn ($q) => $q->where('role_name', 'student'))
+            ->whereHas('schools', fn ($q) => $q->where('school_profiles.school_id', $schoolId));
 
         return [
-            'total'      => (clone $base)->count(),
-            'active'     => (clone $base)->where('status', 'active')->count(),
-            'inactive'   => (clone $base)->where('status', 'inactive')->count(),
+            'total' => (clone $base)->count(),
+            'active' => (clone $base)->where('status', 'active')->count(),
+            'inactive' => (clone $base)->where('status', 'inactive')->count(),
             'unverified' => (clone $base)->whereNull('email_verified_at')->count(),
         ];
     }
@@ -141,52 +143,52 @@ class StudentService
     // ─────────────────────────────────────────────────────────────
     //  FORMAT
     // ─────────────────────────────────────────────────────────────
-    private function format(\App\Models\Core\User $user): array
+    private function format(User $user): array
     {
         $student = $user->student;
 
         return [
-            'id'                => $user->id,
-            'name'              => $user->name,
-            'email'             => $user->email,
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
-            'is_verified'       => !is_null($user->email_verified_at),
-            'profile_picture'   => $user->profile_picture,
-            'phone_number'      => $user->phone_number,
-            'status'            => $user->status,
-            'user_type'         => 'student',
-            'created_at'        => $user->created_at,
-            'updated_at'        => $user->updated_at,
+            'is_verified' => ! is_null($user->email_verified_at),
+            'profile_picture' => $user->profile_picture,
+            'phone_number' => $user->phone_number,
+            'status' => $user->status,
+            'user_type' => 'student',
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
 
-            'roles' => $user->roles->map(fn($r) => [
-                'role_id'   => $r->role_id,
+            'roles' => $user->roles->map(fn ($r) => [
+                'role_id' => $r->role_id,
                 'role_name' => $r->role_name,
             ]),
 
-            'schools' => $user->schools->map(fn($s) => [
-                'school_id'   => $s->school_id,
+            'schools' => $user->schools->map(fn ($s) => [
+                'school_id' => $s->school_id,
                 'school_name' => $s->school_name,
                 'school_type' => $s->school_type,
-                'status'      => $s->status,
+                'status' => $s->status,
             ]),
 
             'profile' => $student ? [
-                'student_id'      => $student->id,
-                'nis'             => $student->nis,
-                'full_name'       => $student->full_name,
-                'nick_name'       => $student->nick_name,
-                'email'           => $student->email,
-                'birth_date'      => $student->birth_date,
-                'gender'          => $student->gender,
-                'phone_number'    => $student->phone_number,
-                'address'         => $student->address,
-                'city'            => $student->city,
-                'province'        => $student->province,
-                'postal_code'     => $student->postal_code,
-                'profile_photo'   => $student->profile_photo,
-                'grade_id'        => $student->grade_id,
-                'class_group'     => $student->class_group,
-                'status'          => $student->status,
+                'student_id' => $student->id,
+                'nis' => $student->nis,
+                'full_name' => $student->full_name,
+                'nick_name' => $student->nick_name,
+                'email' => $student->email,
+                'birth_date' => $student->birth_date,
+                'gender' => $student->gender,
+                'phone_number' => $student->phone_number,
+                'address' => $student->address,
+                'city' => $student->city,
+                'province' => $student->province,
+                'postal_code' => $student->postal_code,
+                'profile_photo' => $student->profile_photo,
+                'grade_id' => $student->grade_id,
+                'class_group' => $student->class_group,
+                'status' => $student->status,
                 'enrollment_date' => $student->enrollment_date,
                 'graduation_date' => $student->graduation_date,
             ] : null,

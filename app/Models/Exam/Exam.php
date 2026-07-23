@@ -2,6 +2,9 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Academic\Grade;
+use App\Models\Academic\Semester;
+use App\Models\Academic\Subject;
 use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
@@ -42,16 +45,24 @@ class Exam extends Model
     {
         return [
             'subject_id' => 'integer',
-        'grade_id' => 'integer',
-        'semester_id' => 'integer',
-        'duration_minutes' => 'integer',
+            'grade_id' => 'integer',
+            'semester_id' => 'integer',
+            'duration_minutes' => 'integer',
         ];
     }
 
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
+    }
 
-    public function subject() { return $this->belongsTo(\App\Models\Academic\Subject::class, 'subject_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
-
-    public function semester() { return $this->belongsTo(\App\Models\Academic\Semester::class, 'semester_id'); }
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id');
+    }
 }

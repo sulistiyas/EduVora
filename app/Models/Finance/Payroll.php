@@ -2,6 +2,7 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class Payroll extends Model
@@ -40,11 +41,13 @@ class Payroll extends Model
     {
         return [
             'teacher_id' => 'integer',
-        'year' => 'integer',
-        'payment_date' => 'datetime',
+            'year' => 'integer',
+            'payment_date' => 'datetime',
         ];
     }
 
-
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 }

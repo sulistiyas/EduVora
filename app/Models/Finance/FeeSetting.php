@@ -2,6 +2,8 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Academic\AcademicYear;
+use App\Models\Academic\Grade;
 use Illuminate\Database\Eloquent\Model;
 
 class FeeSetting extends Model
@@ -26,7 +28,7 @@ class FeeSetting extends Model
      * @var list<string>
      */
     protected $fillable = [
-        
+
     ];
 
     /**
@@ -38,15 +40,23 @@ class FeeSetting extends Model
     {
         return [
             'fee_type_id' => 'integer',
-        'grade_id' => 'integer',
-        'academic_year_id' => 'integer',
+            'grade_id' => 'integer',
+            'academic_year_id' => 'integer',
         ];
     }
 
+    public function feetype()
+    {
+        return $this->belongsTo(FeeType::class, 'fee_type_id');
+    }
 
-    public function feetype() { return $this->belongsTo(\App\Models\Finance\FeeType::class, 'fee_type_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
-
-    public function academicyear() { return $this->belongsTo(\App\Models\Academic\AcademicYear::class, 'academic_year_id'); }
+    public function academicyear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
 }

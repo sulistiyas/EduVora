@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class TeachingJournal extends Model
@@ -42,13 +43,18 @@ class TeachingJournal extends Model
     {
         return [
             'teacher_id' => 'integer',
-        'grade_subject_id' => 'integer',
-        'lesson_date' => 'datetime',
+            'grade_subject_id' => 'integer',
+            'lesson_date' => 'datetime',
         ];
     }
 
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
-
-    public function gradesubject() { return $this->belongsTo(\App\Models\Academic\GradeSubject::class, 'grade_subject_id'); }
+    public function gradesubject()
+    {
+        return $this->belongsTo(GradeSubject::class, 'grade_subject_id');
+    }
 }

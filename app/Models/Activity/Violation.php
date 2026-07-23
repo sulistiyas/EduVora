@@ -2,6 +2,8 @@
 
 namespace App\Models\Activity;
 
+use App\Models\Core\User;
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class Violation extends Model
@@ -40,16 +42,24 @@ class Violation extends Model
     {
         return [
             'student_id' => 'integer',
-        'violation_type_id' => 'integer',
-        'reported_by' => 'integer',
-        'violation_date' => 'datetime',
+            'violation_type_id' => 'integer',
+            'reported_by' => 'integer',
+            'violation_date' => 'datetime',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function violationtype()
+    {
+        return $this->belongsTo(ViolationType::class, 'violation_type_id');
+    }
 
-    public function violationtype() { return $this->belongsTo(\App\Models\Activity\ViolationType::class, 'violation_type_id'); }
-
-    public function user() { return $this->belongsTo(\App\Models\Core\User::class, 'reported_by'); }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'reported_by');
+    }
 }

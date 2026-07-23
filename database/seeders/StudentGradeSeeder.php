@@ -38,8 +38,8 @@ class StudentGradeSeeder extends Seeder
             DB::table('students')
                 ->where('id', $student->id)
                 ->update([
-                    'grade_id'  => $grade->grade_id,
-                    'updated_at'=> now(),
+                    'grade_id' => $grade->grade_id,
+                    'updated_at' => now(),
                 ]);
         }
     }

@@ -24,11 +24,11 @@ class AttendanceReportController extends Controller
 
     public function index(Request $request)
     {
-        $teacher  = Auth::user()->teacher;
+        $teacher = Auth::user()->teacher;
         $schoolId = Auth::user()->schools->first()->school_id;
 
         $filters = $this->service->buildFilters(
-            input:     $request->only([
+            input: $request->only([
                 'semester_id',
                 'grade_id',
                 'subject_id',
@@ -37,7 +37,7 @@ class AttendanceReportController extends Controller
                 'date_to',
             ]),
             teacherId: $teacher->teacher_id,
-            schoolId:  $schoolId,
+            schoolId: $schoolId,
         );
 
         $data = $this->service->getIndexData($filters);
@@ -103,13 +103,13 @@ class AttendanceReportController extends Controller
 
         // Meta untuk header excel
         $meta = [
-            'title'   => 'Laporan Presensi — '
-                         . ($session->grade?->grade_name   ?? '')
-                         . ' · '
-                         . ($session->subject?->subject_name ?? ''),
-            'grade'   => $session->grade?->grade_name    ?? '-',
+            'title' => 'Laporan Presensi — '
+                         .($session->grade?->grade_name ?? '')
+                         .' · '
+                         .($session->subject?->subject_name ?? ''),
+            'grade' => $session->grade?->grade_name ?? '-',
             'subject' => $session->subject?->subject_name ?? '-',
-            'date'    => $session->attendance_date->format('d/m/Y'),
+            'date' => $session->attendance_date->format('d/m/Y'),
             'meeting' => $session->meeting_number,
             'teacher' => $teacher->full_name ?? '',
         ];
@@ -119,9 +119,9 @@ class AttendanceReportController extends Controller
             'presensi',
             str($meta['grade'])->slug(),
             str($meta['subject'])->slug(),
-            'pertemuan-' . $session->meeting_number,
+            'pertemuan-'.$session->meeting_number,
             $session->attendance_date->format('Ymd'),
-        ])) . '.xlsx';
+        ])).'.xlsx';
 
         return Excel::download(
             new AttendanceReportExport($rows, $meta),

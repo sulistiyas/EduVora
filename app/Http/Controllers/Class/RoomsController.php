@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Class;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRoomRequest;
 use App\Http\Requests\UpdateRoomRequest;
-use App\Http\Controllers\Controller;
 use App\Services\RoomsService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -25,14 +25,14 @@ class RoomsController extends Controller
         if ($request->expectsJson()) {
 
             $filters = [
-                'search'     => $request->query('search'),
-                'status'     => $request->query('status'),
-                'type'       => $request->query('type'),
-                'floor'      => $request->query('floor'),
-                'building'   => $request->query('building'),
-                'sort_by'    => $request->query('sort_by'),
+                'search' => $request->query('search'),
+                'status' => $request->query('status'),
+                'type' => $request->query('type'),
+                'floor' => $request->query('floor'),
+                'building' => $request->query('building'),
+                'sort_by' => $request->query('sort_by'),
                 'sort_order' => $request->query('sort_order'),
-                'per_page'   => $request->query('per_page', 10),
+                'per_page' => $request->query('per_page', 10),
             ];
 
             $rooms = $this->roomsService->getAllRooms($filters);
@@ -42,9 +42,9 @@ class RoomsController extends Controller
                     'data' => $rooms->items(),
                     'meta' => [
                         'current_page' => $rooms->currentPage(),
-                        'per_page'     => $rooms->perPage(),
-                        'total'        => $rooms->total(),
-                        'last_page'    => $rooms->lastPage(),
+                        'per_page' => $rooms->perPage(),
+                        'total' => $rooms->total(),
+                        'last_page' => $rooms->lastPage(),
                     ],
                 ]);
             }
@@ -62,7 +62,7 @@ class RoomsController extends Controller
     {
         $room = $this->roomsService->getRoomById($id);
 
-        if (!$room) {
+        if (! $room) {
             return response()->json(['message' => 'Ruangan tidak ditemukan.'], 404);
         }
 
@@ -76,7 +76,7 @@ class RoomsController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Ruangan berhasil ditambahkan.',
-            'data'    => $room,
+            'data' => $room,
         ], 201);
     }
 
@@ -84,14 +84,14 @@ class RoomsController extends Controller
     {
         $room = $this->roomsService->updateRoom($id, $request->validated());
 
-        if (!$room) {
+        if (! $room) {
             return response()->json(['success' => false, 'message' => 'Ruangan tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Ruangan berhasil diperbarui.',
-            'data'    => $room,
+            'data' => $room,
         ]);
     }
 
@@ -99,22 +99,22 @@ class RoomsController extends Controller
     {
         $room = $this->roomsService->toggleStatus($id);
 
-        if (!$room) {
+        if (! $room) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ruangan tidak ditemukan.'
+                'message' => 'Ruangan tidak ditemukan.',
             ], 404);
         }
 
         $statusMessages = [
-            'available'   => 'Ruangan sekarang tersedia.',
+            'available' => 'Ruangan sekarang tersedia.',
             'maintenance' => 'Ruangan masuk maintenance.',
-            'inactive'    => 'Ruangan dinonaktifkan.',
+            'inactive' => 'Ruangan dinonaktifkan.',
         ];
 
         return response()->json([
             'success' => true,
-            'status'  => $room->status,
+            'status' => $room->status,
             'message' => $statusMessages[$room->status] ?? 'Status berhasil diperbarui.',
         ]);
     }
@@ -123,7 +123,7 @@ class RoomsController extends Controller
     {
         $deleted = $this->roomsService->deleteRoom($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['success' => false, 'message' => 'Ruangan tidak ditemukan.'], 404);
         }
 

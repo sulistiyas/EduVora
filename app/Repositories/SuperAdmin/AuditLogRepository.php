@@ -11,7 +11,7 @@ class AuditLogRepository
     {
         $query = AuditLog::with('user:id,name,email');
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('action', 'ILIKE', "%{$search}%")
@@ -20,19 +20,19 @@ class AuditLogRepository
             });
         }
 
-        if (!empty($filters['table_name'])) {
+        if (! empty($filters['table_name'])) {
             $query->where('table_name', $filters['table_name']);
         }
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -41,6 +41,7 @@ class AuditLogRepository
         $query->orderBy($sortBy, $sortOrder);
 
         $perPage = (int) ($filters['per_page'] ?? 15);
+
         return $query->paginate($perPage)->withQueryString();
     }
 

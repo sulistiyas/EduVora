@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Academic;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
-use App\Http\Controllers\Controller;
 use App\Services\Academic\SubjectsService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SubjectController extends Controller
 {
@@ -75,13 +74,13 @@ class SubjectController extends Controller
     {
         $subjetcs = $this->subjectService->toggleStatus($id);
 
-        if (!$subjetcs) {
+        if (! $subjetcs) {
             return response()->json(['success' => false, 'message' => 'Subject tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $subjetcs->status,   // 'active' | 'inactive'
+            'status' => $subjetcs->status,   // 'active' | 'inactive'
             'message' => $subjetcs->status === 'active' ? 'Subject diaktifkan.' : 'Subject dinonaktifkan.',
         ]);
     }

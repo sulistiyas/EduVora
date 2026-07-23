@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Academic;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAcademicYearRequest;
 use App\Http\Requests\UpdateAcademicYearRequest;
-use App\Http\Controllers\Controller;
 use App\Services\AcademicYearService;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AcademicYearController extends Controller
 {
@@ -75,13 +74,13 @@ class AcademicYearController extends Controller
     {
         $academicYears = $this->academicYearService->toggleStatus($id);
 
-        if (!$academicYears) {
+        if (! $academicYears) {
             return response()->json(['success' => false, 'message' => 'Academic Year tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $academicYears->status,   // 'active' | 'inactive'
+            'status' => $academicYears->status,   // 'active' | 'inactive'
             'message' => $academicYears->status === 'active' ? 'Academic Year diaktifkan.' : 'Academic Year dinonaktifkan.',
         ]);
     }

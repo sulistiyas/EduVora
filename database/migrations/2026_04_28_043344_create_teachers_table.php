@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('certification');
             $table->string('npwp');
             $table->date('join_date');
-            $table->enum('status', ['active', 'inactive','retired','suspended']);
+            $table->enum('status', ['active', 'inactive', 'retired', 'suspended']);
             $table->timestamps();
         });
     }

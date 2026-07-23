@@ -3,6 +3,7 @@
 namespace App\Services\School;
 
 use App\Models\Core\Role;
+use App\Models\Core\User;
 use App\Repositories\School\TeacherRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,6 +27,7 @@ class TeacherService
     public function getById(int $schoolId, $id): array
     {
         $user = $this->repo->findById($schoolId, $id);
+
         return $this->format($user);
     }
 
@@ -67,14 +69,14 @@ class TeacherService
         $profileData = $data['profile'] ?? null;
         unset($data['profile'], $data['password_confirmation']);
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
         }
 
         $user = $this->repo->update($id, $data);
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('Guru tidak ditemukan.');
         }
 
@@ -127,13 +129,13 @@ class TeacherService
     // ─────────────────────────────────────────────────────────────
     public function getStats(int $schoolId): array
     {
-        $base = \App\Models\Core\User::whereHas('roles',   fn($q) => $q->where('role_name', 'teacher'))
-                                     ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
+        $base = User::whereHas('roles', fn ($q) => $q->where('role_name', 'teacher'))
+            ->whereHas('schools', fn ($q) => $q->where('school_profiles.school_id', $schoolId));
 
         return [
-            'total'      => (clone $base)->count(),
-            'active'     => (clone $base)->where('status', 'active')->count(),
-            'inactive'   => (clone $base)->where('status', 'inactive')->count(),
+            'total' => (clone $base)->count(),
+            'active' => (clone $base)->where('status', 'active')->count(),
+            'inactive' => (clone $base)->where('status', 'inactive')->count(),
             'unverified' => (clone $base)->whereNull('email_verified_at')->count(),
         ];
     }
@@ -141,58 +143,58 @@ class TeacherService
     // ─────────────────────────────────────────────────────────────
     //  FORMAT — sesuai kolom tabel teachers
     // ─────────────────────────────────────────────────────────────
-    private function format(\App\Models\Core\User $user): array
+    private function format(User $user): array
     {
         $t = $user->teacher; // relasi hasOne ke tabel teachers
 
         return [
             // ── User (accounts) ──────────────────────────────────
-            'id'                => $user->id,
-            'name'              => $user->name,
-            'email'             => $user->email,
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
-            'is_verified'       => !is_null($user->email_verified_at),
-            'profile_picture'   => $user->profile_picture,
-            'phone_number'      => $user->phone_number,
-            'status'            => $user->status,
-            'user_type'         => 'teacher',
-            'created_at'        => $user->created_at,
-            'updated_at'        => $user->updated_at,
+            'is_verified' => ! is_null($user->email_verified_at),
+            'profile_picture' => $user->profile_picture,
+            'phone_number' => $user->phone_number,
+            'status' => $user->status,
+            'user_type' => 'teacher',
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
 
-            'roles' => $user->roles->map(fn($r) => [
-                'role_id'   => $r->role_id,
+            'roles' => $user->roles->map(fn ($r) => [
+                'role_id' => $r->role_id,
                 'role_name' => $r->role_name,
             ]),
 
-            'schools' => $user->schools->map(fn($s) => [
-                'school_id'   => $s->school_id,
+            'schools' => $user->schools->map(fn ($s) => [
+                'school_id' => $s->school_id,
                 'school_name' => $s->school_name,
                 'school_type' => $s->school_type,
-                'status'      => $s->status,
+                'status' => $s->status,
             ]),
 
             // ── Teacher profile (tabel teachers) ─────────────────
             'profile' => $t ? [
-                'teacher_id'        => $t->teacher_id,
-                'nip'               => $t->nip,
-                'nik'               => $t->nik,
-                'full_name'         => $t->full_name,
-                'birth_place'       => $t->birth_place,
-                'birth_date'        => $t->birth_date,
-                'gender'            => $t->gender,
-                'religion'          => $t->religion,
-                'address'           => $t->address,
-                'phone'             => $t->phone,
-                'email'             => $t->email,
+                'teacher_id' => $t->teacher_id,
+                'nip' => $t->nip,
+                'nik' => $t->nik,
+                'full_name' => $t->full_name,
+                'birth_place' => $t->birth_place,
+                'birth_date' => $t->birth_date,
+                'gender' => $t->gender,
+                'religion' => $t->religion,
+                'address' => $t->address,
+                'phone' => $t->phone,
+                'email' => $t->email,
                 'employment_status' => $t->employment_status,
-                'position'          => $t->position,
-                'grade_level'       => $t->grade_level,
-                'education_level'   => $t->education_level,
-                'major'             => $t->major,
-                'certification'     => $t->certification,
-                'npwp'              => $t->npwp,
-                'join_date'         => $t->join_date,
-                'status'            => $t->status,
+                'position' => $t->position,
+                'grade_level' => $t->grade_level,
+                'education_level' => $t->education_level,
+                'major' => $t->major,
+                'certification' => $t->certification,
+                'npwp' => $t->npwp,
+                'join_date' => $t->join_date,
+                'status' => $t->status,
             ] : null,
         ];
     }

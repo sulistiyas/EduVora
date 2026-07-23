@@ -23,6 +23,7 @@ class ScheduleSeeder extends Seeder
 
         if (! $activeAcademicYear) {
             $this->command->error('Tidak ada academic year aktif.');
+
             return;
         }
 
@@ -41,6 +42,7 @@ class ScheduleSeeder extends Seeder
 
         if (! $activeSemester) {
             $this->command->error('Tidak ada semester aktif.');
+
             return;
         }
 
@@ -70,23 +72,23 @@ class ScheduleSeeder extends Seeder
         $timeSlots = [
             [
                 'start' => '07:00:00',
-                'end'   => '08:30:00',
+                'end' => '08:30:00',
             ],
             [
                 'start' => '08:30:00',
-                'end'   => '10:00:00',
+                'end' => '10:00:00',
             ],
             [
                 'start' => '10:15:00',
-                'end'   => '11:45:00',
+                'end' => '11:45:00',
             ],
             [
                 'start' => '13:00:00',
-                'end'   => '14:30:00',
+                'end' => '14:30:00',
             ],
             [
                 'start' => '14:30:00',
-                'end'   => '16:00:00',
+                'end' => '16:00:00',
             ],
         ];
 
@@ -166,17 +168,17 @@ class ScheduleSeeder extends Seeder
                     ];
 
                     $data[] = [
-                        'school_id'        => $schoolId,
+                        'school_id' => $schoolId,
                         'grade_subject_id' => $subject->grade_subject_id,
-                        'room_id'          => $roomId,
-                        'semester_id'      => $semesterId,
-                        'day_of_week'      => $day,
-                        'start_time'       => $time['start'],
-                        'end_time'         => $time['end'],
-                        'session_type'     => 'regular',
-                        'status'           => 'active',
-                        'created_at'       => now(),
-                        'updated_at'       => now(),
+                        'room_id' => $roomId,
+                        'semester_id' => $semesterId,
+                        'day_of_week' => $day,
+                        'start_time' => $time['start'],
+                        'end_time' => $time['end'],
+                        'session_type' => 'regular',
+                        'status' => 'active',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ];
 
                     /**
@@ -203,7 +205,7 @@ class ScheduleSeeder extends Seeder
         DB::table('schedules')->insert($data);
 
         $this->command->info(
-            count($data) . ' jadwal berhasil dibuat.'
+            count($data).' jadwal berhasil dibuat.'
         );
     }
 }

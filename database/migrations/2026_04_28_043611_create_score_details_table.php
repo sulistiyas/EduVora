@@ -31,7 +31,7 @@ return new class extends Migration
 
             $table->unique([
                 'score_session_id',
-                'student_id'
+                'student_id',
             ]);
         });
     }

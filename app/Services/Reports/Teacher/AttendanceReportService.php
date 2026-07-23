@@ -24,22 +24,21 @@ class AttendanceReportService
      * Build a clean filter array from raw request input.
      * Selalu inject teacher_id & school_id dari auth context.
      *
-     * @param  array  $input     — dari $request->only([...])
-     * @param  int    $teacherId — dari auth teacher
-     * @param  int    $schoolId  — dari auth school
-     * @return array
+     * @param  array  $input  — dari $request->only([...])
+     * @param  int  $teacherId  — dari auth teacher
+     * @param  int  $schoolId  — dari auth school
      */
     public function buildFilters(array $input, int $teacherId, int $schoolId): array
     {
         return [
-            'teacher_id'  => $teacherId,
-            'school_id'   => $schoolId,
+            'teacher_id' => $teacherId,
+            'school_id' => $schoolId,
             'semester_id' => $input['semester_id'] ?? null,
-            'grade_id'    => $input['grade_id']    ?? null,
-            'subject_id'  => $input['subject_id']  ?? null,
-            'status'      => $this->sanitizeStatus($input['status'] ?? null),
-            'date_from'   => $input['date_from']   ?? null,
-            'date_to'     => $input['date_to']     ?? null,
+            'grade_id' => $input['grade_id'] ?? null,
+            'subject_id' => $input['subject_id'] ?? null,
+            'status' => $this->sanitizeStatus($input['status'] ?? null),
+            'date_from' => $input['date_from'] ?? null,
+            'date_to' => $input['date_to'] ?? null,
         ];
     }
 
@@ -75,19 +74,15 @@ class AttendanceReportService
      *   - grades      : Collection (dropdown options)
      *   - subjects    : Collection (dropdown options)
      *   - filters     : array  (active filters — dikirim balik ke view)
-     *
-     * @param  array  $filters
-     * @param  int    $perPage
-     * @return array
      */
     public function getIndexData(array $filters, int $perPage = 15): array
     {
         return [
             'sessions' => $this->repo->getSessions($filters, $perPage),
-            'summary'  => $this->getFormattedSummary($filters),
-            'grades'   => $this->repo->getGradeOptions($filters['teacher_id'], $filters['school_id']),
+            'summary' => $this->getFormattedSummary($filters),
+            'grades' => $this->repo->getGradeOptions($filters['teacher_id'], $filters['school_id']),
             'subjects' => $this->repo->getSubjectOptions($filters['teacher_id'], $filters['school_id']),
-            'filters'  => $filters,
+            'filters' => $filters,
         ];
     }
 
@@ -100,9 +95,6 @@ class AttendanceReportService
     /**
      * Get aggregate summary with percentage calculations.
      * Adds: attendance_rate, absence_rate — siap render di summary cards.
-     *
-     * @param  array  $filters
-     * @return array
      */
     public function getFormattedSummary(array $filters): array
     {
@@ -114,11 +106,11 @@ class AttendanceReportService
             + $raw['total_absent']
             + $raw['total_late'];
 
-        $raw['total_detail']     = $totalDetail;
-        $raw['attendance_rate']  = $totalDetail > 0
+        $raw['total_detail'] = $totalDetail;
+        $raw['attendance_rate'] = $totalDetail > 0
             ? round(($raw['total_present'] / $totalDetail) * 100, 1)
             : 0;
-        $raw['absence_rate']     = $totalDetail > 0
+        $raw['absence_rate'] = $totalDetail > 0
             ? round(($raw['total_absent'] / $totalDetail) * 100, 1)
             : 0;
 
@@ -133,9 +125,6 @@ class AttendanceReportService
 
     /**
      * Get per-student summary with attendance rate per student.
-     *
-     * @param  array  $filters
-     * @return Collection
      */
     public function getStudentSummary(array $filters): Collection
     {
@@ -166,28 +155,25 @@ class AttendanceReportService
 
     /**
      * Get detail rows for a single session, grouped by status for easy rendering.
-     *
-     * @param  int  $sessionId
-     * @return array
      */
     public function getSessionDetail(int $sessionId): array
     {
         $details = $this->repo->getDetailsBySession($sessionId);
 
         return [
-            'all'        => $details,
-            'present'    => $details->where('status', AttendanceDetail::STATUS_PRESENT),
+            'all' => $details,
+            'present' => $details->where('status', AttendanceDetail::STATUS_PRESENT),
             'permission' => $details->where('status', AttendanceDetail::STATUS_PERMISSION),
-            'sick'       => $details->where('status', AttendanceDetail::STATUS_SICK),
-            'absent'     => $details->where('status', AttendanceDetail::STATUS_ABSENT),
-            'late'       => $details->where('status', AttendanceDetail::STATUS_LATE),
-            'counts'     => [
-                'present'    => $details->where('status', AttendanceDetail::STATUS_PRESENT)->count(),
+            'sick' => $details->where('status', AttendanceDetail::STATUS_SICK),
+            'absent' => $details->where('status', AttendanceDetail::STATUS_ABSENT),
+            'late' => $details->where('status', AttendanceDetail::STATUS_LATE),
+            'counts' => [
+                'present' => $details->where('status', AttendanceDetail::STATUS_PRESENT)->count(),
                 'permission' => $details->where('status', AttendanceDetail::STATUS_PERMISSION)->count(),
-                'sick'       => $details->where('status', AttendanceDetail::STATUS_SICK)->count(),
-                'absent'     => $details->where('status', AttendanceDetail::STATUS_ABSENT)->count(),
-                'late'       => $details->where('status', AttendanceDetail::STATUS_LATE)->count(),
-                'total'      => $details->count(),
+                'sick' => $details->where('status', AttendanceDetail::STATUS_SICK)->count(),
+                'absent' => $details->where('status', AttendanceDetail::STATUS_ABSENT)->count(),
+                'late' => $details->where('status', AttendanceDetail::STATUS_LATE)->count(),
+                'total' => $details->count(),
             ],
         ];
     }
@@ -198,11 +184,11 @@ class AttendanceReportService
 
         return $details->map(function ($detail) {
             return [
-                'student_name'   => $detail->student?->full_name  ?? '-',
-                'nis'            => $detail->student?->nis         ?? '-',
-                'status_label'   => $detail->status_label,
-                'note'           => $detail->note                  ?? '',
-                'notified_at'    => $detail->notified_at
+                'student_name' => $detail->student?->full_name ?? '-',
+                'nis' => $detail->student?->nis ?? '-',
+                'status_label' => $detail->status_label,
+                'note' => $detail->note ?? '',
+                'notified_at' => $detail->notified_at
                                     ? $detail->notified_at->format('d/m/Y H:i')
                                     : '-',
                 'meeting_number' => $detail->session?->meeting_number ?? '-',
@@ -255,17 +241,15 @@ class AttendanceReportService
 
     /**
      * Status options untuk filter dropdown di view.
-     *
-     * @return array
      */
     public function getStatusOptions(): array
     {
         return [
-            AttendanceDetail::STATUS_PRESENT    => 'Hadir',
+            AttendanceDetail::STATUS_PRESENT => 'Hadir',
             AttendanceDetail::STATUS_PERMISSION => 'Izin',
-            AttendanceDetail::STATUS_SICK       => 'Sakit',
-            AttendanceDetail::STATUS_ABSENT     => 'Alpha',
-            AttendanceDetail::STATUS_LATE       => 'Terlambat',
+            AttendanceDetail::STATUS_SICK => 'Sakit',
+            AttendanceDetail::STATUS_ABSENT => 'Alpha',
+            AttendanceDetail::STATUS_LATE => 'Terlambat',
         ];
     }
 }

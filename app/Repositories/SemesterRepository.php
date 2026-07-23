@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Concerns\HasSchoolScope;
+use App\Models\Academic\AcademicYear;
 use App\Models\Academic\Semester;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -39,44 +40,44 @@ class SemesterRepository
                         'end_date',
                         'status',
                     ]);
-                }
+                },
             ])
             // Filter hanya semester milik sekolah yang login
             ->whereHas('academicYear', function ($q) use ($schoolId, $filters) {
                 $q->where('school_id', $schoolId);
 
-                if (!empty($filters['academic_year_status'])) {
+                if (! empty($filters['academic_year_status'])) {
                     $q->where('status', $filters['academic_year_status']);
                 }
             });
 
         // 🔍 Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('semester_name', 'ILIKE', "%{$search}%")
-                  ->orWhereHas('academicYear', function ($q2) use ($search) {
-                      $q2->where('academic_year_name', 'ILIKE', "%{$search}%");
-                  });
+                    ->orWhereHas('academicYear', function ($q2) use ($search) {
+                        $q2->where('academic_year_name', 'ILIKE', "%{$search}%");
+                    });
             });
         }
 
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // 🎯 Filter per academic year
-        if (!empty($filters['academic_year_id'])) {
+        if (! empty($filters['academic_year_id'])) {
             $query->where('academic_year_id', $filters['academic_year_id']);
         }
 
         // 🔽 Sorting
         $allowedSort = ['semester_name', 'status', 'start_date', 'created_at'];
-        $sortBy      = in_array($filters['sort_by'] ?? '', $allowedSort)
+        $sortBy = in_array($filters['sort_by'] ?? '', $allowedSort)
             ? $filters['sort_by']
             : 'created_at';
-        $sortOrder   = $filters['sort_order'] ?? 'desc';
+        $sortOrder = $filters['sort_order'] ?? 'desc';
 
         $query->orderBy($sortBy, $sortOrder);
 
@@ -94,7 +95,7 @@ class SemesterRepository
     {
         return $this->getAllSemesters(
             array_merge($filters, [
-                'academic_year_status' => 'active'
+                'academic_year_status' => 'active',
             ])
         );
     }
@@ -110,7 +111,7 @@ class SemesterRepository
                     'end_date',
                     'status',
                 ]);
-            }
+            },
         ])->whereHas('academicYear', function ($q) {
             $q->where('school_id', $this->getAuthSchoolId());
         })->find($id);
@@ -120,11 +121,11 @@ class SemesterRepository
 
     public function createSemester(array $data): Semester
     {
-        $academicYear = \App\Models\Academic\AcademicYear::where('academic_year_id', $data['academic_year_id'])
+        $academicYear = AcademicYear::where('academic_year_id', $data['academic_year_id'])
             ->where('school_id', $this->getAuthSchoolId())
             ->first();
 
-        if (!$academicYear) {
+        if (! $academicYear) {
             throw new \Exception('Tahun ajaran tidak ditemukan atau bukan milik sekolah ini.');
         }
 
@@ -134,12 +135,15 @@ class SemesterRepository
     public function updateSemester($id, array $data): ?Semester
     {
         $semester = Semester::whereHas('academicYear', function ($q) {
-                        $q->where('school_id', $this->getAuthSchoolId());
-                    })->find($id);
+            $q->where('school_id', $this->getAuthSchoolId());
+        })->find($id);
 
-        if (!$semester) return null;
+        if (! $semester) {
+            return null;
+        }
 
         $semester->update($data);
+
         return $semester;
     }
 
@@ -162,7 +166,9 @@ class SemesterRepository
     {
         $semester = Semester::with('academicYear')->find($id);
 
-        if (!$semester) return null;
+        if (! $semester) {
+            return null;
+        }
 
         // Ownership check — pastikan semester ini milik sekolah yang login
         if ($semester->academicYear->school_id !== $this->getAuthSchoolId()) {
@@ -186,12 +192,15 @@ class SemesterRepository
     public function deleteSemester($id): bool
     {
         $semester = Semester::whereHas('academicYear', function ($q) {
-                        $q->where('school_id', $this->getAuthSchoolId());
-                    })->find($id);
+            $q->where('school_id', $this->getAuthSchoolId());
+        })->find($id);
 
-        if (!$semester) return false;
+        if (! $semester) {
+            return false;
+        }
 
         $semester->delete();
+
         return true;
     }
 }

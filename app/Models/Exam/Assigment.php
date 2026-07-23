@@ -2,6 +2,9 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Academic\Grade;
+use App\Models\Academic\Subject;
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class Assigment extends Model
@@ -42,17 +45,25 @@ class Assigment extends Model
     {
         return [
             'subject_id' => 'integer',
-        'grade_id' => 'integer',
-        'teacher_id' => 'integer',
-        'assigned_date' => 'datetime',
-        'due_date' => 'datetime',
+            'grade_id' => 'integer',
+            'teacher_id' => 'integer',
+            'assigned_date' => 'datetime',
+            'due_date' => 'datetime',
         ];
     }
 
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
+    }
 
-    public function subject() { return $this->belongsTo(\App\Models\Academic\Subject::class, 'subject_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
-
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 }

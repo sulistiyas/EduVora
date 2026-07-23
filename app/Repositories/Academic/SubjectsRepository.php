@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Repositories\Academic;
 
@@ -7,7 +7,7 @@ use App\Models\Academic\Subject;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
-class SubjectsRepository 
+class SubjectsRepository
 {
     use HasSchoolScope;
 
@@ -26,17 +26,17 @@ class SubjectsRepository
             ])
             ->where('school_id', $this->getAuthSchoolId());
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // 🔍 Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $q = $filters['search'];
             $query->where(function ($sub) use ($q) {
                 $sub->where('subject_name', 'like', "%{$q}%")
                     ->orWhere('subject_code', 'like', "%{$q}%")
-                    ->orWhere('category',     'like', "%{$q}%");
+                    ->orWhere('category', 'like', "%{$q}%");
             });
         }
 
@@ -69,6 +69,7 @@ class SubjectsRepository
     public function createSubject($data)
     {
         $data['school_id'] = $this->getAuthSchoolId();
+
         return Subject::create($data);
     }
 
@@ -77,8 +78,10 @@ class SubjectsRepository
         $subjects = Subject::where('id', $id)->where('school_id', $this->getAuthSchoolId() ?? null)->first();
         if ($subjects) {
             $subjects->update($data);
+
             return $subjects;
         }
+
         return null;
     }
 
@@ -89,8 +92,10 @@ class SubjectsRepository
             $subject->update([
                 'status' => $subject->status === 'active' ? 'inactive' : 'active',
             ]);
+
             return $subject;
         }
+
         return null;
     }
 
@@ -99,8 +104,10 @@ class SubjectsRepository
         $subjects = Subject::where('id', $id)->where('school_id', $this->getAuthSchoolId() ?? null)->first();
         if ($subjects) {
             $subjects->delete();
+
             return true;
         }
+
         return false;
     }
 }

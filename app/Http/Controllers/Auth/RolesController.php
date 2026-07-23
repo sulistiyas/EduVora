@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
-use App\Http\Controllers\Controller;
 use App\Services\RolesService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-
 
 class RolesController extends Controller
 {
@@ -76,13 +74,13 @@ class RolesController extends Controller
     {
         $role = $this->rolesService->toggleStatus($id);
 
-        if (!$role) {
+        if (! $role) {
             return response()->json(['success' => false, 'message' => 'Role tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $role->status,   // 'active' | 'inactive'
+            'status' => $role->status,   // 'active' | 'inactive'
             'message' => $role->status === 'active' ? 'Role diaktifkan.' : 'Role dinonaktifkan.',
         ]);
     }
@@ -91,5 +89,4 @@ class RolesController extends Controller
     {
         return response()->json(['success' => $this->rolesService->deleteRole($id)]);
     }
-
 }

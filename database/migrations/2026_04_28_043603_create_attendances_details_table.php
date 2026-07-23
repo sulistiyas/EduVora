@@ -16,14 +16,14 @@ return new class extends Migration
              * PARENT SESSION
              */
             $table->foreignId('attendance_session_id')
-                ->constrained('attendance_sessions','attendance_session_id')
+                ->constrained('attendance_sessions', 'attendance_session_id')
                 ->cascadeOnDelete();
 
             /**
              * STUDENT
              */
             $table->foreignId('student_id')
-                ->constrained('students','id')
+                ->constrained('students', 'id')
                 ->cascadeOnDelete();
 
             /**
@@ -40,7 +40,7 @@ return new class extends Migration
                 'I',
                 'S',
                 'A',
-                'L'
+                'L',
             ])->default('H');
 
             /**
@@ -71,7 +71,7 @@ return new class extends Migration
              */
             $table->unique([
                 'attendance_session_id',
-                'student_id'
+                'student_id',
             ], 'unique_student_attendance');
         });
     }

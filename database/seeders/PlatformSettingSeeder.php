@@ -18,14 +18,14 @@ class PlatformSettingSeeder extends Seeder
 
             ['key' => 'allow_registration',  'value' => 'true',                  'type' => 'boolean',  'group' => 'access',    'label' => 'Izinkan Registrasi',    'description' => 'Jika aktif, user baru bisa mendaftar sendiri.'],
             ['key' => 'maintenance_mode',    'value' => 'false',                 'type' => 'boolean',  'group' => 'access',    'label' => 'Mode Maintenance',      'description' => 'Jika aktif, hanya super-admin yang bisa mengakses.'],
-            ['key' => 'maintenance_message','value' => 'Sistem sedang dalam pemeliharaan.', 'type' => 'textarea', 'group' => 'access', 'label' => 'Pesan Maintenance', 'description' => 'Pesan yang ditampilkan saat mode maintenance aktif.'],
+            ['key' => 'maintenance_message', 'value' => 'Sistem sedang dalam pemeliharaan.', 'type' => 'textarea', 'group' => 'access', 'label' => 'Pesan Maintenance', 'description' => 'Pesan yang ditampilkan saat mode maintenance aktif.'],
 
-            ['key' => 'default_school_type','value' => 'SMA/SMK',               'type' => 'select',   'group' => 'academic',  'label' => 'Tipe Sekolah Default',  'description' => 'Tipe sekolah default saat membuat sekolah baru.', ],
+            ['key' => 'default_school_type', 'value' => 'SMA/SMK',               'type' => 'select',   'group' => 'academic',  'label' => 'Tipe Sekolah Default',  'description' => 'Tipe sekolah default saat membuat sekolah baru.'],
             ['key' => 'academic_year_start', 'value' => '07',                    'type' => 'number',   'group' => 'academic',  'label' => 'Bulan Mulai Tahun Ajaran', 'description' => 'Bulan dimulainya tahun ajaran (1-12).'],
             ['key' => 'max_upload_size',     'value' => '5120',                  'type' => 'number',   'group' => 'academic',  'label' => 'Ukuran Upload Max (KB)', 'description' => 'Batas ukuran file upload dalam kilobyte.'],
 
             ['key' => 'email_notifications', 'value' => 'true',                 'type' => 'boolean',  'group' => 'notification', 'label' => 'Notifikasi Email',   'description' => 'Kirim notifikasi via email untuk event penting.'],
-            ['key' => 'absence_notification','value' => 'true',                  'type' => 'boolean',  'group' => 'notification', 'label' => 'Notifikasi Ketidakhadiran', 'description' => 'Kirim notifikasi ke wali murid saat siswa tidak hadir.'],
+            ['key' => 'absence_notification', 'value' => 'true',                  'type' => 'boolean',  'group' => 'notification', 'label' => 'Notifikasi Ketidakhadiran', 'description' => 'Kirim notifikasi ke wali murid saat siswa tidak hadir.'],
         ];
 
         foreach ($settings as $s) {

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+
 use App\Repositories\RolesRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -43,5 +44,4 @@ class RolesService
     {
         return $this->rolesRepository->deleteRole($id);
     }
-
 }

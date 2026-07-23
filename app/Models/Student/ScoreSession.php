@@ -12,10 +12,13 @@ class ScoreSession extends Model
 {
     protected $primaryKey = 'score_session_id';
 
-    public const TYPE_DAILY       = 'daily';
-    public const TYPE_ASSIGNMENT  = 'assignment';
-    public const TYPE_MID_EXAM    = 'mid_exam';
-    public const TYPE_FINAL_EXAM  = 'final_exam';
+    public const TYPE_DAILY = 'daily';
+
+    public const TYPE_ASSIGNMENT = 'assignment';
+
+    public const TYPE_MID_EXAM = 'mid_exam';
+
+    public const TYPE_FINAL_EXAM = 'final_exam';
 
     protected $fillable = [
         'grade_subject_id',
@@ -28,7 +31,7 @@ class ScoreSession extends Model
     ];
 
     protected $casts = [
-        'score_date'   => 'date',
+        'score_date' => 'date',
         'is_published' => 'boolean',
     ];
 

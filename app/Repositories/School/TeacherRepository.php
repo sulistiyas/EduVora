@@ -27,14 +27,14 @@ class TeacherRepository
                 'updated_at',
             ])
             ->with([
-                'roles'   => fn($q) => $q->select(['roles.role_id', 'roles.role_name']),
-                'schools' => fn($q) => $q->select([
+                'roles' => fn ($q) => $q->select(['roles.role_id', 'roles.role_name']),
+                'schools' => fn ($q) => $q->select([
                     'school_profiles.school_id',
                     'school_profiles.school_name',
                     'school_profiles.school_type',
                     'school_profiles.status',
                 ]),
-                'teacher' => fn($q) => $q->select([
+                'teacher' => fn ($q) => $q->select([
                     'teacher_id',
                     'user_id',
                     'nip',
@@ -60,8 +60,8 @@ class TeacherRepository
                     'updated_at',
                 ]),
             ])
-            ->whereHas('roles',   fn($q) => $q->where('role_name', 'teacher'))
-            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId));
+            ->whereHas('roles', fn ($q) => $q->where('role_name', 'teacher'))
+            ->whereHas('schools', fn ($q) => $q->where('school_profiles.school_id', $schoolId));
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -72,36 +72,34 @@ class TeacherRepository
         $query = $this->baseQuery($schoolId);
 
         // Search: nama, email, NIP, NIK, nama lengkap, jabatan
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ILIKE', "%{$search}%")
-                  ->orWhere('email', 'ILIKE', "%{$search}%")
-                  ->orWhere('phone_number', 'ILIKE', "%{$search}%")
-                  ->orWhereHas('teacher', fn($qs) =>
-                      $qs->where('nip', 'ILIKE', "%{$search}%")
-                         ->orWhere('nik', 'ILIKE', "%{$search}%")
-                         ->orWhere('full_name', 'ILIKE', "%{$search}%")
-                         ->orWhere('position', 'ILIKE', "%{$search}%")
-                  );
+                    ->orWhere('email', 'ILIKE', "%{$search}%")
+                    ->orWhere('phone_number', 'ILIKE', "%{$search}%")
+                    ->orWhereHas('teacher', fn ($qs) => $qs->where('nip', 'ILIKE', "%{$search}%")
+                        ->orWhere('nik', 'ILIKE', "%{$search}%")
+                        ->orWhere('full_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('position', 'ILIKE', "%{$search}%")
+                    );
             });
         }
 
         // Filter status akun
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Filter employment_status (PNS, Honorer, dll)
-        if (!empty($filters['employment_status'])) {
-            $query->whereHas('teacher', fn($q) =>
-                $q->where('employment_status', $filters['employment_status'])
+        if (! empty($filters['employment_status'])) {
+            $query->whereHas('teacher', fn ($q) => $q->where('employment_status', $filters['employment_status'])
             );
         }
 
         // Sorting
-        $allowed   = ['name', 'email', 'created_at', 'updated_at', 'status'];
-        $sortBy    = in_array($filters['sort_by'] ?? '', $allowed) ? $filters['sort_by'] : 'created_at';
+        $allowed = ['name', 'email', 'created_at', 'updated_at', 'status'];
+        $sortBy = in_array($filters['sort_by'] ?? '', $allowed) ? $filters['sort_by'] : 'created_at';
         $sortOrder = in_array($filters['sort_order'] ?? '', ['asc', 'desc']) ? $filters['sort_order'] : 'asc';
         $query->orderBy($sortBy, $sortOrder);
 
@@ -129,8 +127,10 @@ class TeacherRepository
         $user = User::find($id);
         if ($user) {
             $user->update($data);
+
             return $user;
         }
+
         return null;
     }
 
@@ -141,8 +141,10 @@ class TeacherRepository
             $user->update([
                 'status' => $user->status === 'active' ? 'inactive' : 'active',
             ]);
+
             return $user;
         }
+
         return null;
     }
 
@@ -151,8 +153,10 @@ class TeacherRepository
         $user = User::find($id);
         if ($user) {
             $user->delete();
+
             return true;
         }
+
         return false;
     }
 
@@ -161,9 +165,9 @@ class TeacherRepository
      */
     public function getEmploymentStatuses(int $schoolId): array
     {
-        return User::whereHas('roles',   fn($q) => $q->where('role_name', 'teacher'))
-            ->whereHas('schools', fn($q) => $q->where('school_profiles.school_id', $schoolId))
-            ->whereHas('teacher', fn($q) => $q->whereNotNull('employment_status'))
+        return User::whereHas('roles', fn ($q) => $q->where('role_name', 'teacher'))
+            ->whereHas('schools', fn ($q) => $q->where('school_profiles.school_id', $schoolId))
+            ->whereHas('teacher', fn ($q) => $q->whereNotNull('employment_status'))
             ->with(['teacher:user_id,employment_status'])
             ->get()
             ->pluck('teacher.employment_status')

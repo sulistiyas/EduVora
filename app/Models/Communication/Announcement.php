@@ -2,6 +2,7 @@
 
 namespace App\Models\Communication;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Announcement extends Model
@@ -41,11 +42,13 @@ class Announcement extends Model
     {
         return [
             'posted_by' => 'integer',
-        'publish_date' => 'datetime',
-        'expired_date' => 'datetime',
+            'publish_date' => 'datetime',
+            'expired_date' => 'datetime',
         ];
     }
 
-
-    public function user() { return $this->belongsTo(\App\Models\Core\User::class, 'posted_by'); }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'posted_by');
+    }
 }

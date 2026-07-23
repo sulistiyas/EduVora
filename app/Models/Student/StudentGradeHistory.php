@@ -2,6 +2,8 @@
 
 namespace App\Models\Student;
 
+use App\Models\Academic\AcademicYear;
+use App\Models\Academic\Grade;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentGradeHistory extends Model
@@ -38,15 +40,23 @@ class StudentGradeHistory extends Model
     {
         return [
             'student_id' => 'integer',
-        'grade_id' => 'integer',
-        'academic_year_id' => 'integer',
+            'grade_id' => 'integer',
+            'academic_year_id' => 'integer',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
-
-    public function academicyear() { return $this->belongsTo(\App\Models\Academic\AcademicYear::class, 'academic_year_id'); }
+    public function academicyear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
 }

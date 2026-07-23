@@ -35,33 +35,32 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
             ->withMax('scoreDetails as highest_score', 'score')
             ->withMin('scoreDetails as lowest_score', 'score')
             ->withCount([
-                'scoreDetails as below_kkm_count' => fn($q)
-                    => $q->where('score', '<', 75)
+                'scoreDetails as below_kkm_count' => fn ($q) => $q->where('score', '<', 75),
             ])
             ->whereHas(
                 'gradeSubject',
                 fn ($q) => $q->where('teacher_id', $filters['teacher_id'])
             )
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('semester_id', $filters['semester_id'])
             )
             ->when(
-                !empty($filters['grade_id']),
+                ! empty($filters['grade_id']),
                 fn ($q) => $q->whereHas(
                     'gradeSubject',
                     fn ($q) => $q->where('grade_id', $filters['grade_id'])
                 )
             )
             ->when(
-                !empty($filters['subject_id']),
+                ! empty($filters['subject_id']),
                 fn ($q) => $q->whereHas(
                     'gradeSubject',
                     fn ($q) => $q->where('subject_id', $filters['subject_id'])
                 )
             )
             ->when(
-                !empty($filters['score_type']),
+                ! empty($filters['score_type']),
                 fn ($q) => $q->where('score_type', $filters['score_type'])
             )
             ->when(
@@ -150,7 +149,7 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
             ])
             ->where('score_sessions.grade_subject_id', $gradeSubjectId)
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('score_sessions.semester_id', $filters['semester_id'])
             )
             ->groupBy(
@@ -170,12 +169,12 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
                 $finalScore = $totalWeight > 0
                     ? (
                         (($row->avg_harian ?? 0) * $row->weight_harian) +
-                        (($row->avg_uts    ?? 0) * $row->weight_uts) +
-                        (($row->avg_uas    ?? 0) * $row->weight_uas)
-                      ) / $totalWeight
+                        (($row->avg_uts ?? 0) * $row->weight_uts) +
+                        (($row->avg_uas ?? 0) * $row->weight_uas)
+                    ) / $totalWeight
                     : 0;
 
-                $row->final_score  = round($finalScore, 2);
+                $row->final_score = round($finalScore, 2);
                 $row->is_below_kkm = $finalScore < $row->kkm;
 
                 return $row;
@@ -200,7 +199,7 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
         }
 
         $gradeSubject = GradeSubject::find($gradeSubjectId);
-        $kkm          = $gradeSubject?->kkm ?? 0;
+        $kkm = $gradeSubject?->kkm ?? 0;
 
         $row = ScoreDetail::query()
             ->join(
@@ -217,11 +216,11 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
             ])
             ->where('score_sessions.grade_subject_id', $gradeSubjectId)
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('score_sessions.semester_id', $filters['semester_id'])
             )
             ->when(
-                !empty($filters['score_type']),
+                ! empty($filters['score_type']),
                 fn ($q) => $q->where('score_sessions.score_type', $filters['score_type'])
             )
             ->first();
@@ -232,12 +231,12 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
             ->count();
 
         return [
-            'total_sessions'  => (int)   ($row->total_sessions  ?? 0),
-            'class_avg'       => (float) ($row->class_avg       ?? 0),
-            'highest'   => (float) ($row->highest_score   ?? 0),
-            'lowest'    => (float) ($row->lowest_score    ?? 0),
+            'total_sessions' => (int) ($row->total_sessions ?? 0),
+            'class_avg' => (float) ($row->class_avg ?? 0),
+            'highest' => (float) ($row->highest_score ?? 0),
+            'lowest' => (float) ($row->lowest_score ?? 0),
             'below_kkm_count' => $belowKkmCount,
-            'kkm'             => $kkm,
+            'kkm' => $kkm,
         ];
     }
 
@@ -318,11 +317,11 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
                 fn ($q) => $q->where('grade_subject_id', $gradeSubjectId)
             )
             ->when(
-                !empty($filters['semester_id']),
+                ! empty($filters['semester_id']),
                 fn ($q) => $q->where('semester_id', $filters['semester_id'])
             )
             ->when(
-                !empty($filters['score_type']),
+                ! empty($filters['score_type']),
                 fn ($q) => $q->where('score_type', $filters['score_type'])
             )
             ->orderByDesc('score_date')
@@ -341,13 +340,13 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
      */
     private function resolveGradeSubjectId(array $filters): ?int
     {
-        if (!empty($filters['grade_subject_id'])) {
+        if (! empty($filters['grade_subject_id'])) {
             return (int) $filters['grade_subject_id'];
         }
 
-        if (!empty($filters['grade_id']) && !empty($filters['subject_id'])) {
+        if (! empty($filters['grade_id']) && ! empty($filters['subject_id'])) {
             return GradeSubject::query()
-                ->where('grade_id',   $filters['grade_id'])
+                ->where('grade_id', $filters['grade_id'])
                 ->where('subject_id', $filters['subject_id'])
                 ->where('teacher_id', $filters['teacher_id'])
                 ->value('id');
@@ -364,12 +363,12 @@ class ScoreReportRepository implements ScoreReportRepositoryInterface
     private function emptyAggregateSummary(): array
     {
         return [
-            'total_sessions'  => 0,
-            'class_avg'       => 0.0,
-            'highest'   => 0.0,
-            'lowest'    => 0.0,
+            'total_sessions' => 0,
+            'class_avg' => 0.0,
+            'highest' => 0.0,
+            'lowest' => 0.0,
             'below_kkm_count' => 0,
-            'kkm'             => 0,
+            'kkm' => 0,
         ];
     }
 }

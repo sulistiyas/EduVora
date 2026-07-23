@@ -4,17 +4,18 @@ namespace App\Exports\Teacher\Reports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /*
@@ -31,8 +32,8 @@ class ScoreReportExport implements WithMultipleSheets
 {
     public function __construct(
         protected Collection|array $rows,
-        protected array            $meta        = [],
-        protected string           $exportType  = 'summary',
+        protected array $meta = [],
+        protected string $exportType = 'summary',
     ) {}
 
     public function sheets(): array
@@ -41,9 +42,9 @@ class ScoreReportExport implements WithMultipleSheets
             $sheets = [];
 
             $typeMap = [
-                'daily'      => 'Harian',
+                'daily' => 'Harian',
                 'assignment' => 'Tugas',
-                'mid_exam'   => 'UTS',
+                'mid_exam' => 'UTS',
                 'final_exam' => 'UAS',
             ];
 
@@ -67,32 +68,33 @@ class ScoreReportExport implements WithMultipleSheets
 |==========================================================================
 */
 
-class ScoreSummarySheet implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithTitle,
-    WithColumnWidths,
-    WithEvents
+class ScoreSummarySheet implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
-    private const COLOR_HEADER_BG   = '1E3A8A';
-    private const COLOR_HEADER_FONT = 'FFFFFF';
-    private const COLOR_ROW_ALT     = 'EFF6FF';
-    private const COLOR_BELOW_KKM   = 'FEE2E2';
-    private const COLOR_PASS_KKM    = 'ECFDF5';
-    private const LAST_COL          = 'I';
+    private const COLOR_HEADER_BG = '1E3A8A';
 
-    private const ROW_TITLE      = 1;
-    private const ROW_INFO       = 2;
-    private const ROW_HEADER     = 3;
+    private const COLOR_HEADER_FONT = 'FFFFFF';
+
+    private const COLOR_ROW_ALT = 'EFF6FF';
+
+    private const COLOR_BELOW_KKM = 'FEE2E2';
+
+    private const COLOR_PASS_KKM = 'ECFDF5';
+
+    private const LAST_COL = 'I';
+
+    private const ROW_TITLE = 1;
+
+    private const ROW_INFO = 2;
+
+    private const ROW_HEADER = 3;
+
     private const ROW_DATA_START = 4;
 
     private int $rowNumber = 0;
 
     public function __construct(
         protected Collection $rows,
-        protected array      $meta = [],
+        protected array $meta = [],
     ) {}
 
     public function collection(): Collection
@@ -161,14 +163,14 @@ class ScoreSummarySheet implements
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet    = $event->sheet->getDelegate();
-                $last     = self::LAST_COL;
+                $sheet = $event->sheet->getDelegate();
+                $last = self::LAST_COL;
                 $dataRows = $this->rows->count();
 
                 $sheet->insertNewRowBefore(1, 2);
 
-                $headerRow   = self::ROW_HEADER;
-                $dataStart   = self::ROW_DATA_START;
+                $headerRow = self::ROW_HEADER;
+                $dataStart = self::ROW_DATA_START;
                 $lastDataRow = $dataStart + $dataRows - 1;
 
                 $this->_writeMeta($sheet);
@@ -202,13 +204,13 @@ class ScoreSummarySheet implements
         $sheet->setCellValue('A1', $this->meta['title'] ?? 'Laporan Nilai Siswa');
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
-                'bold'  => true,
-                'size'  => 14,
-                'color' => ['argb' => 'FF' . self::COLOR_HEADER_BG],
+                'bold' => true,
+                'size' => 14,
+                'color' => ['argb' => 'FF'.self::COLOR_HEADER_BG],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
@@ -217,18 +219,18 @@ class ScoreSummarySheet implements
         $sheet->setCellValue('A2', $this->_buildInfoString());
         $sheet->getStyle('A2')->applyFromArray([
             'font' => [
-                'size'   => 9,
+                'size' => 9,
                 'italic' => true,
-                'color'  => ['argb' => 'FF64748B'],
+                'color' => ['argb' => 'FF64748B'],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'borders' => [
                 'bottom' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FFBFDBFE'],
+                    'color' => ['argb' => 'FFBFDBFE'],
                 ],
             ],
         ]);
@@ -238,14 +240,26 @@ class ScoreSummarySheet implements
     {
         $parts = [];
 
-        if (!empty($this->meta['grade']))      $parts[] = "Kelas: {$this->meta['grade']}";
-        if (!empty($this->meta['subject']))    $parts[] = "Mapel: {$this->meta['subject']}";
-        if (!empty($this->meta['semester']))   $parts[] = "Semester: {$this->meta['semester']}";
-        if (!empty($this->meta['score_type'])) $parts[] = "Tipe: {$this->meta['score_type']}";
-        if (!empty($this->meta['kkm']))        $parts[] = "KKM: {$this->meta['kkm']}";
-        if (!empty($this->meta['teacher']))    $parts[] = "Guru: {$this->meta['teacher']}";
+        if (! empty($this->meta['grade'])) {
+            $parts[] = "Kelas: {$this->meta['grade']}";
+        }
+        if (! empty($this->meta['subject'])) {
+            $parts[] = "Mapel: {$this->meta['subject']}";
+        }
+        if (! empty($this->meta['semester'])) {
+            $parts[] = "Semester: {$this->meta['semester']}";
+        }
+        if (! empty($this->meta['score_type'])) {
+            $parts[] = "Tipe: {$this->meta['score_type']}";
+        }
+        if (! empty($this->meta['kkm'])) {
+            $parts[] = "KKM: {$this->meta['kkm']}";
+        }
+        if (! empty($this->meta['teacher'])) {
+            $parts[] = "Guru: {$this->meta['teacher']}";
+        }
 
-        $parts[] = 'Dicetak: ' . now()->translatedFormat('d F Y H:i');
+        $parts[] = 'Dicetak: '.now()->translatedFormat('d F Y H:i');
 
         return implode('   ·   ', $parts);
     }
@@ -254,22 +268,22 @@ class ScoreSummarySheet implements
     {
         $sheet->getStyle("A{$headerRow}:{$last}{$headerRow}")->applyFromArray([
             'font' => [
-                'bold'  => true,
-                'size'  => 10,
-                'color' => ['argb' => 'FF' . self::COLOR_HEADER_FONT],
+                'bold' => true,
+                'size' => 10,
+                'color' => ['argb' => 'FF'.self::COLOR_HEADER_FONT],
             ],
             'fill' => [
-                'fillType'   => Fill::FILL_SOLID,
-                'startColor' => ['argb' => 'FF' . self::COLOR_HEADER_BG],
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['argb' => 'FF'.self::COLOR_HEADER_BG],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FFD1D5DB'],
+                    'color' => ['argb' => 'FFD1D5DB'],
                 ],
             ],
         ]);
@@ -286,7 +300,7 @@ class ScoreSummarySheet implements
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FFE5E7EB'],
+                    'color' => ['argb' => 'FFE5E7EB'],
                 ],
             ],
             'alignment' => [
@@ -308,19 +322,19 @@ class ScoreSummarySheet implements
     private function _colorRows(Worksheet $sheet, int $dataRows, int $dataStart, string $last): void
     {
         for ($i = 0; $i < $dataRows; $i++) {
-            $row    = $dataStart + $i;
+            $row = $dataStart + $i;
             $status = $sheet->getCell("I{$row}")->getValue(); // kolom Status KKM
 
             $color = match (true) {
                 str_contains((string) $status, 'bawah') => self::COLOR_BELOW_KKM,
                 str_contains((string) $status, 'Lulus') => self::COLOR_PASS_KKM,
-                default                                  => $i % 2 === 0 ? 'FFFFFF' : self::COLOR_ROW_ALT,
+                default => $i % 2 === 0 ? 'FFFFFF' : self::COLOR_ROW_ALT,
             };
 
             $sheet->getStyle("A{$row}:{$last}{$row}")->applyFromArray([
                 'fill' => [
-                    'fillType'   => Fill::FILL_SOLID,
-                    'startColor' => ['argb' => 'FF' . $color],
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FF'.$color],
                 ],
             ]);
         }
@@ -347,7 +361,7 @@ class ScoreSummarySheet implements
     private function _setPrintSetup(Worksheet $sheet): void
     {
         $sheet->getPageSetup()
-            ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
+            ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
             ->setFitToWidth(1)
             ->setFitToHeight(0);
     }
@@ -360,31 +374,30 @@ class ScoreSummarySheet implements
 |==========================================================================
 */
 
-class ScoreSessionSheet implements
-    FromCollection,
-    WithHeadings,
-    WithMapping,
-    WithStyles,
-    WithTitle,
-    WithColumnWidths,
-    WithEvents
+class ScoreSessionSheet implements FromCollection, WithColumnWidths, WithEvents, WithHeadings, WithMapping, WithStyles, WithTitle
 {
-    private const COLOR_HEADER_BG   = '1E3A8A';
-    private const COLOR_HEADER_FONT = 'FFFFFF';
-    private const COLOR_ROW_ALT     = 'EFF6FF';
-    private const LAST_COL          = 'G';
+    private const COLOR_HEADER_BG = '1E3A8A';
 
-    private const ROW_TITLE      = 1;
-    private const ROW_INFO       = 2;
-    private const ROW_HEADER     = 3;
+    private const COLOR_HEADER_FONT = 'FFFFFF';
+
+    private const COLOR_ROW_ALT = 'EFF6FF';
+
+    private const LAST_COL = 'G';
+
+    private const ROW_TITLE = 1;
+
+    private const ROW_INFO = 2;
+
+    private const ROW_HEADER = 3;
+
     private const ROW_DATA_START = 4;
 
     private int $rowNumber = 0;
 
     public function __construct(
         protected Collection $sessions,
-        protected array      $meta      = [],
-        protected string     $scoreType = 'harian',
+        protected array $meta = [],
+        protected string $scoreType = 'harian',
     ) {}
 
     public function collection(): Collection
@@ -393,13 +406,13 @@ class ScoreSessionSheet implements
         return $this->sessions->flatMap(function ($session) {
             return $session->scoreDetails->map(function ($detail) use ($session) {
                 return (object) [
-                    'score_date'  => $session->score_date?->format('d/m/Y') ?? '-',
-                    'title'       => $session->title,
-                    'score_type'  => strtoupper($session->score_type),
-                    'full_name'   => $detail->student?->full_name ?? '-',
-                    'nis'         => $detail->student?->nis        ?? '-',
-                    'score'       => $detail->score,
-                    'max_score'   => $detail->max_score,
+                    'score_date' => $session->score_date?->format('d/m/Y') ?? '-',
+                    'title' => $session->title,
+                    'score_type' => strtoupper($session->score_type),
+                    'full_name' => $detail->student?->full_name ?? '-',
+                    'nis' => $detail->student?->nis ?? '-',
+                    'score' => $detail->score,
+                    'max_score' => $detail->max_score,
                 ];
             });
         });
@@ -436,10 +449,10 @@ class ScoreSessionSheet implements
     public function title(): string
     {
         return match ($this->scoreType) {
-            'mid_exam'   => 'UTS',
+            'mid_exam' => 'UTS',
             'final_exam' => 'UAS',
             'assignment' => 'Tugas',
-            default      => 'Harian',
+            default => 'Harian',
         };
     }
 
@@ -465,14 +478,14 @@ class ScoreSessionSheet implements
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $sheet    = $event->sheet->getDelegate();
-                $last     = self::LAST_COL;
+                $sheet = $event->sheet->getDelegate();
+                $last = self::LAST_COL;
                 $dataRows = $this->collection()->count();
 
                 $sheet->insertNewRowBefore(1, 2);
 
-                $headerRow   = self::ROW_HEADER;
-                $dataStart   = self::ROW_DATA_START;
+                $headerRow = self::ROW_HEADER;
+                $dataStart = self::ROW_DATA_START;
                 $lastDataRow = $dataStart + $dataRows - 1;
 
                 $this->_writeMeta($sheet);
@@ -480,22 +493,22 @@ class ScoreSessionSheet implements
                 // Header style
                 $sheet->getStyle("A{$headerRow}:{$last}{$headerRow}")->applyFromArray([
                     'font' => [
-                        'bold'  => true,
-                        'size'  => 10,
-                        'color' => ['argb' => 'FF' . self::COLOR_HEADER_FONT],
+                        'bold' => true,
+                        'size' => 10,
+                        'color' => ['argb' => 'FF'.self::COLOR_HEADER_FONT],
                     ],
                     'fill' => [
-                        'fillType'   => Fill::FILL_SOLID,
-                        'startColor' => ['argb' => 'FF' . self::COLOR_HEADER_BG],
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['argb' => 'FF'.self::COLOR_HEADER_BG],
                     ],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical'   => Alignment::VERTICAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color'       => ['argb' => 'FFD1D5DB'],
+                            'color' => ['argb' => 'FFD1D5DB'],
                         ],
                     ],
                 ]);
@@ -505,7 +518,7 @@ class ScoreSessionSheet implements
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
-                            'color'       => ['argb' => 'FFE5E7EB'],
+                            'color' => ['argb' => 'FFE5E7EB'],
                         ],
                     ],
                     'alignment' => [
@@ -523,12 +536,12 @@ class ScoreSessionSheet implements
 
                 // Alternating row colors
                 for ($i = 0; $i < $dataRows; $i++) {
-                    $row   = $dataStart + $i;
+                    $row = $dataStart + $i;
                     $color = $i % 2 === 0 ? 'FFFFFF' : self::COLOR_ROW_ALT;
                     $sheet->getStyle("A{$row}:{$last}{$row}")->applyFromArray([
                         'fill' => [
-                            'fillType'   => Fill::FILL_SOLID,
-                            'startColor' => ['argb' => 'FF' . $color],
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['argb' => 'FF'.$color],
                         ],
                     ]);
                 }
@@ -550,7 +563,7 @@ class ScoreSessionSheet implements
 
                 // Print
                 $sheet->getPageSetup()
-                    ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
+                    ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
                     ->setFitToWidth(1)
                     ->setFitToHeight(0);
             },
@@ -559,25 +572,25 @@ class ScoreSessionSheet implements
 
     private function _writeMeta(Worksheet $sheet): void
     {
-        $last      = self::LAST_COL;
+        $last = self::LAST_COL;
         $typeLabel = match ($this->scoreType) {
-            'mid_exam'   => 'UTS',
+            'mid_exam' => 'UTS',
             'final_exam' => 'UAS',
             'assignment' => 'Tugas',
-            default      => 'Harian',
+            default => 'Harian',
         };
 
         $sheet->mergeCells("A1:{$last}1");
-        $sheet->setCellValue('A1', ($this->meta['title'] ?? 'Laporan Nilai') . " — {$typeLabel}");
+        $sheet->setCellValue('A1', ($this->meta['title'] ?? 'Laporan Nilai')." — {$typeLabel}");
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
-                'bold'  => true,
-                'size'  => 14,
+                'bold' => true,
+                'size' => 14,
                 'color' => ['argb' => 'FF1E3A8A'],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
         ]);
 
@@ -585,18 +598,18 @@ class ScoreSessionSheet implements
         $sheet->setCellValue('A2', $this->_buildInfoString($typeLabel));
         $sheet->getStyle('A2')->applyFromArray([
             'font' => [
-                'size'   => 9,
+                'size' => 9,
                 'italic' => true,
-                'color'  => ['argb' => 'FF64748B'],
+                'color' => ['argb' => 'FF64748B'],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical'   => Alignment::VERTICAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'borders' => [
                 'bottom' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color'       => ['argb' => 'FFBFDBFE'],
+                    'color' => ['argb' => 'FFBFDBFE'],
                 ],
             ],
         ]);
@@ -606,13 +619,23 @@ class ScoreSessionSheet implements
     {
         $parts = [];
 
-        if (!empty($this->meta['grade']))    $parts[] = "Kelas: {$this->meta['grade']}";
-        if (!empty($this->meta['subject']))  $parts[] = "Mapel: {$this->meta['subject']}";
-        if (!empty($this->meta['semester'])) $parts[] = "Semester: {$this->meta['semester']}";
+        if (! empty($this->meta['grade'])) {
+            $parts[] = "Kelas: {$this->meta['grade']}";
+        }
+        if (! empty($this->meta['subject'])) {
+            $parts[] = "Mapel: {$this->meta['subject']}";
+        }
+        if (! empty($this->meta['semester'])) {
+            $parts[] = "Semester: {$this->meta['semester']}";
+        }
         $parts[] = "Tipe: {$typeLabel}";
-        if (!empty($this->meta['kkm']))      $parts[] = "KKM: {$this->meta['kkm']}";
-        if (!empty($this->meta['teacher']))  $parts[] = "Guru: {$this->meta['teacher']}";
-        $parts[] = 'Dicetak: ' . now()->translatedFormat('d F Y H:i');
+        if (! empty($this->meta['kkm'])) {
+            $parts[] = "KKM: {$this->meta['kkm']}";
+        }
+        if (! empty($this->meta['teacher'])) {
+            $parts[] = "Guru: {$this->meta['teacher']}";
+        }
+        $parts[] = 'Dicetak: '.now()->translatedFormat('d F Y H:i');
 
         return implode('   ·   ', $parts);
     }

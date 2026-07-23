@@ -18,7 +18,7 @@ class ScoreDetail extends Model
     ];
 
     protected $casts = [
-        'score'     => 'decimal:2',
+        'score' => 'decimal:2',
         'max_score' => 'decimal:2',
     ];
 

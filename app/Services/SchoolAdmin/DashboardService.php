@@ -107,6 +107,7 @@ class DashboardService
         $recentLogs = $recentLogs->map(function ($log) use ($statusBadge, $statusLabel) {
             $log->status_badge = $statusBadge[$log->status] ?? 'secondary';
             $log->status_label = $statusLabel[$log->status] ?? ucfirst($log->status ?? '-');
+
             return $log;
         });
 

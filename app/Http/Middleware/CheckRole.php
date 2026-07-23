@@ -14,7 +14,7 @@ class CheckRole
         // Load sekali per request, skip kalau sudah di-load
         $user?->loadMissing(['roles', 'schools']);
 
-        if (!$user?->hasRole($roles)) {
+        if (! $user?->hasRole($roles)) {
             abort(403, 'Unauthorized.');
         }
 

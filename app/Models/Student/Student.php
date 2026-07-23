@@ -2,6 +2,8 @@
 
 namespace App\Models\Student;
 
+use App\Models\Academic\Grade;
+use App\Models\Core\SchoolProfiles;
 use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -61,10 +63,15 @@ class Student extends Model
         ];
     }
 
+    public function schoolprofiles()
+    {
+        return $this->belongsTo(SchoolProfiles::class, 'school_id');
+    }
 
-    public function schoolprofiles() { return $this->belongsTo(\App\Models\Core\SchoolProfiles::class, 'school_id'); }
-
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 
     public function user()
     {

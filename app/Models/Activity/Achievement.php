@@ -2,6 +2,7 @@
 
 namespace App\Models\Activity;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class Achievement extends Model
@@ -42,13 +43,18 @@ class Achievement extends Model
     {
         return [
             'student_id' => 'integer',
-        'extracurricular_id' => 'integer',
-        'achievement_date' => 'datetime',
+            'extracurricular_id' => 'integer',
+            'achievement_date' => 'datetime',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
-
-    public function extracurriculars() { return $this->belongsTo(\App\Models\Activity\Extracurriculars::class, 'extracurricular_id'); }
+    public function extracurriculars()
+    {
+        return $this->belongsTo(Extracurriculars::class, 'extracurricular_id');
+    }
 }

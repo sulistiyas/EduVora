@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSchoolRequest;
 use App\Http\Requests\UpdateSchoolRequest;
 use App\Services\SchoolService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SchoolController extends Controller
 {
@@ -61,13 +60,14 @@ class SchoolController extends Controller
         return response()->json($this->schoolService->getSchoolById($id));
     }
 
-    public function detail($id){
+    public function detail($id)
+    {
         $school = $this->schoolService->getSchoolById($id);
- 
-        if (!$school) {
+
+        if (! $school) {
             abort(404, 'Sekolah tidak ditemukan.');
         }
-    
+
         return view('pages.schools.detail', compact('school'));
     }
 
@@ -85,13 +85,13 @@ class SchoolController extends Controller
     {
         $school = $this->schoolService->toggleStatus($id);
 
-        if (!$school) {
+        if (! $school) {
             return response()->json(['success' => false, 'message' => 'Sekolah tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $school->status,   // 'active' | 'inactive'
+            'status' => $school->status,   // 'active' | 'inactive'
             'message' => $school->status === 'active' ? 'Sekolah diaktifkan.' : 'Sekolah dinonaktifkan.',
         ]);
     }
@@ -100,5 +100,4 @@ class SchoolController extends Controller
     {
         return response()->json(['success' => $this->schoolService->deleteSchool($id)]);
     }
-    
 }

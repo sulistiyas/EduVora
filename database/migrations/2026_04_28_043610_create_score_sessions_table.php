@@ -24,7 +24,7 @@ return new class extends Migration
                 'daily',
                 'assignment',
                 'mid_exam',
-                'final_exam'
+                'final_exam',
             ]);
 
             $table->string('title');

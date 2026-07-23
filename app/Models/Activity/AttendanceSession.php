@@ -2,9 +2,6 @@
 
 namespace App\Models\Activity;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
 use App\Models\Academic\Grade;
 use App\Models\Academic\Schedule;
 use App\Models\Academic\Semester;
@@ -12,6 +9,8 @@ use App\Models\Academic\Subject;
 use App\Models\Core\SchoolProfiles;
 use App\Models\Core\User;
 use App\Models\Teacher\Teacher;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class AttendanceSession extends Model
 {
@@ -38,7 +37,7 @@ class AttendanceSession extends Model
 
     protected $casts = [
         'attendance_date' => 'date',
-        'is_locked'       => 'boolean',
+        'is_locked' => 'boolean',
     ];
 
     protected $appends = [
@@ -55,9 +54,11 @@ class AttendanceSession extends Model
     |--------------------------------------------------------------------------
     */
 
-    public const STATUS_DRAFT     = 'draft';
+    public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SUBMITTED = 'submitted';
-    public const STATUS_APPROVED  = 'approved';
+
+    public const STATUS_APPROVED = 'approved';
 
     /*
     |--------------------------------------------------------------------------

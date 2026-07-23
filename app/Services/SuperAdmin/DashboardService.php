@@ -4,7 +4,6 @@ namespace App\Services\SuperAdmin;
 
 use App\Models\Activity\AttendanceSession;
 use App\Models\Core\AuditLog;
-use App\Models\Core\Role;
 use App\Models\Core\SchoolProfiles;
 use App\Models\Core\User;
 use App\Models\Finance\StudentInvoice;
@@ -15,22 +14,22 @@ class DashboardService
 {
     public function getStats(): array
     {
-        $totalSiswa      = Student::count();
-        $totalGuru       = Teacher::count();
-        $totalSekolah    = SchoolProfiles::count();
-        $totalUsers      = User::count();
+        $totalSiswa = Student::count();
+        $totalGuru = Teacher::count();
+        $totalSekolah = SchoolProfiles::count();
+        $totalUsers = User::count();
         $totalSuperAdmin = User::whereHas('roles', fn ($q) => $q->where('role_name', 'super-admin'))->count();
         $totalAdminSekolah = User::whereHas('roles', fn ($q) => $q->where('role_name', 'school-admin'))->count();
 
         $userStatusCounts = [
-            'active'   => User::where('status', 'active')->count(),
+            'active' => User::where('status', 'active')->count(),
             'inactive' => User::where('status', 'inactive')->count(),
         ];
 
         $schoolTypes = [
             'SMA/SMK' => SchoolProfiles::where('school_type', 'Senior High')->count(),
-            'SMP'     => SchoolProfiles::where('school_type', 'Junior High')->count(),
-            'SD'      => SchoolProfiles::where('school_type', 'Elementary')->count(),
+            'SMP' => SchoolProfiles::where('school_type', 'Junior High')->count(),
+            'SD' => SchoolProfiles::where('school_type', 'Elementary')->count(),
         ];
 
         $todayHadir = AttendanceSession::where('attendance_date', now()->toDateString())
@@ -56,12 +55,12 @@ class DashboardService
             ->limit(10)
             ->get()
             ->map(fn ($log) => (object) [
-                'user'         => $log->user,
-                'description'  => $log->action,
-                'module'       => $log->table_name ?? 'Sistem',
+                'user' => $log->user,
+                'description' => $log->action,
+                'module' => $log->table_name ?? 'Sistem',
                 'status_badge' => 'success',
                 'status_label' => 'Berhasil',
-                'created_at'   => $log->created_at,
+                'created_at' => $log->created_at,
             ]);
 
         return compact(

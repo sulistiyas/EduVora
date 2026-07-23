@@ -24,7 +24,7 @@ class AcademicYearRepository
             ->where('school_id', $this->getAuthSchoolId());
 
         // 🔍 Search (hanya kalau ada input)
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = strtolower($filters['search']);
 
             $query->where(function ($q) use ($search) {
@@ -33,7 +33,7 @@ class AcademicYearRepository
         }
 
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
@@ -72,11 +72,13 @@ class AcademicYearRepository
     public function updateAcademicYear($id, $data)
     {
         $academicYear = AcademicYear::where('academic_year_id', $id)
-                                    ->where('school_id', $this->getAuthSchoolId() ?? null)->first();
+            ->where('school_id', $this->getAuthSchoolId() ?? null)->first();
         if ($academicYear) {
             $academicYear->update($data);
+
             return $academicYear;
         }
+
         return null;
     }
 
@@ -92,7 +94,9 @@ class AcademicYearRepository
     {
         $academicYear = AcademicYear::find($id);
 
-        if (!$academicYear) return null;
+        if (! $academicYear) {
+            return null;
+        }
 
         if ($academicYear->status === 'inactive') {
             // Nonaktifkan semua yang lain dalam sekolah yang sama dulu
@@ -122,13 +126,13 @@ class AcademicYearRepository
     public function deleteAcademicYear($id)
     {
         $academicYear = AcademicYear::where('academic_year_id', $id)
-                                    ->where('school_id', $this->getAuthSchoolId() ?? null)->first();
+            ->where('school_id', $this->getAuthSchoolId() ?? null)->first();
         if ($academicYear) {
             $academicYear->delete();
+
             return true;
         }
+
         return false;
     }
-
-
 }

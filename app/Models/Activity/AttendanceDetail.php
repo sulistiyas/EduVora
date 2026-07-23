@@ -2,10 +2,9 @@
 
 namespace App\Models\Activity;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-use App\Models\Student\Student;
 
 class AttendanceDetail extends Model
 {
@@ -39,11 +38,15 @@ class AttendanceDetail extends Model
     |--------------------------------------------------------------------------
     */
 
-    public const STATUS_PRESENT    = 'H';
+    public const STATUS_PRESENT = 'H';
+
     public const STATUS_PERMISSION = 'I';
-    public const STATUS_SICK       = 'S';
-    public const STATUS_ABSENT     = 'A';
-    public const STATUS_LATE       = 'L';
+
+    public const STATUS_SICK = 'S';
+
+    public const STATUS_ABSENT = 'A';
+
+    public const STATUS_LATE = 'L';
 
     /*
     |--------------------------------------------------------------------------
@@ -125,23 +128,17 @@ class AttendanceDetail extends Model
     {
         return match ($this->status) {
 
-            self::STATUS_PRESENT
-                => 'Hadir',
+            self::STATUS_PRESENT => 'Hadir',
 
-            self::STATUS_PERMISSION
-                => 'Izin',
+            self::STATUS_PERMISSION => 'Izin',
 
-            self::STATUS_SICK
-                => 'Sakit',
+            self::STATUS_SICK => 'Sakit',
 
-            self::STATUS_ABSENT
-                => 'Alpha',
+            self::STATUS_ABSENT => 'Alpha',
 
-            self::STATUS_LATE
-                => 'Terlambat',
+            self::STATUS_LATE => 'Terlambat',
 
-            default
-                => 'Unknown',
+            default => 'Unknown',
         };
     }
 
@@ -149,23 +146,17 @@ class AttendanceDetail extends Model
     {
         return match ($this->status) {
 
-            self::STATUS_PRESENT
-                => 'success',
+            self::STATUS_PRESENT => 'success',
 
-            self::STATUS_PERMISSION
-                => 'warning',
+            self::STATUS_PERMISSION => 'warning',
 
-            self::STATUS_SICK
-                => 'info',
+            self::STATUS_SICK => 'info',
 
-            self::STATUS_ABSENT
-                => 'danger',
+            self::STATUS_ABSENT => 'danger',
 
-            self::STATUS_LATE
-                => 'secondary',
+            self::STATUS_LATE => 'secondary',
 
-            default
-                => 'dark',
+            default => 'dark',
         };
     }
 

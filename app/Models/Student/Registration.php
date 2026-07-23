@@ -2,6 +2,7 @@
 
 namespace App\Models\Student;
 
+use App\Models\Academic\Grade;
 use Illuminate\Database\Eloquent\Model;
 
 class Registration extends Model
@@ -39,13 +40,18 @@ class Registration extends Model
     {
         return [
             'student_id' => 'integer',
-        'registration_date' => 'datetime',
-        'grade_id' => 'integer',
+            'registration_date' => 'datetime',
+            'grade_id' => 'integer',
         ];
     }
 
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
-
-    public function grade() { return $this->belongsTo(\App\Models\Academic\Grade::class, 'grade_id'); }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class, 'grade_id');
+    }
 }

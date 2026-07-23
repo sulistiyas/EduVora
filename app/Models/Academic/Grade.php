@@ -36,7 +36,7 @@ class Grade extends Model
         'homeroom_teacher_id',
         'grade_name',
         'level',
-        'status'
+        'status',
     ];
 
     /**
@@ -100,7 +100,7 @@ class Grade extends Model
             'weight_harian',
             'weight_uts',
             'weight_uas',
-            'status'
+            'status',
         ])->withTimestamps();
     }
 

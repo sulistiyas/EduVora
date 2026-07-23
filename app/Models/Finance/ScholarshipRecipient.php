@@ -2,6 +2,7 @@
 
 namespace App\Models\Finance;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class ScholarshipRecipient extends Model
@@ -40,14 +41,19 @@ class ScholarshipRecipient extends Model
     {
         return [
             'scholarship_id' => 'integer',
-        'student_id' => 'integer',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+            'student_id' => 'integer',
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
         ];
     }
 
+    public function scholarship()
+    {
+        return $this->belongsTo(Scholarship::class, 'scholarship_id');
+    }
 
-    public function scholarship() { return $this->belongsTo(\App\Models\Finance\Scholarship::class, 'scholarship_id'); }
-
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 }

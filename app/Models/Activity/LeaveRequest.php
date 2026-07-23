@@ -2,6 +2,8 @@
 
 namespace App\Models\Activity;
 
+use App\Models\Core\User;
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
@@ -40,14 +42,19 @@ class LeaveRequest extends Model
     {
         return [
             'teacher_id' => 'integer',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
-        'approved_by' => 'integer',
+            'start_date' => 'datetime',
+            'end_date' => 'datetime',
+            'approved_by' => 'integer',
         ];
     }
 
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
-
-    public function user() { return $this->belongsTo(\App\Models\Core\User::class, 'approved_by'); }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
 }

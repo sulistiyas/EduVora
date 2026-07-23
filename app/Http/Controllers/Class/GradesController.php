@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Class;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGradeRequest;
 use App\Http\Requests\UpdateGradeRequest;
-use App\Http\Controllers\Controller;
 use App\Services\GradesService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -40,20 +40,20 @@ class GradesController extends Controller
     public function detail(Request $request, $id): View|JsonResponse
     {
         $grade = $this->gradeService->getGradeById($id);
-    
-        if (!$grade) {
+
+        if (! $grade) {
             abort(404, 'Kelas tidak ditemukan.');
         }
-    
+
         if ($request->expectsJson()) {
             return response()->json($grade);
         }
-    
+
         return view('pages.schools.class.grades.detail', [
             'grade' => $grade,
         ]);
     }
-    
+
     /**
      * Dropdown subjects
      */
@@ -84,10 +84,9 @@ class GradesController extends Controller
     public function assignStudents(
         Request $request,
         $gradeId
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $request->validate([
-            'student_ids'   => ['required', 'array'],
+            'student_ids' => ['required', 'array'],
             'student_ids.*' => ['integer'],
         ]);
 
@@ -98,7 +97,7 @@ class GradesController extends Controller
                 $request->student_ids
             );
 
-            if (!$assigned) {
+            if (! $assigned) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Kelas tidak ditemukan.',
@@ -126,14 +125,13 @@ class GradesController extends Controller
     public function removeStudent(
         $gradeId,
         $studentId
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $removed = $this->gradeService->removeStudentFromGrade(
             $gradeId,
             $studentId
         );
 
-        if (!$removed) {
+        if (! $removed) {
             return response()->json([
                 'success' => false,
                 'message' => 'Siswa atau kelas tidak ditemukan.',
@@ -153,7 +151,7 @@ class GradesController extends Controller
     {
         $cleared = $this->gradeService->clearStudentsFromGrade($gradeId);
 
-        if (!$cleared) {
+        if (! $cleared) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kelas tidak ditemukan.',
@@ -172,13 +170,13 @@ class GradesController extends Controller
     {
         if ($request->expectsJson()) {
             $filters = [
-                'search'           => $request->query('search'),
-                'status'           => $request->query('status'),
-                'room_id'          => $request->query('room_id'),
+                'search' => $request->query('search'),
+                'status' => $request->query('status'),
+                'room_id' => $request->query('room_id'),
                 'academic_year_id' => $request->query('academic_year_id'),
-                'sort_by'          => $request->query('sort_by'),
-                'sort_order'       => $request->query('sort_order'),
-                'per_page'         => $request->query('per_page', 10),
+                'sort_by' => $request->query('sort_by'),
+                'sort_order' => $request->query('sort_order'),
+                'per_page' => $request->query('per_page', 10),
             ];
 
             $grades = $this->gradeService->getAllGrades($filters);
@@ -188,9 +186,9 @@ class GradesController extends Controller
                     'data' => $grades->items(),
                     'meta' => [
                         'current_page' => $grades->currentPage(),
-                        'per_page'     => $grades->perPage(),
-                        'total'        => $grades->total(),
-                        'last_page'    => $grades->lastPage(),
+                        'per_page' => $grades->perPage(),
+                        'total' => $grades->total(),
+                        'last_page' => $grades->lastPage(),
                     ],
                 ]);
             }
@@ -205,7 +203,7 @@ class GradesController extends Controller
     {
         $grade = $this->gradeService->getGradeById($id);
 
-        if (!$grade) {
+        if (! $grade) {
             return response()->json(['message' => 'Kelas tidak ditemukan.'], 404);
         }
 
@@ -220,7 +218,7 @@ class GradesController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kelas berhasil ditambahkan.',
-                'data'    => $grade,
+                'data' => $grade,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -234,14 +232,14 @@ class GradesController extends Controller
     {
         $grade = $this->gradeService->updateGrade($id, $request->validated());
 
-        if (!$grade) {
+        if (! $grade) {
             return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Kelas berhasil diperbarui.',
-            'data'    => $grade,
+            'data' => $grade,
         ]);
     }
 
@@ -250,20 +248,20 @@ class GradesController extends Controller
         try {
             $grade = $this->gradeService->toggleStatus($id);
 
-            if (!$grade) {
+            if (! $grade) {
                 return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 404);
             }
 
             $messages = [
-                'active'   => 'Kelas diaktifkan.',
+                'active' => 'Kelas diaktifkan.',
                 'inactive' => 'Kelas dinonaktifkan.',
-                'graduated'=> 'Kelas ditandai lulus.',
+                'graduated' => 'Kelas ditandai lulus.',
                 'archived' => 'Kelas diarsipkan.',
             ];
 
             return response()->json([
                 'success' => true,
-                'status'  => $grade->status,
+                'status' => $grade->status,
                 'message' => $messages[$grade->status] ?? 'Status diperbarui.',
             ]);
         } catch (\Exception $e) {
@@ -275,7 +273,7 @@ class GradesController extends Controller
     {
         $deleted = $this->gradeService->deleteGrade($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 404);
         }
 

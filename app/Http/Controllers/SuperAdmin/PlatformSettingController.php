@@ -21,7 +21,7 @@ class PlatformSettingController extends Controller
     public function update(Request $request): JsonResponse
     {
         $request->validate([
-            'settings'   => ['required', 'array'],
+            'settings' => ['required', 'array'],
             'settings.*' => ['nullable', 'string'],
         ]);
 

@@ -20,16 +20,16 @@ class StudentScoreRepository
      * Paginate score sessions for a specific teacher.
      */
     public function paginateByTeacher(
-        int   $teacherId,
+        int $teacherId,
         array $filters = [],
-        int   $perPage = 15
+        int $perPage = 15
     ): LengthAwarePaginator {
         return ScoreSession::with([
-                'gradeSubject.subject',
-                'gradeSubject.grade',
-                'semester',
-                'scoreDetails',
-            ])
+            'gradeSubject.subject',
+            'gradeSubject.grade',
+            'semester',
+            'scoreDetails',
+        ])
             ->whereHas('gradeSubject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->when(
                 ! empty($filters['semester_id']),
@@ -52,7 +52,7 @@ class StudentScoreRepository
             )
             ->when(
                 ! empty($filters['search']),
-                fn ($q) => $q->where('title', 'like', '%' . $filters['search'] . '%')
+                fn ($q) => $q->where('title', 'like', '%'.$filters['search'].'%')
             )
             ->when(
                 ! empty($filters['date_from']),
@@ -71,17 +71,17 @@ class StudentScoreRepository
      * Paginate score sessions for all teachers in a school (school-admin view).
      */
     public function paginateBySchool(
-        int   $schoolId,
+        int $schoolId,
         array $filters = [],
-        int   $perPage = 15
+        int $perPage = 15
     ): LengthAwarePaginator {
         return ScoreSession::with([
-                'gradeSubject.subject',
-                'gradeSubject.grade',
-                'gradeSubject.teacher',
-                'semester',
-                'scoreDetails',
-            ])
+            'gradeSubject.subject',
+            'gradeSubject.grade',
+            'gradeSubject.teacher',
+            'semester',
+            'scoreDetails',
+        ])
             ->whereHas('gradeSubject.grade', fn ($q) => $q->where('school_id', $schoolId))
             ->when(
                 ! empty($filters['semester_id']),
@@ -104,7 +104,7 @@ class StudentScoreRepository
             )
             ->when(
                 ! empty($filters['search']),
-                fn ($q) => $q->where('title', 'like', '%' . $filters['search'] . '%')
+                fn ($q) => $q->where('title', 'like', '%'.$filters['search'].'%')
             )
             ->when(
                 ! empty($filters['date_from']),
@@ -147,6 +147,7 @@ class StudentScoreRepository
     public function updateSession(ScoreSession $session, array $data): ScoreSession
     {
         $session->update($data);
+
         return $session->fresh([
             'gradeSubject.subject',
             'gradeSubject.grade',
@@ -177,18 +178,18 @@ class StudentScoreRepository
     {
         $rows = array_map(fn ($d) => [
             'score_session_id' => $sessionId,
-            'student_id'       => $d['student_id'],
-            'score'            => isset($d['score']) && $d['score'] !== '' ? $d['score'] : null,
-            'max_score'        => $d['max_score'] ?? 100,
-            'notes'            => $d['notes']     ?? null,
-            'created_at'       => now(),
-            'updated_at'       => now(),
+            'student_id' => $d['student_id'],
+            'score' => isset($d['score']) && $d['score'] !== '' ? $d['score'] : null,
+            'max_score' => $d['max_score'] ?? 100,
+            'notes' => $d['notes'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ], $details);
 
         ScoreDetail::upsert(
             $rows,
             uniqueBy: ['score_session_id', 'student_id'],
-            update:   ['score', 'max_score', 'notes', 'updated_at']
+            update: ['score', 'max_score', 'notes', 'updated_at']
         );
     }
 
@@ -230,9 +231,9 @@ class StudentScoreRepository
     public function countByType(int $teacherId, ?int $semesterId = null): array
     {
         $rows = ScoreSession::whereHas(
-                'gradeSubject',
-                fn ($q) => $q->where('teacher_id', $teacherId)
-            )
+            'gradeSubject',
+            fn ($q) => $q->where('teacher_id', $teacherId)
+        )
             ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
             ->selectRaw('score_type, COUNT(*) as total')
             ->groupBy('score_type')
@@ -242,25 +243,25 @@ class StudentScoreRepository
             'gradeSubject',
             fn ($q) => $q->where('teacher_id', $teacherId)
         )
-        ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
-        ->count();
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
+            ->count();
 
         $published = ScoreSession::whereHas(
             'gradeSubject',
             fn ($q) => $q->where('teacher_id', $teacherId)
         )
-        ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
-        ->where('is_published', true)
-        ->count();
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
+            ->where('is_published', true)
+            ->count();
 
         return [
-            'total'             => $total,
-            'published'         => $published,
-            'draft'             => $total - $published,
-            'daily'             => $rows['daily']    ?? 0,
-            'mid_exam'          => $rows['mid_exam']        ?? 0,
-            'final_exam'        => $rows['final_exam']        ?? 0,
-            'assignment'         => $rows['assignment']      ?? 0,
+            'total' => $total,
+            'published' => $published,
+            'draft' => $total - $published,
+            'daily' => $rows['daily'] ?? 0,
+            'mid_exam' => $rows['mid_exam'] ?? 0,
+            'final_exam' => $rows['final_exam'] ?? 0,
+            'assignment' => $rows['assignment'] ?? 0,
         ];
     }
 
@@ -287,11 +288,11 @@ class StudentScoreRepository
             ->count();
 
         return [
-            'total'      => $total,
-            'published'  => $published,
-            'draft'      => $total - $published,
-            'daily'      => $rows['daily'] ?? 0,
-            'mid_exam'   => $rows['mid_exam'] ?? 0,
+            'total' => $total,
+            'published' => $published,
+            'draft' => $total - $published,
+            'daily' => $rows['daily'] ?? 0,
+            'mid_exam' => $rows['mid_exam'] ?? 0,
             'final_exam' => $rows['final_exam'] ?? 0,
             'assignment' => $rows['assignment'] ?? 0,
         ];

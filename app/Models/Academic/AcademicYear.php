@@ -2,8 +2,9 @@
 
 namespace App\Models\Academic;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\SchoolProfiles;
+use Illuminate\Database\Eloquent\Model;
+
 class AcademicYear extends Model
 {
     /**
@@ -44,7 +45,7 @@ class AcademicYear extends Model
         return [
             'start_date' => 'date:Y-m-d',
             'end_date' => 'date:Y-m-d',
-            'status'=> 'string',
+            'status' => 'string',
         ];
     }
 

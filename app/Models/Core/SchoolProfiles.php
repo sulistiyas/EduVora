@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class SchoolProfiles extends Model
 {
     public $incrementing = true;
+
     protected $keyType = 'int';
+
     /**
      * The primary key for the model.
      *
@@ -57,9 +59,7 @@ class SchoolProfiles extends Model
     protected function casts(): array
     {
         return [
-            
+
         ];
     }
-
-    
 }

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class StudentParentSeeder extends Seeder
 {
@@ -19,10 +19,10 @@ class StudentParentSeeder extends Seeder
         foreach ($students as $student) {
             $data[] = [
                 'student_id' => $student->id,
-                'parent_name' => 'Orang Tua ' . $student->full_name,
-                'relationship' => ['father', 'mother'][rand(0,1)],
+                'parent_name' => 'Orang Tua '.$student->full_name,
+                'relationship' => ['father', 'mother'][rand(0, 1)],
                 'email' => null,
-                'phone_number' => '08' . rand(1000000000, 9999999999),
+                'phone_number' => '08'.rand(1000000000, 9999999999),
                 'occupation' => 'Wiraswasta',
                 'address' => 'Alamat orang tua',
                 'status' => 'active',

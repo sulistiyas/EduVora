@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Academic;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSemesterRequest;
 use App\Http\Requests\UpdateSemesterRequest;
-use App\Http\Controllers\Controller;
 use App\Models\Academic\AcademicYear;
 use App\Services\SemesterService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -39,12 +39,12 @@ class SemesterController extends Controller
         if ($request->expectsJson()) {
 
             $filters = [
-                'search'           => $request->query('search'),
-                'status'           => $request->query('status'),
+                'search' => $request->query('search'),
+                'status' => $request->query('status'),
                 'academic_year_id' => $request->query('academic_year_id'),
-                'sort_by'          => $request->query('sort_by'),
-                'sort_order'       => $request->query('sort_order'),
-                'per_page'         => $request->query('per_page', 10),
+                'sort_by' => $request->query('sort_by'),
+                'sort_order' => $request->query('sort_order'),
+                'per_page' => $request->query('per_page', 10),
             ];
 
             $semesters = $this->semesterService->getAllSemesters($filters);
@@ -54,9 +54,9 @@ class SemesterController extends Controller
                     'data' => $semesters->items(),
                     'meta' => [
                         'current_page' => $semesters->currentPage(),
-                        'per_page'     => $semesters->perPage(),
-                        'total'        => $semesters->total(),
-                        'last_page'    => $semesters->lastPage(),
+                        'per_page' => $semesters->perPage(),
+                        'total' => $semesters->total(),
+                        'last_page' => $semesters->lastPage(),
                     ],
                 ]);
             }
@@ -74,7 +74,7 @@ class SemesterController extends Controller
     {
         $semester = $this->semesterService->getSemesterById($id);
 
-        if (!$semester) {
+        if (! $semester) {
             return response()->json(['message' => 'Semester tidak ditemukan.'], 404);
         }
 
@@ -88,7 +88,7 @@ class SemesterController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Semester berhasil ditambahkan.',
-            'data'    => $semester,
+            'data' => $semester,
         ], 201);
     }
 
@@ -96,14 +96,14 @@ class SemesterController extends Controller
     {
         $semester = $this->semesterService->updateSemester($id, $request->validated());
 
-        if (!$semester) {
+        if (! $semester) {
             return response()->json(['success' => false, 'message' => 'Semester tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Semester berhasil diperbarui.',
-            'data'    => $semester,
+            'data' => $semester,
         ]);
     }
 
@@ -111,13 +111,13 @@ class SemesterController extends Controller
     {
         $semester = $this->semesterService->toggleStatus($id);
 
-        if (!$semester) {
+        if (! $semester) {
             return response()->json(['success' => false, 'message' => 'Semester tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $semester->status,
+            'status' => $semester->status,
             'message' => $semester->status === 'active'
                 ? 'Semester diaktifkan.'
                 : 'Semester dinonaktifkan.',
@@ -128,7 +128,7 @@ class SemesterController extends Controller
     {
         $deleted = $this->semesterService->deleteSemester($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['success' => false, 'message' => 'Semester tidak ditemukan.'], 404);
         }
 

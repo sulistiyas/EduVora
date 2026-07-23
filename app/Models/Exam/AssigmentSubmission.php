@@ -2,6 +2,7 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class AssigmentSubmission extends Model
@@ -40,12 +41,17 @@ class AssigmentSubmission extends Model
     {
         return [
             'assigment_id' => 'integer',
-        'student_id' => 'integer',
+            'student_id' => 'integer',
         ];
     }
 
+    public function assigment()
+    {
+        return $this->belongsTo(Assigment::class, 'assigment_id');
+    }
 
-    public function assigment() { return $this->belongsTo(\App\Models\Exam\Assigment::class, 'assigment_id'); }
-
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 }

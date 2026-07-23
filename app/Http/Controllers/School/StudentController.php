@@ -5,6 +5,7 @@ namespace App\Http\Controllers\School;
 use App\Http\Controllers\Controller;
 use App\Services\School\StudentService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +23,7 @@ class StudentController extends Controller
         // Asumsi: admin hanya terhubung ke satu sekolah
         $school = Auth::user()->schools()->first();
         abort_unless($school, 403, 'Anda tidak terhubung ke sekolah manapun.');
+
         return (int) $school->school_id;
     }
 
@@ -34,25 +36,25 @@ class StudentController extends Controller
 
         if ($request->expectsJson()) {
             $filters = [
-                'search'      => $request->query('search'),
-                'status'      => $request->query('status'),
+                'search' => $request->query('search'),
+                'status' => $request->query('status'),
                 'class_group' => $request->query('class_group'),
-                'sort_by'     => $request->query('sort_by'),
-                'sort_order'  => $request->query('sort_order'),
-                'per_page'    => $request->query('per_page', 10),
+                'sort_by' => $request->query('sort_by'),
+                'sort_order' => $request->query('sort_order'),
+                'per_page' => $request->query('per_page', 10),
             ];
 
             $students = $this->service->getAll($schoolId, $filters);
-            $stats    = $this->service->getStats($schoolId);
+            $stats = $this->service->getStats($schoolId);
 
             if ($students instanceof LengthAwarePaginator) {
                 return response()->json([
-                    'data'  => $students->items(),
-                    'meta'  => [
+                    'data' => $students->items(),
+                    'meta' => [
                         'current_page' => $students->currentPage(),
-                        'per_page'     => $students->perPage(),
-                        'total'        => $students->total(),
-                        'last_page'    => $students->lastPage(),
+                        'per_page' => $students->perPage(),
+                        'total' => $students->total(),
+                        'last_page' => $students->lastPage(),
                     ],
                     'stats' => $stats,
                 ]);
@@ -80,25 +82,25 @@ class StudentController extends Controller
         $schoolId = $this->schoolId();
 
         $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email',
-            'phone_number'          => 'nullable|string|max:20',
-            'password'              => 'required|string|min:8|confirmed',
-            'status'                => 'required|in:active,inactive',
-            'profile'               => 'nullable|array',
-            'profile.nis'             => 'nullable|string|max:20',
-            'profile.full_name'       => 'nullable|string|max:255',
-            'profile.nick_name'       => 'nullable|string|max:100',
-            'profile.email'           => 'nullable|email|max:255',
-            'profile.birth_date'      => 'nullable|date',
-            'profile.gender'          => 'nullable|in:male,female',
-            'profile.phone_number'    => 'nullable|string|max:20',
-            'profile.address'         => 'nullable|string',
-            'profile.city'            => 'nullable|string|max:100',
-            'profile.province'        => 'nullable|string|max:100',
-            'profile.postal_code'     => 'nullable|string|max:10',
-            'profile.grade_id'        => 'nullable|integer',
-            'profile.class_group'     => 'nullable|string|max:50',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'required|string|min:8|confirmed',
+            'status' => 'required|in:active,inactive',
+            'profile' => 'nullable|array',
+            'profile.nis' => 'nullable|string|max:20',
+            'profile.full_name' => 'nullable|string|max:255',
+            'profile.nick_name' => 'nullable|string|max:100',
+            'profile.email' => 'nullable|email|max:255',
+            'profile.birth_date' => 'nullable|date',
+            'profile.gender' => 'nullable|in:male,female',
+            'profile.phone_number' => 'nullable|string|max:20',
+            'profile.address' => 'nullable|string',
+            'profile.city' => 'nullable|string|max:100',
+            'profile.province' => 'nullable|string|max:100',
+            'profile.postal_code' => 'nullable|string|max:10',
+            'profile.grade_id' => 'nullable|integer',
+            'profile.class_group' => 'nullable|string|max:50',
             'profile.enrollment_date' => 'nullable|date',
             'profile.graduation_date' => 'nullable|date',
         ]);
@@ -109,13 +111,13 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Siswa berhasil ditambahkan.',
-                'data'    => $student,
+                'data' => $student,
             ], 201);
 
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'message' => 'Gagal menyimpan data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -127,8 +129,9 @@ class StudentController extends Controller
     {
         try {
             $student = $this->service->getById($this->schoolId(), $id);
+
             return response()->json(['success' => true, 'data' => $student]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } catch (ModelNotFoundException) {
             return response()->json(['success' => false, 'message' => 'Siswa tidak ditemukan.'], 404);
         }
     }
@@ -149,7 +152,7 @@ class StudentController extends Controller
 
             return view('pages.schools.users.student.detail', compact('student'));
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } catch (ModelNotFoundException) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Siswa tidak ditemukan.'], 404);
             }
@@ -165,22 +168,22 @@ class StudentController extends Controller
         $schoolId = $this->schoolId();
 
         $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email,' . $id,
-            'phone_number'          => 'nullable|string|max:20',
-            'password'              => 'nullable|string|min:8|confirmed',
-            'status'                => 'required|in:active,inactive',
-            'profile'               => 'nullable|array',
-            'profile.nis'             => 'nullable|string|max:20',
-            'profile.full_name'       => 'nullable|string|max:255',
-            'profile.nick_name'       => 'nullable|string|max:100',
-            'profile.birth_date'      => 'nullable|date',
-            'profile.gender'          => 'nullable|in:male,female',
-            'profile.address'         => 'nullable|string',
-            'profile.city'            => 'nullable|string|max:100',
-            'profile.province'        => 'nullable|string|max:100',
-            'profile.postal_code'     => 'nullable|string|max:10',
-            'profile.class_group'     => 'nullable|string|max:50',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'nullable|string|min:8|confirmed',
+            'status' => 'required|in:active,inactive',
+            'profile' => 'nullable|array',
+            'profile.nis' => 'nullable|string|max:20',
+            'profile.full_name' => 'nullable|string|max:255',
+            'profile.nick_name' => 'nullable|string|max:100',
+            'profile.birth_date' => 'nullable|date',
+            'profile.gender' => 'nullable|in:male,female',
+            'profile.address' => 'nullable|string',
+            'profile.city' => 'nullable|string|max:100',
+            'profile.province' => 'nullable|string|max:100',
+            'profile.postal_code' => 'nullable|string|max:10',
+            'profile.class_group' => 'nullable|string|max:50',
             'profile.enrollment_date' => 'nullable|date',
             'profile.graduation_date' => 'nullable|date',
         ]);
@@ -191,13 +194,13 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Data siswa berhasil diperbarui.',
-                'data'    => $student,
+                'data' => $student,
             ]);
 
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui data: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -209,13 +212,13 @@ class StudentController extends Controller
     {
         $user = $this->service->toggleStatus($id);
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'Siswa tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $user->status,
+            'status' => $user->status,
             'message' => $user->status === 'active' ? 'Siswa diaktifkan.' : 'Siswa dinonaktifkan.',
         ]);
     }
@@ -234,6 +237,7 @@ class StudentController extends Controller
     public function classGroups(): JsonResponse
     {
         $groups = $this->service->getClassGroups($this->schoolId());
+
         return response()->json($groups);
     }
 }

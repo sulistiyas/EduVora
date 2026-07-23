@@ -2,6 +2,7 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Academic\Subject;
 use Illuminate\Database\Eloquent\Model;
 
 class ReportCardDetail extends Model
@@ -39,12 +40,17 @@ class ReportCardDetail extends Model
     {
         return [
             'report_card_id' => 'integer',
-        'subject_id' => 'integer',
+            'subject_id' => 'integer',
         ];
     }
 
+    public function reportcard()
+    {
+        return $this->belongsTo(ReportCard::class, 'report_card_id');
+    }
 
-    public function reportcard() { return $this->belongsTo(\App\Models\Exam\ReportCard::class, 'report_card_id'); }
-
-    public function subject() { return $this->belongsTo(\App\Models\Academic\Subject::class, 'subject_id'); }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
+    }
 }

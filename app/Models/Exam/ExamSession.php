@@ -2,6 +2,7 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Student\Student;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamSession extends Model
@@ -39,12 +40,17 @@ class ExamSession extends Model
     {
         return [
             'exam_id' => 'integer',
-        'student_id' => 'integer',
+            'student_id' => 'integer',
         ];
     }
 
+    public function exam()
+    {
+        return $this->belongsTo(Exam::class, 'exam_id');
+    }
 
-    public function exam() { return $this->belongsTo(\App\Models\Exam\Exam::class, 'exam_id'); }
-
-    public function student() { return $this->belongsTo(\App\Models\Student\Student::class, 'student_id'); }
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
 }

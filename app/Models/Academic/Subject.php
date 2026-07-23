@@ -34,7 +34,7 @@ class Subject extends Model
         'credits',
         'hours_per_week',
         'description',
-        'status'
+        'status',
     ];
 
     /**
@@ -45,7 +45,7 @@ class Subject extends Model
     protected function casts(): array
     {
         return [
-            
+
         ];
     }
 
@@ -69,7 +69,7 @@ class Subject extends Model
             'weight_harian',
             'weight_uts',
             'weight_uas',
-            'status'
+            'status',
         ])->withTimestamps();
     }
 

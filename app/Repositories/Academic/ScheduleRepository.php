@@ -16,12 +16,12 @@ class ScheduleRepository
     public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         return Schedule::with([
-                'gradeSubject.grade',
-                'gradeSubject.subject',
-                'gradeSubject.teacher',
-                'room',
-                'semester',
-            ])
+            'gradeSubject.grade',
+            'gradeSubject.subject',
+            'gradeSubject.teacher',
+            'room',
+            'semester',
+        ])
             ->whereHas('gradeSubject.grade', function ($q) {
                 $q->where('school_id', $this->getAuthSchoolId());
             })
@@ -61,12 +61,12 @@ class ScheduleRepository
     public function paginateByTeacher(int $teacherId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         return Schedule::with([
-                'gradeSubject.grade',
-                'gradeSubject.subject',
-                'gradeSubject.teacher',
-                'room',
-                'semester',
-            ])
+            'gradeSubject.grade',
+            'gradeSubject.subject',
+            'gradeSubject.teacher',
+            'room',
+            'semester',
+        ])
             ->whereHas('gradeSubject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->when(
                 ! empty($filters['semester_id']),
@@ -115,6 +115,7 @@ class ScheduleRepository
     public function update(Schedule $schedule, array $data): Schedule
     {
         $schedule->update($data);
+
         return $schedule->fresh([
             'gradeSubject.grade',
             'gradeSubject.subject',
@@ -151,20 +152,20 @@ class ScheduleRepository
      * optionally excluding a specific schedule ID (for updates).
      */
     public function hasConflict(
-        int    $roomId,
-        int    $dayOfWeek,
+        int $roomId,
+        int $dayOfWeek,
         string $startTime,
         string $endTime,
-        int    $semesterId,
-        ?int   $excludeId = null
+        int $semesterId,
+        ?int $excludeId = null
     ): bool {
-        return Schedule::where('room_id',      $roomId)
-            ->where('day_of_week',  $dayOfWeek)
-            ->where('semester_id',  $semesterId)
-            ->where('status',       Schedule::STATUS_ACTIVE)
+        return Schedule::where('room_id', $roomId)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('semester_id', $semesterId)
+            ->where('status', Schedule::STATUS_ACTIVE)
             ->where(function ($q) use ($startTime, $endTime) {
                 $q->where('start_time', '<', $endTime)
-                  ->where('end_time',   '>',  $startTime);
+                    ->where('end_time', '>', $startTime);
             })
             ->when($excludeId, fn ($q) => $q->where('schedule_id', '!=', $excludeId))
             ->exists();

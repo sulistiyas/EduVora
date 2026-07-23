@@ -29,7 +29,7 @@ return new class extends Migration
                 'lab',
                 'library',
                 'office',
-                'sport'
+                'sport',
             ]);
 
             $table->tinyInteger('floor')->unsigned();
@@ -43,7 +43,7 @@ return new class extends Migration
             $table->enum('status', [
                 'available',
                 'maintenance',
-                'inactive'
+                'inactive',
             ])->default('available');
 
             $table->timestamps();

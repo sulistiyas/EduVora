@@ -10,7 +10,7 @@ trait HasSchoolScope
     {
         $schoolId = Auth::user()->schools->first()->school_id ?? null;
 
-        if (!$schoolId) {
+        if (! $schoolId) {
             throw new \Exception('Admin tidak terkait dengan sekolah manapun.');
         }
 

@@ -41,11 +41,11 @@ class Schedule extends Model
     protected function casts(): array
     {
         return [
-            'school_id'        => 'integer',
+            'school_id' => 'integer',
             'grade_subject_id' => 'integer',
-            'room_id'          => 'integer',
-            'semester_id'      => 'integer',
-            'day_of_week'      => 'integer',
+            'room_id' => 'integer',
+            'semester_id' => 'integer',
+            'day_of_week' => 'integer',
         ];
     }
 
@@ -148,7 +148,7 @@ class Schedule extends Model
     public function getTimeRangeAttribute(): string
     {
         return substr($this->start_time, 0, 5)
-            . ' - ' .
+            .' - '.
             substr($this->end_time, 0, 5);
     }
 
@@ -272,9 +272,8 @@ class Schedule extends Model
         string $startTime,
         string $endTime
     ): bool {
-        return (
+        return
             $this->start_time < $endTime &&
-            $this->end_time > $startTime
-        );
+            $this->end_time > $startTime;
     }
 }

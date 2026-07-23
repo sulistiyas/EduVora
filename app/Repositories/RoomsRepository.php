@@ -38,54 +38,54 @@ class RoomsRepository
                         'school_type',
                         'status',
                     ]);
-                }
+                },
             ])
             ->whereHas('school', function ($q) use ($schoolId) {
                 $q->where('school_id', $schoolId);
             });
 
         // 🔍 Search
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('room_name', 'ILIKE', "%{$search}%")
-                  ->orWhereHas('school', function ($q2) use ($search) {
-                      $q2->where('school_name', 'ILIKE', "%{$search}%");
-                  });
+                    ->orWhereHas('school', function ($q2) use ($search) {
+                        $q2->where('school_name', 'ILIKE', "%{$search}%");
+                    });
             });
         }
 
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // 🎯 Filter per school
-        if (!empty($filters['school_id'])) {
+        if (! empty($filters['school_id'])) {
             $query->where('school_id', $filters['school_id']);
         }
 
         // 🎯 Filter per type
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
         // 🎯 Filter per floor
-        if (!empty($filters['floor'])) {
+        if (! empty($filters['floor'])) {
             $query->where('floor', $filters['floor']);
         }
 
         // 🎯 Filter per building
-        if (!empty($filters['building'])) {
+        if (! empty($filters['building'])) {
             $query->where('building', $filters['building']);
         }
 
         // 🔽 Sorting
         $allowedSort = ['room_name', 'status', 'code', 'type', 'floor', 'building', 'capacity', 'facilitiy', 'created_at'];
-        $sortBy      = in_array($filters['sort_by'] ?? '', $allowedSort)
+        $sortBy = in_array($filters['sort_by'] ?? '', $allowedSort)
             ? $filters['sort_by']
             : 'created_at';
-        $sortOrder   = $filters['sort_order'] ?? 'desc';
+        $sortOrder = $filters['sort_order'] ?? 'desc';
 
         $query->orderBy($sortBy, $sortOrder);
 
@@ -109,7 +109,7 @@ class RoomsRepository
                     'school_type',
                     'status',
                 ]);
-            }
+            },
         ])->whereHas('school', function ($q) {
             $q->where('school_id', $this->getAuthSchoolId());
         })->find($id);
@@ -120,6 +120,7 @@ class RoomsRepository
     public function createRoom(array $data): Room
     {
         $data['school_id'] = $this->getAuthSchoolId();
+
         return Room::create($data);
     }
 
@@ -129,9 +130,12 @@ class RoomsRepository
             $q->where('school_id', $this->getAuthSchoolId());
         })->find($id);
 
-        if (!$room) return null;
+        if (! $room) {
+            return null;
+        }
 
         $room->update($data);
+
         return $room;
     }
 
@@ -141,7 +145,9 @@ class RoomsRepository
     {
         $room = Room::with('school')->find($id);
 
-        if (!$room) return null;
+        if (! $room) {
+            return null;
+        }
 
         // Ownership check — pastikan room ini milik sekolah yang login
         if ($room->school->school_id !== $this->getAuthSchoolId()) {
@@ -149,9 +155,9 @@ class RoomsRepository
         }
 
         $statusFlow = [
-            'available'   => 'maintenance',
+            'available' => 'maintenance',
             'maintenance' => 'inactive',
-            'inactive'    => 'available',
+            'inactive' => 'available',
         ];
 
         $room->status = $statusFlow[$room->status] ?? 'available';
@@ -168,9 +174,12 @@ class RoomsRepository
             $q->where('school_id', $this->getAuthSchoolId());
         })->find($id);
 
-        if (!$room) return false;
+        if (! $room) {
+            return false;
+        }
 
         $room->delete();
+
         return true;
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models\Academic;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Core\SchoolProfiles;
+use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
@@ -47,7 +47,7 @@ class Room extends Model
     protected function casts(): array
     {
         return [
-            
+
         ];
     }
 

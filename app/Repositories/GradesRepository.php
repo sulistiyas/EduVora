@@ -3,12 +3,14 @@
 namespace App\Repositories;
 
 use App\Concerns\HasSchoolScope;
+use App\Models\Academic\AcademicYear;
 use App\Models\Academic\Grade;
 use App\Models\Academic\Room;
+use App\Models\Academic\Subject;
+use App\Models\Student\Student;
 use App\Models\Teacher\Teacher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use App\Models\Student\Student;
 use Illuminate\Support\Facades\DB;
 
 class GradesRepository
@@ -34,12 +36,12 @@ class GradesRepository
                 'created_at',
             ])
             ->with([
-                'academicYear' => fn($q) => $q->select([
+                'academicYear' => fn ($q) => $q->select([
                     'academic_year_id',
                     'academic_year_name',
                     'status',
                 ]),
-                'room' => fn($q) => $q->select([
+                'room' => fn ($q) => $q->select([
                     'room_id',
                     'room_name',
                     'code',
@@ -48,7 +50,7 @@ class GradesRepository
                     'building',
                     'capacity',
                 ]),
-                'homeroomTeacher' => fn($q) => $q->select([
+                'homeroomTeacher' => fn ($q) => $q->select([
                     'teacher_id',
                     'full_name',
                     'nip',
@@ -58,35 +60,35 @@ class GradesRepository
             ->where('school_id', $schoolId);
 
         // 🔍 Search — grade_name, level
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('grade_name', 'ILIKE', "%{$search}%")
-                  ->orWhereRaw('CAST(level AS TEXT) ILIKE ?', ["%{$search}%"]);
+                    ->orWhereRaw('CAST(level AS TEXT) ILIKE ?', ["%{$search}%"]);
             });
         }
 
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // 🎯 Filter by room
-        if (!empty($filters['room_id'])) {
+        if (! empty($filters['room_id'])) {
             $query->where('room_id', $filters['room_id']);
         }
 
         // 🎯 Filter by academic year
-        if (!empty($filters['academic_year_id'])) {
+        if (! empty($filters['academic_year_id'])) {
             $query->where('academic_year_id', $filters['academic_year_id']);
         }
 
         // 🔽 Sorting
         $allowedSort = ['grade_name', 'level', 'status', 'created_at'];
-        $sortBy      = in_array($filters['sort_by'] ?? '', $allowedSort)
+        $sortBy = in_array($filters['sort_by'] ?? '', $allowedSort)
             ? $filters['sort_by']
             : 'level';
-        $sortOrder   = $filters['sort_order'] ?? 'asc';
+        $sortOrder = $filters['sort_order'] ?? 'asc';
 
         $query->orderBy($sortBy, $sortOrder);
 
@@ -103,12 +105,12 @@ class GradesRepository
     public function getGradeById($id): ?Grade
     {
         return Grade::with([
-            'academicYear' => fn($q) => $q->select([
+            'academicYear' => fn ($q) => $q->select([
                 'academic_year_id',
                 'academic_year_name',
                 'status',
             ]),
-            'room' => fn($q) => $q->select([
+            'room' => fn ($q) => $q->select([
                 'room_id',
                 'room_name',
                 'code',
@@ -117,13 +119,13 @@ class GradesRepository
                 'building',
                 'capacity',
             ]),
-            'homeroomTeacher' => fn($q) => $q->select([
+            'homeroomTeacher' => fn ($q) => $q->select([
                 'teacher_id',
                 'full_name',
                 'nip',
                 'status',
             ]),
-            'students' => fn($q) => $q->select([
+            'students' => fn ($q) => $q->select([
                 'id',
                 'grade_id',
                 'nis',
@@ -152,29 +154,27 @@ class GradesRepository
         return Teacher::whereHas('user.schools', function ($q) use ($schoolId) {
             $q->where('school_profiles.school_id', $schoolId);
         })
-        ->where('status', 'active')
-        ->select(['teacher_id', 'full_name', 'nip'])
-        ->orderBy('full_name')
-        ->get();
+            ->where('status', 'active')
+            ->select(['teacher_id', 'full_name', 'nip'])
+            ->orderBy('full_name')
+            ->get();
     }
-
-
 
     public function getAcademicYearsForDropdown(): Collection
     {
         $schoolId = $this->getAuthSchoolId();
 
-        return \App\Models\Academic\AcademicYear::where('school_id', $schoolId)
+        return AcademicYear::where('school_id', $schoolId)
             ->select(['academic_year_id', 'academic_year_name', 'status'])
             ->orderBy('academic_year_name', 'desc')
             ->get();
     }
 
-    public function getSubjectsForDropdown(): \Illuminate\Database\Eloquent\Collection
+    public function getSubjectsForDropdown(): Collection
     {
         $schoolId = $this->getAuthSchoolId();
-    
-        return \App\Models\Academic\Subject::where('school_id', $schoolId)
+
+        return Subject::where('school_id', $schoolId)
             ->where('status', 'active')
             ->select(['id', 'subject_name', 'subject_code'])
             ->orderBy('subject_name')
@@ -194,9 +194,12 @@ class GradesRepository
     {
         $grade = Grade::where('school_id', $this->getAuthSchoolId())->find($id);
 
-        if (!$grade) return null;
+        if (! $grade) {
+            return null;
+        }
 
         $grade->update($data);
+
         return $grade->fresh(['academicYear', 'room', 'homeroomTeacher']);
     }
 
@@ -206,7 +209,9 @@ class GradesRepository
     {
         $grade = Grade::find($id);
 
-        if (!$grade) return null;
+        if (! $grade) {
+            return null;
+        }
 
         // Ownership check
         if ($grade->school_id !== $this->getAuthSchoolId()) {
@@ -214,9 +219,9 @@ class GradesRepository
         }
 
         $transitions = [
-            'active'   => 'inactive',
+            'active' => 'inactive',
             'inactive' => 'active',
-            'graduated'=> 'archived',
+            'graduated' => 'archived',
             'archived' => 'inactive',
         ];
 
@@ -232,9 +237,12 @@ class GradesRepository
     {
         $grade = Grade::where('school_id', $this->getAuthSchoolId())->find($id);
 
-        if (!$grade) return false;
+        if (! $grade) {
+            return false;
+        }
 
         $grade->delete();
+
         return true;
     }
 
@@ -242,10 +250,9 @@ class GradesRepository
      * Ambil daftar siswa untuk assign kelas
      */
     public function getStudentsForAssign(
-            ?int $gradeId = null,
-            ?string $search = null
-        ): Collection
-    {
+        ?int $gradeId = null,
+        ?string $search = null
+    ): Collection {
         $schoolId = $this->getAuthSchoolId();
 
         $query = Student::query()
@@ -264,15 +271,15 @@ class GradesRepository
             });
 
         // Filter grade tertentu
-        if (!is_null($gradeId)) {
+        if (! is_null($gradeId)) {
             $query->where('grade_id', $gradeId);
         }
 
         // Search siswa
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'ILIKE', "%{$search}%")
-                ->orWhere('nis', 'ILIKE', "%{$search}%");
+                    ->orWhere('nis', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -287,15 +294,14 @@ class GradesRepository
     public function assignStudents(
         int $gradeId,
         array $studentIds
-    ): bool
-    {
+    ): bool {
         $schoolId = $this->getAuthSchoolId();
 
         $grade = Grade::where('school_id', $schoolId)
-                        ->where('grade_id', $gradeId)
-                        ->first();
+            ->where('grade_id', $gradeId)
+            ->first();
 
-        if (!$grade) {
+        if (! $grade) {
             return false;
         }
 
@@ -324,15 +330,14 @@ class GradesRepository
     public function removeStudentFromGrade(
         int $gradeId,
         int $studentId
-    ): bool
-    {
+    ): bool {
         $schoolId = $this->getAuthSchoolId();
 
         $grade = Grade::where('school_id', $schoolId)
-                        ->where('grade_id', $gradeId)
-                        ->first();
+            ->where('grade_id', $gradeId)
+            ->first();
 
-        if (!$grade) {
+        if (! $grade) {
             return false;
         }
 
@@ -343,7 +348,7 @@ class GradesRepository
             })
             ->first();
 
-        if (!$student) {
+        if (! $student) {
             return false;
         }
 
@@ -361,10 +366,10 @@ class GradesRepository
         $schoolId = $this->getAuthSchoolId();
 
         $grade = Grade::where('school_id', $schoolId)
-                        ->where('grade_id', $gradeId)
-                        ->first();
+            ->where('grade_id', $gradeId)
+            ->first();
 
-        if (!$grade) {
+        if (! $grade) {
             return false;
         }
 

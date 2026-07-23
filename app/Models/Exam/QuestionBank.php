@@ -2,6 +2,8 @@
 
 namespace App\Models\Exam;
 
+use App\Models\Academic\Subject;
+use App\Models\Teacher\Teacher;
 use Illuminate\Database\Eloquent\Model;
 
 class QuestionBank extends Model
@@ -42,12 +44,17 @@ class QuestionBank extends Model
     {
         return [
             'subject_id' => 'integer',
-        'teacher_id' => 'integer',
+            'teacher_id' => 'integer',
         ];
     }
 
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class, 'subject_id');
+    }
 
-    public function subject() { return $this->belongsTo(\App\Models\Academic\Subject::class, 'subject_id'); }
-
-    public function teacher() { return $this->belongsTo(\App\Models\Teacher\Teacher::class, 'teacher_id'); }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
 }

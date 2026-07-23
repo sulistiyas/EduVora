@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Repositories;
-use App\Models\Core\SchoolProfiles;
 
+use App\Models\Core\SchoolProfiles;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -41,17 +41,17 @@ class SchoolRepository
             ]);
 
         // 🔍 Search (hanya jalan kalau ada input)
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = strtolower($filters['search']);
 
             $query->where(function ($q) use ($search) {
                 $q->whereRaw('LOWER(school_name) LIKE ?', ["%{$search}%"])
-                ->orWhereRaw('LOWER(school_type) LIKE ?', ["%{$search}%"]);
+                    ->orWhereRaw('LOWER(school_type) LIKE ?', ["%{$search}%"]);
             });
         }
 
         // 🎯 Filter status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
@@ -90,8 +90,10 @@ class SchoolRepository
         $schoolProfiles = SchoolProfiles::find($id);
         if ($schoolProfiles) {
             $schoolProfiles->update($data);
+
             return $schoolProfiles;
         }
+
         return null;
     }
 
@@ -102,8 +104,10 @@ class SchoolRepository
             $school->update([
                 'status' => $school->status === 'active' ? 'inactive' : 'active',
             ]);
+
             return $school;
         }
+
         return null;
     }
 
@@ -112,8 +116,10 @@ class SchoolRepository
         $schoolProfiles = SchoolProfiles::find($id);
         if ($schoolProfiles) {
             $schoolProfiles->delete();
+
             return true;
         }
+
         return false;
     }
 }

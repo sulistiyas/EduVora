@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('audit_logs', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned()->index();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('action');
             $table->string('table_name')->nullable();
             $table->unsignedBigInteger('record_id')->nullable();

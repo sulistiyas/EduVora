@@ -9,8 +9,8 @@ use App\Models\Core\SchoolProfiles;
 use App\Models\Core\User;
 use App\Services\UserService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,22 +22,25 @@ class UserController extends Controller
     {
         $this->userService = $userService;
     }
-    public function roles():JsonResponse{
+
+    public function roles(): JsonResponse
+    {
         $roles = Role::select('roles.role_id', 'roles.role_name')
-        ->orderBy('role_name','asc')
-        ->get();
+            ->orderBy('role_name', 'asc')
+            ->get();
 
         return response()->json($roles);
     }
 
-    public function schools():JsonResponse{
+    public function schools(): JsonResponse
+    {
         $schools = SchoolProfiles::select('school_profiles.school_id', 'school_profiles.school_name')
-        ->orderBy('school_name','asc')
-        ->get();
+            ->orderBy('school_name', 'asc')
+            ->get();
 
         return response()->json($schools);
     }
-    
+
     public function index(Request $request): View|JsonResponse
     {
         if ($request->expectsJson()) {
@@ -69,38 +72,40 @@ class UserController extends Controller
                         'total' => $users->total(),
                         'last_page' => $users->lastPage(),
                     ],
-                    'status'=> $status
+                    'status' => $status,
                 ]);
             }
 
             return response()->json([
                 'data' => $users,
                 'meta' => null,
-                'status'=> $status
+                'status' => $status,
             ]);
         }
 
         return view('pages.users.index');
     }
 
-    public function create(){
+    public function create()
+    {
         return view('pages.users.create');
     }
 
     public function detail(Request $request, $id): JsonResponse|View
     {
-        try{
+        try {
             $user = $this->userService->getUserById($id);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'data'    => $user,
-            ]);
-        }
-        return view('pages.users.detail', compact('user'));
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $user,
+                ]);
+            }
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return view('pages.users.detail', compact('user'));
+
+        } catch (ModelNotFoundException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -110,7 +115,6 @@ class UserController extends Controller
             abort(404);
         }
     }
-    
 
     public function show($id)
     {
@@ -121,17 +125,17 @@ class UserController extends Controller
     {
         try {
             $user = $this->userService->createUser($request->validated());
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'User berhasil ditambahkan.',
-                'data'    => $user,
+                'data' => $user,
             ], 201);
-    
+
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan data: ' . $e->getMessage(),
+                'message' => 'Gagal menyimpan data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -140,15 +144,16 @@ class UserController extends Controller
     {
         try {
             $user = $this->userService->updateUser($id, $request->validated());
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data user berhasil diperbarui.',
-                'data'    => $user,
+                'data' => $user,
             ]);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui data: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui data: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -157,13 +162,13 @@ class UserController extends Controller
     {
         $users = $this->userService->toggleStatus($id);
 
-        if (!$users) {
+        if (! $users) {
             return response()->json(['success' => false, 'message' => 'User tidak ditemukan.'], 404);
         }
 
         return response()->json([
             'success' => true,
-            'status'  => $users->status,   // 'active' | 'inactive'
+            'status' => $users->status,   // 'active' | 'inactive'
             'message' => $users->status === 'active' ? 'User diaktifkan.' : 'User dinonaktifkan.',
         ]);
     }

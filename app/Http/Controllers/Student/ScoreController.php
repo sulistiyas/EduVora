@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -44,25 +45,25 @@ class ScoreController extends Controller
                 ->where('ss.semester_id', $semesterId)
                 ->where('ss.is_published', true)
                 ->groupBy('sub.id', 'sub.subject_name')
-                ->selectRaw("
+                ->selectRaw('
                     sub.id as subject_id,
                     sub.subject_name,
                     ROUND(AVG(sd.score), 1) as avg_score,
                     MAX(sd.score) as max_score,
                     MIN(sd.score) as min_score,
                     COUNT(sd.score_detail_id) as total_entries
-                ")
+                ')
                 ->orderByDesc('sub.subject_name')
                 ->get();
 
             foreach ($raw as $r) {
                 $scoresPerSubject[] = [
-                    'subject'    => $r->subject_name,
-                    'avg'        => (float) $r->avg_score,
-                    'max'        => (float) $r->max_score,
-                    'min'        => (float) $r->min_score,
-                    'total'      => (int) $r->total_entries,
-                    'color'      => $this->scoreColor((float) $r->avg_score),
+                    'subject' => $r->subject_name,
+                    'avg' => (float) $r->avg_score,
+                    'max' => (float) $r->max_score,
+                    'min' => (float) $r->min_score,
+                    'total' => (int) $r->total_entries,
+                    'color' => $this->scoreColor((float) $r->avg_score),
                 ];
             }
 
@@ -98,16 +99,16 @@ class ScoreController extends Controller
 
             foreach ($detailRaw as $d) {
                 $detailScores[] = [
-                    'mapel'      => $d->mapel,
-                    'title'      => $d->title,
-                    'type'       => $typeLabel[$d->score_type] ?? $d->score_type,
-                    'date'       => $d->score_date ? \Carbon\Carbon::parse($d->score_date)->translatedFormat('d M Y') : '-',
-                    'score'      => $d->score !== null ? (float) $d->score : null,
-                    'max_score'  => (float) ($d->max_score ?? 100),
+                    'mapel' => $d->mapel,
+                    'title' => $d->title,
+                    'type' => $typeLabel[$d->score_type] ?? $d->score_type,
+                    'date' => $d->score_date ? Carbon::parse($d->score_date)->translatedFormat('d M Y') : '-',
+                    'score' => $d->score !== null ? (float) $d->score : null,
+                    'max_score' => (float) ($d->max_score ?? 100),
                     'percentage' => $d->score !== null && ($d->max_score ?? 100) > 0
                         ? round(($d->score / ($d->max_score ?? 100)) * 100, 1)
                         : null,
-                    'notes'      => $d->notes,
+                    'notes' => $d->notes,
                 ];
             }
         }
@@ -123,9 +124,16 @@ class ScoreController extends Controller
 
     private function scoreColor(float $score): string
     {
-        if ($score >= 85) return '#10B981';
-        if ($score >= 75) return '#3B82F6';
-        if ($score >= 65) return '#F59E0B';
+        if ($score >= 85) {
+            return '#10B981';
+        }
+        if ($score >= 75) {
+            return '#3B82F6';
+        }
+        if ($score >= 65) {
+            return '#F59E0B';
+        }
+
         return '#EF4444';
     }
 }

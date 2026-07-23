@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class AcademicYearSeeder extends Seeder
 {
@@ -43,7 +43,7 @@ class AcademicYearSeeder extends Seeder
             for ($i = 0; $i < 5; $i++) {
 
                 $yearStart = $startAcademicYear + $i;
-                $yearEnd   = $yearStart + 1;
+                $yearEnd = $yearStart + 1;
 
                 $academicYearName = "{$yearStart}/{$yearEnd}";
 
@@ -51,7 +51,7 @@ class AcademicYearSeeder extends Seeder
                  * Academic Year Dates
                  */
                 $academicStartDate = Carbon::parse("{$yearStart}-07-01");
-                $academicEndDate   = Carbon::parse("{$yearEnd}-06-30");
+                $academicEndDate = Carbon::parse("{$yearEnd}-06-30");
 
                 /**
                  * Academic Year Active Status
@@ -67,13 +67,13 @@ class AcademicYearSeeder extends Seeder
                  * Insert Academic Year
                  */
                 $academicYearId = DB::table('academic_years')->insertGetId([
-                    'school_id'          => $school->school_id,
+                    'school_id' => $school->school_id,
                     'academic_year_name' => $academicYearName,
-                    'start_date'         => $academicStartDate->format('Y-m-d'),
-                    'end_date'           => $academicEndDate->format('Y-m-d'),
-                    'status'             => $academicStatus,
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'start_date' => $academicStartDate->format('Y-m-d'),
+                    'end_date' => $academicEndDate->format('Y-m-d'),
+                    'status' => $academicStatus,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ], 'academic_year_id');
 
                 /**
@@ -83,7 +83,7 @@ class AcademicYearSeeder extends Seeder
                  * ─────────────────────────────────────────────
                  */
                 $ganjilStart = Carbon::parse("{$yearStart}-07-01");
-                $ganjilEnd   = Carbon::parse("{$yearStart}-12-31");
+                $ganjilEnd = Carbon::parse("{$yearStart}-12-31");
 
                 $ganjilStatus = $today->between(
                     $ganjilStart,
@@ -93,22 +93,22 @@ class AcademicYearSeeder extends Seeder
                     : 'inactive';
 
                 DB::table('semesters')->insert([
-                    'semester_name'      => "Semester Ganjil {$academicYearName}",
-                    'academic_year_id'   => $academicYearId,
+                    'semester_name' => "Semester Ganjil {$academicYearName}",
+                    'academic_year_id' => $academicYearId,
 
-                    'start_date'         => $ganjilStart->format('Y-m-d'),
-                    'end_date'           => $ganjilEnd->format('Y-m-d'),
+                    'start_date' => $ganjilStart->format('Y-m-d'),
+                    'end_date' => $ganjilEnd->format('Y-m-d'),
 
                     'midterm_start_date' => "{$yearStart}-09-15",
-                    'midterm_end_date'   => "{$yearStart}-09-19",
+                    'midterm_end_date' => "{$yearStart}-09-19",
 
-                    'final_start_date'   => "{$yearStart}-12-08",
-                    'final_end_date'     => "{$yearStart}-12-12",
+                    'final_start_date' => "{$yearStart}-12-08",
+                    'final_end_date' => "{$yearStart}-12-12",
 
-                    'status'             => $ganjilStatus,
+                    'status' => $ganjilStatus,
 
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
 
                 /**
@@ -118,7 +118,7 @@ class AcademicYearSeeder extends Seeder
                  * ─────────────────────────────────────────────
                  */
                 $genapStart = Carbon::parse("{$yearEnd}-01-01");
-                $genapEnd   = Carbon::parse("{$yearEnd}-06-30");
+                $genapEnd = Carbon::parse("{$yearEnd}-06-30");
 
                 $genapStatus = $today->between(
                     $genapStart,
@@ -128,22 +128,22 @@ class AcademicYearSeeder extends Seeder
                     : 'inactive';
 
                 DB::table('semesters')->insert([
-                    'semester_name'      => "Semester Genap {$academicYearName}",
-                    'academic_year_id'   => $academicYearId,
+                    'semester_name' => "Semester Genap {$academicYearName}",
+                    'academic_year_id' => $academicYearId,
 
-                    'start_date'         => $genapStart->format('Y-m-d'),
-                    'end_date'           => $genapEnd->format('Y-m-d'),
+                    'start_date' => $genapStart->format('Y-m-d'),
+                    'end_date' => $genapEnd->format('Y-m-d'),
 
                     'midterm_start_date' => "{$yearEnd}-03-09",
-                    'midterm_end_date'   => "{$yearEnd}-03-13",
+                    'midterm_end_date' => "{$yearEnd}-03-13",
 
-                    'final_start_date'   => "{$yearEnd}-06-08",
-                    'final_end_date'     => "{$yearEnd}-06-12",
+                    'final_start_date' => "{$yearEnd}-06-08",
+                    'final_end_date' => "{$yearEnd}-06-12",
 
-                    'status'             => $genapStatus,
+                    'status' => $genapStatus,
 
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
         }

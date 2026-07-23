@@ -26,7 +26,7 @@ class ScoreReportController extends Controller
 
     public function index(Request $request)
     {
-        $teacher  = Auth::user()->teacher;
+        $teacher = Auth::user()->teacher;
         $schoolId = Auth::user()->schools->first()->school_id;
 
         $filters = $this->service->buildFilters(
@@ -39,20 +39,20 @@ class ScoreReportController extends Controller
                 'is_published',
             ]),
             teacherId: $teacher->teacher_id,
-            schoolId:  $schoolId,
+            schoolId: $schoolId,
         );
 
         $data = $this->service->getIndexData($filters);
 
         $exportGsId = $filters['grade_subject_id'];
-        if (!$exportGsId && !empty($filters['grade_id']) && !empty($filters['subject_id'])) {
+        if (! $exportGsId && ! empty($filters['grade_id']) && ! empty($filters['subject_id'])) {
             $exportGsId = GradeSubject::query()
-                ->where('grade_id',   $filters['grade_id'])
+                ->where('grade_id', $filters['grade_id'])
                 ->where('subject_id', $filters['subject_id'])
                 ->where('teacher_id', $teacher->teacher_id)
                 ->value('id');
         }
-        if (!$exportGsId) {
+        if (! $exportGsId) {
             $exportGsId = GradeSubject::query()
                 ->where('teacher_id', $teacher->teacher_id)
                 ->where('status', 'active')
@@ -60,6 +60,7 @@ class ScoreReportController extends Controller
         }
 
         $data['filters']['grade_subject_id'] = $exportGsId;
+
         return view('reports.score.index', $data);
     }
 
@@ -98,7 +99,7 @@ class ScoreReportController extends Controller
 
     public function export(Request $request)
     {
-        $teacher  = Auth::user()->teacher;
+        $teacher = Auth::user()->teacher;
         $schoolId = Auth::user()->schools->first()->school_id;
 
         $exportType = $request->query('type', 'summary'); // 'summary' | 'sessions'
@@ -112,7 +113,7 @@ class ScoreReportController extends Controller
                 'score_type',
             ]),
             teacherId: $teacher->teacher_id,
-            schoolId:  $schoolId,
+            schoolId: $schoolId,
         );
         if (empty($filters['grade_subject_id'])) {
             $filters['grade_subject_id'] = GradeSubject::query()
@@ -121,12 +122,12 @@ class ScoreReportController extends Controller
                 ->value('id');
         }
 
-    //     dd([
-    //     'filters'     => $filters,
-    //     'exportType'  => $exportType,
-    //     'rowsCount'   => $this->service->getExportStudentSummary($filters)->count(),
-    //     'rawSummary'  => $this->service->getExportStudentSummary($filters)->first(),
-    // ]);
+        //     dd([
+        //     'filters'     => $filters,
+        //     'exportType'  => $exportType,
+        //     'rowsCount'   => $this->service->getExportStudentSummary($filters)->count(),
+        //     'rawSummary'  => $this->service->getExportStudentSummary($filters)->first(),
+        // ]);
 
         // Meta untuk header Excel
         $meta = $this->buildExportMeta($filters, $teacher, $exportType);
@@ -134,7 +135,7 @@ class ScoreReportController extends Controller
         // Rows dari service
         $rows = match ($exportType) {
             'sessions' => $this->service->getExportSessionsByType($filters),
-            default    => $this->service->getExportStudentSummary($filters),
+            default => $this->service->getExportStudentSummary($filters),
         };
 
         // Nama file
@@ -145,7 +146,7 @@ class ScoreReportController extends Controller
             $meta['semester'] ? str($meta['semester'])->slug() : null,
             $exportType,
             now()->format('Ymd'),
-        ])) . '.xlsx';
+        ])).'.xlsx';
 
         return Excel::download(
             new ScoreReportExport($rows, $meta, $exportType),
@@ -171,33 +172,33 @@ class ScoreReportController extends Controller
             ? GradeSubject::with([
                 'grade:grade_id,grade_name',
                 'subject:id,subject_name',
-              ])->find($gradeSubjectId)
+            ])->find($gradeSubjectId)
             : null;
 
-        $semester = !empty($filters['semester_id'])
+        $semester = ! empty($filters['semester_id'])
             ? Semester::find($filters['semester_id'])
             : null;
 
         $scoreTypeLabel = match ($filters['score_type'] ?? null) {
             'harian' => 'Harian',
-            'uts'    => 'UTS',
-            'uas'    => 'UAS',
-            default  => 'Semua Tipe',
+            'uts' => 'UTS',
+            'uas' => 'UAS',
+            default => 'Semua Tipe',
         };
 
         return [
-            'title'       => 'Laporan Nilai — '
-                             . ($gradeSubject?->grade?->grade_name   ?? '')
-                             . ' · '
-                             . ($gradeSubject?->subject?->subject_name ?? ''),
-            'grade'       => $gradeSubject?->grade?->grade_name       ?? '-',
-            'subject'     => $gradeSubject?->subject?->subject_name   ?? '-',
-            'semester'    => $semester?->semester_name                 ?? '-',
-            'score_type'  => $scoreTypeLabel,
-            'kkm'         => $gradeSubject?->kkm                      ?? '-',
-            'teacher'     => $teacher->full_name                      ?? '',
+            'title' => 'Laporan Nilai — '
+                             .($gradeSubject?->grade?->grade_name ?? '')
+                             .' · '
+                             .($gradeSubject?->subject?->subject_name ?? ''),
+            'grade' => $gradeSubject?->grade?->grade_name ?? '-',
+            'subject' => $gradeSubject?->subject?->subject_name ?? '-',
+            'semester' => $semester?->semester_name ?? '-',
+            'score_type' => $scoreTypeLabel,
+            'kkm' => $gradeSubject?->kkm ?? '-',
+            'teacher' => $teacher->full_name ?? '',
             'export_type' => $exportType,
-            'generated_at'=> now()->format('d/m/Y H:i'),
+            'generated_at' => now()->format('d/m/Y H:i'),
         ];
     }
 }

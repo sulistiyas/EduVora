@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -69,14 +68,14 @@ class ScheduleController extends Controller
             $schedules = $rows->map(function ($s) use ($dayNames) {
                 return [
                     'schedule_id' => $s->schedule_id,
-                    'day'         => $dayNames[$s->day_of_week] ?? '-',
-                    'day_num'     => $s->day_of_week,
-                    'jam'         => substr($s->start_time, 0, 5) . ' – ' . substr($s->end_time, 0, 5),
-                    'start'       => $s->start_time,
-                    'mapel'       => $s->mapel,
-                    'guru'        => $s->guru,
-                    'ruangan'     => $s->ruangan_kode ?: $s->ruangan,
-                    'tipe'        => $s->session_type,
+                    'day' => $dayNames[$s->day_of_week] ?? '-',
+                    'day_num' => $s->day_of_week,
+                    'jam' => substr($s->start_time, 0, 5).' – '.substr($s->end_time, 0, 5),
+                    'start' => $s->start_time,
+                    'mapel' => $s->mapel,
+                    'guru' => $s->guru,
+                    'ruangan' => $s->ruangan_kode ?: $s->ruangan,
+                    'tipe' => $s->session_type,
                 ];
             })->groupBy('day_num')->toArray();
         }
