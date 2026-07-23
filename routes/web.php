@@ -12,8 +12,12 @@ use App\Http\Controllers\Class\RoomsController;
 use App\Http\Controllers\School\StudentController;
 use App\Http\Controllers\School\StudentScoreController;
 use App\Http\Controllers\School\TeacherController;
+use App\Http\Controllers\SchoolAdmin\DashboardController as SchoolAdminDashboardController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
+use App\Http\Controllers\Student\ScoreController as StudentMyScoreController;
 use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\ScheduleController as StudentScheduleController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
@@ -108,7 +112,7 @@ Route::middleware(['auth'])->group(function () {
     // ── SCHOOL-ADMIN ─────────────────────────────────────
     Route::middleware(['role:super-admin,school-admin'])->group(function () {
 
-        Route::get('/school-admin/dashboard', fn () => view('pages.dash.index'))
+        Route::get('/school-admin/dashboard', [SchoolAdminDashboardController::class, 'index'])
             ->name('school-admin.dashboard');
 
         // Academic Year
@@ -242,7 +246,11 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('student-scores')->name('student-scores.')->group(function () {
             Route::get('/', [StudentScoreController::class, 'index'])->name('index');
             Route::post('/', [StudentScoreController::class, 'store'])->name('store');
+            Route::get('/data/semesters', [StudentScoreController::class, 'semesters'])->name('semesters');
+            Route::get('/data/grade-subjects', [StudentScoreController::class, 'gradeSubjects'])->name('grade-subjects');
             Route::get('/{id}', [StudentScoreController::class, 'show'])->name('show');
+            Route::patch('/{id}/details', [StudentScoreController::class, 'saveDetails'])->name('save-details');
+            Route::patch('/{id}/publish', [StudentScoreController::class, 'togglePublish'])->name('publish');
             Route::put('/{id}', [StudentScoreController::class, 'update'])->name('update');
             Route::delete('/{id}', [StudentScoreController::class, 'destroy'])->name('destroy');
         });
@@ -344,6 +352,15 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])
             ->name('dashboard');
+
+        Route::get('/schedule', [StudentScheduleController::class, 'index'])
+            ->name('schedule');
+
+        Route::get('/attendance', [StudentAttendanceController::class, 'index'])
+            ->name('attendance');
+
+        Route::get('/scores', [StudentMyScoreController::class, 'index'])
+            ->name('scores');
         
     });
 

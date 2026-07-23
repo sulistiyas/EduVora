@@ -68,6 +68,58 @@ class StudentScoreRepository
     }
 
     /**
+     * Paginate score sessions for all teachers in a school (school-admin view).
+     */
+    public function paginateBySchool(
+        int   $schoolId,
+        array $filters = [],
+        int   $perPage = 15
+    ): LengthAwarePaginator {
+        return ScoreSession::with([
+                'gradeSubject.subject',
+                'gradeSubject.grade',
+                'gradeSubject.teacher',
+                'semester',
+                'scoreDetails',
+            ])
+            ->whereHas('gradeSubject.grade', fn ($q) => $q->where('school_id', $schoolId))
+            ->when(
+                ! empty($filters['semester_id']),
+                fn ($q) => $q->where('semester_id', $filters['semester_id'])
+            )
+            ->when(
+                ! empty($filters['grade_subject_id']),
+                fn ($q) => $q->where('grade_subject_id', $filters['grade_subject_id'])
+            )
+            ->when(
+                ! empty($filters['score_type']),
+                fn ($q) => $q->where('score_type', $filters['score_type'])
+            )
+            ->when(
+                isset($filters['is_published']) && $filters['is_published'] !== '',
+                fn ($q) => $q->where(
+                    'is_published',
+                    filter_var($filters['is_published'], FILTER_VALIDATE_BOOLEAN)
+                )
+            )
+            ->when(
+                ! empty($filters['search']),
+                fn ($q) => $q->where('title', 'like', '%' . $filters['search'] . '%')
+            )
+            ->when(
+                ! empty($filters['date_from']),
+                fn ($q) => $q->whereDate('score_date', '>=', $filters['date_from'])
+            )
+            ->when(
+                ! empty($filters['date_to']),
+                fn ($q) => $q->whereDate('score_date', '<=', $filters['date_to'])
+            )
+            ->orderByDesc('score_date')
+            ->orderByDesc('score_session_id')
+            ->paginate($perPage);
+    }
+
+    /**
      * Find a session by ID with full relations.
      */
     public function findById(int $id): ?ScoreSession
@@ -209,6 +261,39 @@ class StudentScoreRepository
             'mid_exam'          => $rows['mid_exam']        ?? 0,
             'final_exam'        => $rows['final_exam']        ?? 0,
             'assignment'         => $rows['assignment']      ?? 0,
+        ];
+    }
+
+    /**
+     * Count sessions by score_type for an entire school (school-admin view).
+     */
+    public function countBySchool(int $schoolId, ?int $semesterId = null): array
+    {
+        $scope = fn ($q) => $q->whereHas('gradeSubject.grade', fn ($g) => $g->where('school_id', $schoolId));
+
+        $rows = ScoreSession::whereHas('gradeSubject.grade', fn ($q) => $q->where('school_id', $schoolId))
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
+            ->selectRaw('score_type, COUNT(*) as total')
+            ->groupBy('score_type')
+            ->pluck('total', 'score_type');
+
+        $total = ScoreSession::whereHas('gradeSubject.grade', fn ($q) => $q->where('school_id', $schoolId))
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
+            ->count();
+
+        $published = ScoreSession::whereHas('gradeSubject.grade', fn ($q) => $q->where('school_id', $schoolId))
+            ->when($semesterId, fn ($q) => $q->where('semester_id', $semesterId))
+            ->where('is_published', true)
+            ->count();
+
+        return [
+            'total'      => $total,
+            'published'  => $published,
+            'draft'      => $total - $published,
+            'daily'      => $rows['daily'] ?? 0,
+            'mid_exam'   => $rows['mid_exam'] ?? 0,
+            'final_exam' => $rows['final_exam'] ?? 0,
+            'assignment' => $rows['assignment'] ?? 0,
         ];
     }
 }

@@ -29,27 +29,34 @@ class StudentScoreController extends Controller
 
     public function index(Request $request): View|JsonResponse
     {
-        $teacher = Auth::user()->teacher;
-        abort_if(is_null($teacher), 403, 'Akun ini tidak terhubung ke data guru.');
+        $user = Auth::user();
+        $isSchoolAdmin = $user->hasRole('school-admin');
+
+        if ($isSchoolAdmin) {
+            $schoolId = getAuthSchoolId();
+        } else {
+            $teacher = $user->teacher;
+            abort_if(is_null($teacher), 403, 'Akun ini tidak terhubung ke data guru.');
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
-            // \Log::info('Filters: ' . json_encode($request->only([
-            //     'semester_id', 'grade_subject_id', 'score_type',
-            //     'is_published', 'search', 'date_from', 'date_to',
-            // ])));
-
-
-            $sessions = $this->service->paginate(
-                teacherId: $teacher->teacher_id,
-                filters:   $request->only([
-                    'semester_id', 'grade_subject_id', 'score_type',
-                    'is_published', 'search', 'date_from', 'date_to',
-                ]),
-                perPage: (int) $request->input('per_page', 15),
-            );
-
-            // \Log::info('Sessions total: ' . $sessions->total());
-            // \Log::info('Sessions data: ' . json_encode($sessions->pluck('score_session_id', 'is_published')));
+            $sessions = $isSchoolAdmin
+                ? $this->service->paginateBySchool(
+                    schoolId: $schoolId,
+                    filters:  $request->only([
+                        'semester_id', 'grade_subject_id', 'score_type',
+                        'is_published', 'search', 'date_from', 'date_to',
+                    ]),
+                    perPage: (int) $request->input('per_page', 15),
+                )
+                : $this->service->paginate(
+                    teacherId: $teacher->teacher_id,
+                    filters:   $request->only([
+                        'semester_id', 'grade_subject_id', 'score_type',
+                        'is_published', 'search', 'date_from', 'date_to',
+                    ]),
+                    perPage: (int) $request->input('per_page', 15),
+                );
 
             return response()->json([
                 'data' => $sessions->map(fn ($s) => $this->service->toResource($s)),
@@ -66,12 +73,12 @@ class StudentScoreController extends Controller
             ->getActiveAcademicSemester(['per_page' => 'all'])
             ->first();
 
-        $stats = $this->service->stats($teacher->teacher_id);
+        $stats = $isSchoolAdmin
+            ? $this->service->statsBySchool($schoolId)
+            : $this->service->stats($teacher->teacher_id);
 
-        // ── Dari ?schedule_id=X (klik "Input Nilai" di drawer jadwal) ──────────
-        // Resolve schedule → grade_subject_id + semester_id untuk prefill modal
         $scheduleInfo = null;
-        if ($request->filled('schedule_id')) {
+        if ($request->filled('schedule_id') && ! $isSchoolAdmin) {
             $schedule = Schedule::with([
                 'gradeSubject.subject',
                 'gradeSubject.grade',
@@ -328,19 +335,37 @@ class StudentScoreController extends Controller
      */
     public function gradeSubjects(Request $request): JsonResponse
     {
-        $teacher = Auth::user()->teacher;
-        abort_if(is_null($teacher), 403);
+        $user = Auth::user();
+        $isSchoolAdmin = $user->hasRole('school-admin');
 
-        $items = GradeSubject::with(['grade', 'subject'])
-            ->where('teacher_id', $teacher->teacher_id)
-            ->get()
-            ->map(fn ($gs) => [
-                'grade_subject_id' => $gs->id,
-                'subject_name'     => $gs->subject?->subject_name,
-                'grade_name'       => $gs->grade?->grade_name,
-                'grade_id'         => $gs->grade_id,
-                'label'            => ($gs->subject?->subject_name ?? '?') . ' — ' . ($gs->grade?->grade_name ?? '?'),
-            ]);
+        if ($isSchoolAdmin) {
+            $schoolId = getAuthSchoolId();
+            $items = GradeSubject::with(['grade', 'subject', 'teacher'])
+                ->whereHas('grade', fn ($q) => $q->where('school_id', $schoolId))
+                ->get()
+                ->map(fn ($gs) => [
+                    'grade_subject_id' => $gs->id,
+                    'subject_name'     => $gs->subject?->subject_name,
+                    'grade_name'       => $gs->grade?->grade_name,
+                    'teacher_name'     => $gs->teacher?->full_name,
+                    'grade_id'         => $gs->grade_id,
+                    'label'            => ($gs->subject?->subject_name ?? '?') . ' — ' . ($gs->grade?->grade_name ?? '?'),
+                ]);
+        } else {
+            $teacher = $user->teacher;
+            abort_if(is_null($teacher), 403);
+
+            $items = GradeSubject::with(['grade', 'subject'])
+                ->where('teacher_id', $teacher->teacher_id)
+                ->get()
+                ->map(fn ($gs) => [
+                    'grade_subject_id' => $gs->id,
+                    'subject_name'     => $gs->subject?->subject_name,
+                    'grade_name'       => $gs->grade?->grade_name,
+                    'grade_id'         => $gs->grade_id,
+                    'label'            => ($gs->subject?->subject_name ?? '?') . ' — ' . ($gs->grade?->grade_name ?? '?'),
+                ]);
+        }
 
         return response()->json($items);
     }

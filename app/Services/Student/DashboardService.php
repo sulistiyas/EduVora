@@ -37,11 +37,11 @@ class DashboardService
         }
 
         $activeSemester = DB::table('semesters')
-            ->where('status', 'active')
-            ->whereHas('academicYear', function ($q) use ($schoolId) {
-                $q->where('school_id', $schoolId);
-            })
-            ->orderByDesc('created_at')
+            ->join('academic_years', 'semesters.academic_year_id', '=', 'academic_years.academic_year_id')
+            ->where('semesters.status', 'active')
+            ->where('academic_years.school_id', $schoolId)
+            ->orderByDesc('semesters.created_at')
+            ->select('semesters.*')
             ->first();
 
         $semesterId = $activeSemester?->semester_id;

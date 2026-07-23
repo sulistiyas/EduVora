@@ -99,7 +99,7 @@
                 Presensi
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('scores.*') ? 'active' : '' }}">
+            <a href="{{ route('student-scores.index') }}" class="nav-item {{ request()->routeIs('student-scores.*') ? 'active' : '' }}">
                 <i class="ri-bar-chart-2-line"></i>
                 Nilai
             </a>
@@ -259,17 +259,17 @@
 
             <div class="nav-section-label" style="margin-top:8px;">Akademik Saya</div>
 
-            <a href="#" class="nav-item {{ request()->routeIs('schedules.*') ? 'active' : '' }}">
+            <a href="{{ route('student.schedule') }}" class="nav-item {{ request()->routeIs('student.schedule') ? 'active' : '' }}">
                 <i class="ri-calendar-schedule-line"></i>
                 Jadwal Pelajaran
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+            <a href="{{ route('student.attendance') }}" class="nav-item {{ request()->routeIs('student.attendance') ? 'active' : '' }}">
                 <i class="ri-checkbox-circle-line"></i>
                 Presensi Saya
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('scores.*') ? 'active' : '' }}">
+            <a href="{{ route('student.scores') }}" class="nav-item {{ request()->routeIs('student.scores') ? 'active' : '' }}">
                 <i class="ri-bar-chart-2-line"></i>
                 Nilai Saya
             </a>

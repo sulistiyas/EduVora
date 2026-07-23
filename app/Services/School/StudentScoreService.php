@@ -26,6 +26,11 @@ class StudentScoreService
         return $this->repo->paginateByTeacher($teacherId, $filters, $perPage);
     }
 
+    public function paginateBySchool(int $schoolId, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        return $this->repo->paginateBySchool($schoolId, $filters, $perPage);
+    }
+
     public function findOrFail(int $id): ScoreSession
     {
         $session = $this->repo->findById($id);
@@ -123,6 +128,11 @@ class StudentScoreService
     public function stats(int $teacherId, ?int $semesterId = null): array
     {
         return $this->repo->countByType($teacherId, $semesterId);
+    }
+
+    public function statsBySchool(int $schoolId, ?int $semesterId = null): array
+    {
+        return $this->repo->countBySchool($schoolId, $semesterId);
     }
 
     /*
