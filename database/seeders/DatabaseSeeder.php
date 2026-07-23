@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Database\Seeders\UserSeeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::statement('TRUNCATE roles,users,user_has_roles,school_profiles,user_has_schools,students,student_parents,teachers, academic_years, semesters, rooms, subjects, grades, grade_subjects, schedules, platform_settings RESTART IDENTITY CASCADE');
+        DB::statement('TRUNCATE roles,users,user_has_roles,school_profiles,user_has_schools,students,student_parents,teachers, academic_years, semesters, rooms, subjects, grades, grade_subjects, schedules, platform_settings, academic_dates RESTART IDENTITY CASCADE');
         $this->call([
             RoleSeeder::class,
             SchoolSeeder::class,
@@ -33,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ScheduleSeeder::class,
             StudentGradeSeeder::class,
             PlatformSettingSeeder::class,
+            AcademicDateSeeder::class,
         ]);
     }
 }

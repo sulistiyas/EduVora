@@ -20,17 +20,62 @@ class AttendanceRepository
      * Paginate attendance sessions for a specific teacher.
      */
     public function paginateByTeacher(
-        int   $teacherId,
-        array $filters  = [],
-        int   $perPage  = 15
+        int $teacherId,
+        array $filters = [],
+        int $perPage = 15
     ): LengthAwarePaginator {
         return AttendanceSession::with([
-                'schedule.gradeSubject.subject',
-                'grade',
-                'subject',
-                'semester',
-            ])
+            'schedule.gradeSubject.subject',
+            'grade',
+            'subject',
+            'semester',
+        ])
             ->where('teacher_id', $teacherId)
+            ->when(
+                ! empty($filters['semester_id']),
+                fn ($q) => $q->where('semester_id', $filters['semester_id'])
+            )
+            ->when(
+                ! empty($filters['grade_id']),
+                fn ($q) => $q->where('grade_id', $filters['grade_id'])
+            )
+            ->when(
+                ! empty($filters['subject_id']),
+                fn ($q) => $q->where('subject_id', $filters['subject_id'])
+            )
+            ->when(
+                ! empty($filters['status']),
+                fn ($q) => $q->where('status', $filters['status'])
+            )
+            ->when(
+                ! empty($filters['date_from']),
+                fn ($q) => $q->whereDate('attendance_date', '>=', $filters['date_from'])
+            )
+            ->when(
+                ! empty($filters['date_to']),
+                fn ($q) => $q->whereDate('attendance_date', '<=', $filters['date_to'])
+            )
+            ->orderByDesc('attendance_date')
+            ->orderByDesc('attendance_session_id')
+            ->paginate($perPage);
+    }
+
+    /**
+     * Paginate attendance sessions for an entire school (school-admin view).
+     */
+    public function paginateBySchool(
+        int $schoolId,
+        array $filters = [],
+        int $perPage = 15
+    ): LengthAwarePaginator {
+        return AttendanceSession::with([
+            'schedule.gradeSubject.subject',
+            'teacher',
+            'grade',
+            'subject',
+            'semester',
+        ])
+            ->where('school_id', $schoolId)
             ->when(
                 ! empty($filters['semester_id']),
                 fn ($q) => $q->where('semester_id', $filters['semester_id'])
@@ -82,7 +127,7 @@ class AttendanceRepository
     public function findByScheduleAndDate(int $scheduleId, string $date): ?AttendanceSession
     {
         return AttendanceSession::with(['details.student'])
-            ->where('schedule_id',      $scheduleId)
+            ->where('schedule_id', $scheduleId)
             ->whereDate('attendance_date', $date)
             ->first();
     }
@@ -101,6 +146,7 @@ class AttendanceRepository
     public function updateSession(AttendanceSession $session, array $data): AttendanceSession
     {
         $session->update($data);
+
         return $session->fresh();
     }
 
@@ -118,18 +164,18 @@ class AttendanceRepository
     {
         $rows = array_map(fn ($d) => [
             'attendance_session_id' => $sessionId,
-            'student_id'            => $d['student_id'],
-            'status'                => $d['status'],
-            'note'                  => $d['note']       ?? null,
-            'attachment'            => $d['attachment'] ?? null,
-            'created_at'            => now(),
-            'updated_at'            => now(),
+            'student_id' => $d['student_id'],
+            'status' => $d['status'],
+            'note' => $d['note'] ?? null,
+            'attachment' => $d['attachment'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ], $details);
 
         AttendanceDetail::upsert(
             $rows,
             uniqueBy: ['attendance_session_id', 'student_id'],
-            update:   ['status', 'note', 'attachment', 'updated_at']
+            update: ['status', 'note', 'attachment', 'updated_at']
         );
     }
 
@@ -167,24 +213,46 @@ class AttendanceRepository
     */
 
     /**
+     * Count sessions by status for a school (all teachers).
+     */
+    public function countBySchool(int $schoolId, ?int $semesterId = null): array
+    {
+        $rows = AttendanceSession::where('school_id', $schoolId)
+            ->when(
+                $semesterId,
+                fn ($q) => $q->where('semester_id', $semesterId)
+            )
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        return [
+            'draft' => $rows[AttendanceSession::STATUS_DRAFT] ?? 0,
+            'submitted' => $rows[AttendanceSession::STATUS_SUBMITTED] ?? 0,
+            'approved' => $rows[AttendanceSession::STATUS_APPROVED] ?? 0,
+            'total' => $rows->sum(),
+        ];
+    }
+
+    /**
      * Count sessions by status for a teacher in a semester.
      */
     public function countByStatus(int $teacherId, ?int $semesterId = null): array
     {
         $rows = AttendanceSession::where('teacher_id', $teacherId)
-                ->when(
-                    $semesterId,
-                    fn ($q) => $q->where('semester_id', $semesterId)
-                )
-                ->selectRaw('status, COUNT(*) as total')
-                ->groupBy('status')
-                ->pluck('total', 'status');
+            ->when(
+                $semesterId,
+                fn ($q) => $q->where('semester_id', $semesterId)
+            )
+            ->selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
 
         return [
-            'draft'     => $rows[AttendanceSession::STATUS_DRAFT]     ?? 0,
-            'submitted' => $rows[AttendanceSession::STATUS_SUBMITTED]  ?? 0,
-            'approved'  => $rows[AttendanceSession::STATUS_APPROVED]   ?? 0,
-            'total'     => $rows->sum(),
+            'draft' => $rows[AttendanceSession::STATUS_DRAFT] ?? 0,
+            'submitted' => $rows[AttendanceSession::STATUS_SUBMITTED] ?? 0,
+            'approved' => $rows[AttendanceSession::STATUS_APPROVED] ?? 0,
+            'total' => $rows->sum(),
         ];
     }
 }

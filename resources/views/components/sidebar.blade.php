@@ -100,7 +100,7 @@
                 Jadwal
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+            <a href="{{ route('school-admin.attendance.index') }}" class="nav-item {{ request()->routeIs('school-admin.attendance.*') ? 'active' : '' }}">
                 <i class="ri-checkbox-circle-line"></i>
                 Presensi
             </a>
@@ -132,7 +132,7 @@
                         <i class="ri-split-cells-horizontal"></i>
                         Semester
                     </a>
-                    <a href="#"
+                    <a href="{{ route('academic-dates.index') }}"
                     class="nav-item nav-item--sub {{ request()->routeIs('academic-dates.*') ? 'active' : '' }}">
                         <i class="ri-calendar-event-line"></i>
                         Tanggal Penting
