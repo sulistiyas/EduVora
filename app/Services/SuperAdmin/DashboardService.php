@@ -2,6 +2,7 @@
 
 namespace App\Services\SuperAdmin;
 
+use App\Models\Activity\AttendanceDetail;
 use App\Models\Activity\AttendanceSession;
 use App\Models\Core\AuditLog;
 use App\Models\Core\SchoolProfiles;
@@ -32,14 +33,19 @@ class DashboardService
             'SD' => SchoolProfiles::where('school_type', 'Elementary')->count(),
         ];
 
-        $todayHadir = AttendanceSession::where('attendance_date', now()->toDateString())
-            ->sum(fn ($s) => $s->details()->where('status', 'H')->count());
+        $todaySessionIds = AttendanceSession::where('attendance_date', now()->toDateString())
+            ->pluck('attendance_session_id');
 
-        $todayTotal = AttendanceSession::where('attendance_date', now()->toDateString())
-            ->sum(fn ($s) => $s->details()->count());
+        $todayHadir = AttendanceDetail::whereIn('attendance_session_id', $todaySessionIds)
+            ->where('status', 'H')
+            ->count();
 
-        $todayAlpha = AttendanceSession::where('attendance_date', now()->toDateString())
-            ->sum(fn ($s) => $s->details()->whereIn('status', ['A', 'I', 'S'])->count());
+        $todayTotal = AttendanceDetail::whereIn('attendance_session_id', $todaySessionIds)
+            ->count();
+
+        $todayAlpha = AttendanceDetail::whereIn('attendance_session_id', $todaySessionIds)
+            ->whereIn('status', ['A', 'I', 'S'])
+            ->count();
 
         $persenHadir = $todayTotal > 0 ? round(($todayHadir / $todayTotal) * 100) : 0;
 
