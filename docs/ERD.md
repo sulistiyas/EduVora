@@ -184,7 +184,7 @@ erDiagram
 
     teachers {
         bigint teacher_id PK
-        bigint user_id FK UK
+        bigint user_id FK
         string nip UK
         string nik UK
         string full_name
@@ -208,7 +208,7 @@ erDiagram
 
     students {
         bigint id PK
-        bigint user_id FK UK
+        bigint user_id FK
         string nis UK
         string full_name
         string nick_name
