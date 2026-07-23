@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\Core\Role;
 use App\Models\Core\SchoolProfiles;
 use App\Models\Core\User;
@@ -115,51 +117,10 @@ class UserController extends Controller
         return response()->json($this->userService->getUserById($id));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email',
-            'phone_number'          => 'nullable|string|max:20',
-            'password'              => 'required|string|min:8|confirmed',
-            'role'                  => 'required|exists:roles,role_id',
-            'school'                => 'required|exists:school_profiles,school_id',
-            'status'                => 'required|in:active,inactive',
-            'profile'               => 'nullable|array',
-            // Teacher profile rules
-            'profile.nip'               => 'nullable|string|max:50',
-            'profile.nik'               => 'nullable|string|max:20',
-            'profile.full_name'         => 'nullable|string|max:255',
-            'profile.birth_place'       => 'nullable|string|max:100',
-            'profile.birth_date'        => 'nullable|date',
-            'profile.gender'            => 'nullable|in:male,female',
-            'profile.religion'          => 'nullable|string|max:50',
-            'profile.address'           => 'nullable|string',
-            'profile.phone'             => 'nullable|string|max:20',
-            'profile.email'             => 'nullable|email|max:255',
-            'profile.employment_status' => 'nullable|string|max:50',
-            'profile.position'          => 'nullable|string|max:100',
-            'profile.grade_level'       => 'nullable|string|max:20',
-            'profile.education_level'   => 'nullable|string|max:10',
-            'profile.major'             => 'nullable|string|max:100',
-            'profile.certification'     => 'nullable|string|max:100',
-            'profile.npwp'              => 'nullable|string|max:20',
-            'profile.join_date'         => 'nullable|date',
-            // Student profile rules
-            'profile.nis'               => 'nullable|string|max:20',
-            'profile.nick_name'         => 'nullable|string|max:100',
-            'profile.phone_number'      => 'nullable|string|max:20',
-            'profile.city'              => 'nullable|string|max:100',
-            'profile.province'          => 'nullable|string|max:100',
-            'profile.postal_code'       => 'nullable|string|max:10',
-            'profile.grade_id'          => 'nullable|integer',
-            'profile.class_group'       => 'nullable|string|max:50',
-            'profile.enrollment_date'   => 'nullable|date',
-            'profile.graduation_date'   => 'nullable|date',
-        ]);
-    
         try {
-            $user = $this->userService->createUser($validated);
+            $user = $this->userService->createUser($request->validated());
     
             return response()->json([
                 'success' => true,
@@ -175,41 +136,10 @@ class UserController extends Controller
         }
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateUserRequest $request, $id): JsonResponse
     {
-        $validated = $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email,' . $id,
-            'phone_number'          => 'nullable|string|max:20',
-            'password'              => 'nullable|string|min:8|confirmed',
-            'role'                  => 'nullable|exists:roles,role_id',
-            'school'                => 'nullable|exists:school_profiles,school_id',
-            'profile'               => 'nullable|array',
-            // Teacher
-            'profile.nip'               => 'nullable|string|max:50',
-            'profile.nik'               => 'nullable|string|max:20',
-            'profile.full_name'         => 'nullable|string|max:255',
-            'profile.birth_place'       => 'nullable|string|max:100',
-            'profile.birth_date'        => 'nullable|date',
-            'profile.gender'            => 'nullable|string|max:20',
-            'profile.religion'          => 'nullable|string|max:50',
-            'profile.address'           => 'nullable|string',
-            'profile.employment_status' => 'nullable|string|max:50',
-            'profile.position'          => 'nullable|string|max:100',
-            'profile.education_level'   => 'nullable|string|max:10',
-            'profile.major'             => 'nullable|string|max:100',
-            'profile.certification'     => 'nullable|string|max:100',
-            'profile.join_date'         => 'nullable|date',
-            // Student
-            'profile.nis'               => 'nullable|string|max:20',
-            'profile.class_group'       => 'nullable|string|max:50',
-            'profile.enrollment_date'   => 'nullable|date',
-            'profile.city'              => 'nullable|string|max:100',
-            'profile.province'          => 'nullable|string|max:100',
-        ]);
-
         try {
-            $user = $this->userService->updateUser($id, $validated);
+            $user = $this->userService->updateUser($id, $request->validated());
             return response()->json([
                 'success' => true,
                 'message' => 'Data user berhasil diperbarui.',

@@ -53,11 +53,10 @@
                 Role & Permission
             </a>
 
-            <a href="#"
-            {{-- <a href="{{ route('settings.index') }}" --}}
-            class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}">
-                <i class="ri-settings-4-line"></i>
-                Pengaturan Platform
+            <a href="{{ route('audit-logs.index') }}"
+            class="nav-item {{ request()->routeIs('audit-logs.*') ? 'active' : '' }}">
+                <i class="ri-file-list-3-line"></i>
+                Audit Logs
             </a>
 
         @endif

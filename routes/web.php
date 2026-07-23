@@ -17,6 +17,8 @@ use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
+use App\Http\Controllers\SuperAdmin\AuditLogController;
+use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\Teacher\Reports\ScoreReportController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use App\Http\Controllers\UserController;
@@ -59,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
     // ── SUPER-ADMIN ──────────────────────────────────────
     Route::middleware(['role:super-admin'])->group(function () {
 
-        Route::get('/super-admin/dashboard', fn () => view('pages.dash.index'))
+        Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])
             ->name('super-admin.dashboard');
 
         // Roles & Permissions
@@ -97,6 +99,9 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}',             [SchoolController::class, 'destroy'])->name('destroy');
         });
 
+        // Audit Logs
+        Route::get('/audit-logs', [AuditLogController::class, 'index'])
+            ->name('audit-logs.index');
     });
 
 
