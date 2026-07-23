@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::statement('TRUNCATE roles,users,user_has_roles,school_profiles,user_has_schools,students,student_parents,teachers, academic_years, semesters, rooms, subjects, grades, grade_subjects, schedules RESTART IDENTITY CASCADE');
+        DB::statement('TRUNCATE roles,users,user_has_roles,school_profiles,user_has_schools,students,student_parents,teachers, academic_years, semesters, rooms, subjects, grades, grade_subjects, schedules, platform_settings RESTART IDENTITY CASCADE');
         $this->call([
             RoleSeeder::class,
             SchoolSeeder::class,
@@ -31,7 +31,8 @@ class DatabaseSeeder extends Seeder
             SubjectSeeder::class,
             GradeSubjectSeeder::class,
             ScheduleSeeder::class,
-            StudentGradeSeeder::class
+            StudentGradeSeeder::class,
+            PlatformSettingSeeder::class,
         ]);
     }
 }

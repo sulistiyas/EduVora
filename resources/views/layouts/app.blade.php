@@ -114,12 +114,11 @@
 
                         {{-- Menu --}}
                         <div style="padding:4px">
-                            <a href="#" class="dropdown-item">
-                                <i class="ri-user-line"></i> Profil Saya
-                            </a>
-                            <a href="#" class="dropdown-item">
-                                <i class="ri-settings-3-line"></i> Pengaturan
-                            </a>
+                            @if(auth()->user()->hasRole('super-admin'))
+                                <a href="{{ route('platform-settings.index') }}" class="dropdown-item">
+                                    <i class="ri-settings-3-line"></i> Pengaturan
+                                </a>
+                            @endif
                             <div class="dropdown-divider"></div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf

@@ -23,6 +23,7 @@ use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardControll
 use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdmin\PlatformSettingController;
 use App\Http\Controllers\Teacher\Reports\ScoreReportController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use App\Http\Controllers\UserController;
@@ -106,6 +107,12 @@ Route::middleware(['auth'])->group(function () {
         // Audit Logs
         Route::get('/audit-logs', [AuditLogController::class, 'index'])
             ->name('audit-logs.index');
+
+        // Platform Settings
+        Route::get('/settings', [PlatformSettingController::class, 'index'])
+            ->name('platform-settings.index');
+        Route::put('/settings', [PlatformSettingController::class, 'update'])
+            ->name('platform-settings.update');
     });
 
 

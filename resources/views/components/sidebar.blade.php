@@ -59,6 +59,12 @@
                 Audit Logs
             </a>
 
+            <a href="{{ route('platform-settings.index') }}"
+            class="nav-item {{ request()->routeIs('platform-settings.*') ? 'active' : '' }}">
+                <i class="ri-settings-3-line"></i>
+                Pengaturan Platform
+            </a>
+
         @endif
 
         {{-- ══════════════════════════════════
