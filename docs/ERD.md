@@ -1,6 +1,6 @@
 # Entity Relationship Diagram — EduVora
 
-62 tabel di PostgreSQL, diorganisir per domain.
+62 tabel di PostgreSQL, diorganisir per domain. Diagram menggunakan [Mermaid](https://mermaid.js.org/) — render di GitHub/GitLab/VS Code.
 
 ---
 
@@ -16,23 +16,20 @@ erDiagram
         string password
         string profile_picture
         string phone_number
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     roles {
         bigint role_id PK
         string role_name UK
         string role_description
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     user_has_roles {
         bigint user_has_role_id PK
         bigint user_id FK
         bigint role_id FK
-        timestamps
     }
 
     school_profiles {
@@ -40,8 +37,8 @@ erDiagram
         string school_name
         string npsn UK
         string nss UK
-        enum accreditation "A|B|C|D|E"
-        enum school_type "Elementary|Junior High|Senior High"
+        string accreditation
+        string school_type
         string contact_email
         string contact_phone
         string website
@@ -53,16 +50,14 @@ erDiagram
         string logo
         string headmaster_name
         string headmaster_nip
-        tinyint kkm_default
-        enum status "active|inactive"
-        timestamps
+        int kkm_default
+        string status
     }
 
     user_has_schools {
         bigint user_has_school_id PK
         bigint user_id FK
         bigint school_id FK
-        timestamps
     }
 
     users ||--o{ user_has_roles : ""
@@ -83,9 +78,7 @@ erDiagram
         string academic_year_name
         date start_date
         date end_date
-        enum status "active|inactive"
-        timestamp deleted_at
-        timestamps
+        string status
     }
 
     semesters {
@@ -98,8 +91,7 @@ erDiagram
         date midterm_end_date
         date final_start_date
         date final_end_date
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     subjects {
@@ -108,11 +100,10 @@ erDiagram
         string subject_name
         string subject_code UK
         string category
-        tinyint credits
-        tinyint hours_per_week
+        int credits
+        int hours_per_week
         text description
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     rooms {
@@ -120,14 +111,12 @@ erDiagram
         bigint school_id FK
         string room_name
         string code
-        enum type "classroom|lab|library|office|sport"
-        tinyint floor
+        string type
+        int floor
         string building
-        tinyint capacity
+        int capacity
         string facility
-        enum status "available|maintenance|inactive"
-        timestamp deleted_at
-        timestamps
+        string status
     }
 
     grades {
@@ -137,10 +126,8 @@ erDiagram
         bigint room_id FK
         bigint homeroom_teacher_id FK
         string grade_name
-        tinyint level
-        enum status "active|inactive|graduated|archived"
-        timestamp deleted_at
-        timestamps
+        int level
+        string status
     }
 
     grade_subjects {
@@ -148,12 +135,11 @@ erDiagram
         bigint grade_id FK
         bigint subject_id FK
         bigint teacher_id FK
-        tinyint kkm
-        tinyint weight_harian "default 30"
-        tinyint weight_uts "default 30"
-        tinyint weight_uas "default 40"
-        enum status "active|inactive"
-        timestamps
+        int kkm
+        int weight_harian
+        int weight_uts
+        int weight_uas
+        string status
     }
 
     schedules {
@@ -162,12 +148,11 @@ erDiagram
         bigint grade_subject_id FK
         bigint room_id FK
         bigint semester_id FK
-        tinyint day_of_week "1=Mon..7=Sun"
+        int day_of_week
         time start_time
         time end_time
-        enum session_type "regular|lab|exam|extracurricular|remedial"
-        enum status "active|inactive"
-        timestamps
+        string session_type
+        string status
     }
 
     school_profiles ||--o{ academic_years : "has"
@@ -195,7 +180,6 @@ erDiagram
         bigint id PK
         string name
         string email UK
-        timestamps
     }
 
     teachers {
@@ -206,21 +190,20 @@ erDiagram
         string full_name
         string birth_place
         date birth_date
-        enum gender "male|female"
+        string gender
         string religion
         string address
         string phone UK
         string email UK
-        enum employment_status "permanent|contract"
+        string employment_status
         string position
         string grade_level
-        enum education_level "bachelor|master|doctorate"
+        string education_level
         string major
         string certification
         string npwp
         date join_date
-        enum status "active|inactive|retired|suspended"
-        timestamps
+        string status
     }
 
     students {
@@ -231,7 +214,7 @@ erDiagram
         string nick_name
         string email UK
         date birth_date
-        enum gender "male|female"
+        string gender
         string phone_number
         text address
         string city
@@ -240,23 +223,21 @@ erDiagram
         string profile_photo
         bigint grade_id FK
         string class_group
-        enum status "active|inactive|graduated|dropped"
+        string status
         date enrollment_date
         date graduation_date
-        timestamps
     }
 
     student_parents {
         bigint id PK
         bigint student_id FK
         string parent_name
-        enum relationship "father|mother|guardian|other"
+        string relationship
         string email
         string phone_number
         string occupation
         text address
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     student_grade_histories {
@@ -264,9 +245,8 @@ erDiagram
         bigint student_id FK
         bigint grade_id FK
         bigint academic_year_id FK
-        enum status "promoted|repeat|dropout|completed"
+        string status
         text remarks
-        timestamps
     }
 
     users ||--o| teachers : ""
@@ -290,23 +270,21 @@ erDiagram
         bigint grade_id FK
         bigint semester_id FK
         date attendance_date
-        tinyint meeting_number
-        enum status "draft|submitted|approved"
-        boolean is_locked
+        int meeting_number
+        string status
+        bool is_locked
         text notes
         bigint recorded_by FK
-        timestamps
     }
 
     attendance_details {
         bigint attendance_detail_id PK
         bigint attendance_session_id FK
         bigint student_id FK
-        enum status "H|I|S|A|L"
+        string status
         text note
         string attachment
         timestamp notified_at
-        timestamps
     }
 
     attendance_sessions ||--o{ attendance_details : ""
@@ -322,12 +300,11 @@ erDiagram
         bigint score_session_id PK
         bigint grade_subject_id FK
         bigint semester_id FK
-        enum score_type "daily|assignment|mid_exam|final_exam"
+        string score_type
         string title
         text description
         date score_date
-        boolean is_published
-        timestamps
+        bool is_published
     }
 
     score_details {
@@ -335,9 +312,8 @@ erDiagram
         bigint score_session_id FK
         bigint student_id FK
         decimal score
-        decimal max_score "default 100"
+        decimal max_score
         string notes
-        timestamps
     }
 
     report_cards {
@@ -347,9 +323,8 @@ erDiagram
         bigint semester_id FK
         decimal gpa
         decimal final_score
-        enum status "draft|published|archived"
+        string status
         text comments
-        timestamps
     }
 
     report_card_details {
@@ -362,7 +337,6 @@ erDiagram
         decimal final_score
         string grade_letter
         text remarks
-        timestamps
     }
 
     score_sessions ||--o{ score_details : ""
@@ -379,12 +353,11 @@ erDiagram
         bigint id PK
         bigint subject_id FK
         bigint teacher_id FK
-        enum question_type "multiple_choice|essay|true_false|short_answer"
+        string question_type
         text content
         text options
         text answer_key
         string difficulty
-        timestamps
     }
 
     exams {
@@ -393,22 +366,20 @@ erDiagram
         bigint grade_id FK
         bigint semester_id FK
         string exam_name
-        enum exam_type "uts|uas|quiz|remedial|placement|other"
+        string exam_type
         datetime start_date
         datetime end_date
         int duration_minutes
         decimal total_score
         text instructions
-        enum status "draft|published|closed"
-        timestamps
+        string status
     }
 
     exam_questions {
         bigint id PK
         bigint exam_id FK
         bigint question_bank_id FK
-        decimal point_value "default 1"
-        timestamps
+        decimal point_value
     }
 
     exam_sessions {
@@ -418,8 +389,7 @@ erDiagram
         datetime started_at
         datetime finished_at
         decimal score
-        enum status "scheduled|in_progress|completed|cancelled"
-        timestamps
+        string status
     }
 
     exam_answers {
@@ -428,8 +398,7 @@ erDiagram
         bigint exam_question_id FK
         text answer_text
         decimal score
-        boolean is_correct
-        timestamps
+        bool is_correct
     }
 
     exams ||--o{ exam_questions : ""
@@ -455,8 +424,7 @@ erDiagram
         date assigned_date
         date due_date
         string attachment
-        enum status "draft|published|closed"
-        timestamps
+        string status
     }
 
     assigment_submissions {
@@ -465,10 +433,9 @@ erDiagram
         bigint student_id FK
         datetime submitted_at
         string file_path
-        enum status "pending|submitted|graded"
+        string status
         decimal score
         text feedback
-        timestamps
     }
 
     assigments ||--o{ assigment_submissions : ""
@@ -484,9 +451,8 @@ erDiagram
         bigint id PK
         string name
         text description
-        enum category "tuition|registration|book|activity|other"
-        enum status "active|inactive"
-        timestamps
+        string category
+        string status
     }
 
     fee_settings {
@@ -495,9 +461,8 @@ erDiagram
         bigint grade_id FK
         bigint academic_year_id FK
         decimal amount
-        enum period "monthly|semester|yearly|one_time"
-        enum status "active|inactive"
-        timestamps
+        string period
+        string status
     }
 
     student_invoices {
@@ -507,9 +472,8 @@ erDiagram
         string invoice_number UK
         decimal amount
         date due_date
-        enum status "unpaid|partial|paid|overdue"
+        string status
         text notes
-        timestamps
     }
 
     payments {
@@ -520,7 +484,6 @@ erDiagram
         string payment_method
         string reference_number
         text notes
-        timestamps
     }
 
     payrolls {
@@ -532,9 +495,8 @@ erDiagram
         decimal allowances
         decimal deductions
         decimal net_salary
-        enum status "draft|pending|paid"
+        string status
         date payment_date
-        timestamps
     }
 
     scholarships {
@@ -542,11 +504,10 @@ erDiagram
         string name
         text description
         decimal amount
-        enum type "full|partial|tuition_waiver"
+        string type
         date start_date
         date end_date
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     scholarship_recipients {
@@ -555,21 +516,19 @@ erDiagram
         bigint student_id FK
         date start_date
         date end_date
-        enum status "active|suspended|completed"
+        string status
         text notes
-        timestamps
     }
 
     finance_transactions {
         bigint id PK
         string transaction_number UK
-        enum type "income|expense"
+        string type
         string category
         decimal amount
         date transaction_date
         text description
         bigint recorded_by FK
-        timestamps
     }
 
     fee_types ||--o{ fee_settings : ""
@@ -590,21 +549,19 @@ erDiagram
         string isbn UK
         string author
         string publisher
-        year publish_year
+        int publish_year
         string category
         text description
         string cover_image
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     book_copies {
         bigint id PK
         bigint book_id FK
         string copy_number UK
-        enum condition "good|damaged|lost"
-        enum status "available|borrowed|reserved"
-        timestamps
+        string condition
+        string status
     }
 
     book_loans {
@@ -614,9 +571,8 @@ erDiagram
         date loan_date
         date due_date
         date return_date
-        enum status "borrowed|returned|overdue"
+        string status
         text notes
-        timestamps
     }
 
     books ||--o{ book_copies : ""
@@ -639,8 +595,7 @@ erDiagram
         string condition
         date purchase_date
         decimal value
-        enum status "available|in_use|maintenance"
-        timestamps
+        string status
     }
 
     asset_loans {
@@ -651,8 +606,7 @@ erDiagram
         date return_date
         int quantity
         text purpose
-        enum status "borrowed|returned"
-        timestamps
+        string status
     }
 
     assets ||--o{ asset_loans : ""
@@ -669,11 +623,10 @@ erDiagram
         bigint posted_by FK
         string title
         text content
-        enum target "all|students|teachers|parents"
+        string target
         date publish_date
         date expired_date
-        enum status "draft|published|archived"
-        timestamps
+        string status
     }
 
     messages {
@@ -682,9 +635,8 @@ erDiagram
         bigint receiver_id FK
         string subject
         text content
-        enum type "inbox|sent"
-        boolean is_read
-        timestamps
+        string type
+        bool is_read
     }
 
     notifications {
@@ -693,8 +645,7 @@ erDiagram
         string title
         text message
         string type
-        boolean is_read
-        timestamps
+        bool is_read
     }
 ```
 
@@ -713,8 +664,7 @@ erDiagram
         time meeting_time
         string meeting_day
         string location
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     extracurriculars_members {
@@ -722,8 +672,7 @@ erDiagram
         bigint extracurricular_id FK
         bigint student_id FK
         date join_date
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     achievements {
@@ -735,7 +684,6 @@ erDiagram
         string level
         date achievement_date
         string certificate
-        timestamps
     }
 
     violation_types {
@@ -743,8 +691,7 @@ erDiagram
         string name
         text description
         int point
-        enum status "active|inactive"
-        timestamps
+        string status
     }
 
     violations {
@@ -754,9 +701,8 @@ erDiagram
         bigint reported_by FK
         text description
         date violation_date
-        enum status "pending|investigated|resolved"
+        string status
         text resolution
-        timestamps
     }
 
     counselling_sessions {
@@ -767,8 +713,7 @@ erDiagram
         text topic
         text notes
         text follow_up
-        enum status "scheduled|completed|cancelled"
-        timestamps
+        string status
     }
 
     leave_requests {
@@ -777,20 +722,18 @@ erDiagram
         date start_date
         date end_date
         text reason
-        enum status "pending|approved|rejected"
+        string status
         bigint approved_by FK
-        timestamps
     }
 
     registrations {
         bigint id PK
         bigint student_id FK
         date registration_date
-        enum registration_type "new|transfer|re_registration"
+        string registration_type
         bigint grade_id FK
-        enum status "pending|approved|rejected"
+        string status
         text notes
-        timestamps
     }
 
     teaching_journals {
@@ -802,8 +745,7 @@ erDiagram
         text material_covered
         text activities
         text reflection
-        enum status "draft|submitted"
-        timestamps
+        string status
     }
 
     extracurriculars ||--o{ extracurriculars_members : ""
@@ -826,7 +768,6 @@ erDiagram
         text old_values
         text new_values
         string ip_address
-        timestamps
     }
 ```
 
@@ -866,11 +807,11 @@ users ──┬── user_has_roles ──── roles
 | `PK` | Primary Key |
 | `FK` | Foreign Key |
 | `UK` | Unique Key |
-| `enum` | Tipe data enum (PostgreSQL) |
 | `nullable` | Boleh NULL |
 | `CASCADE` | Hapus record terkait jika parent dihapus |
 | `SET NULL` | Set ke NULL jika parent dihapus |
-| `timestamps` | Kolom `created_at` & `updated_at` |
+
+---
 
 ## Total: 62 Tabel
 
