@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Class;
 
+use App\Http\Requests\StoreGradeRequest;
+use App\Http\Requests\UpdateGradeRequest;
 use App\Http\Controllers\Controller;
 use App\Services\GradesService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -210,10 +212,10 @@ class GradesController extends Controller
         return response()->json($grade);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreGradeRequest $request): JsonResponse
     {
         try {
-            $grade = $this->gradeService->createGrade($request->all());
+            $grade = $this->gradeService->createGrade($request->validated());
 
             return response()->json([
                 'success' => true,
@@ -228,9 +230,9 @@ class GradesController extends Controller
         }
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateGradeRequest $request, $id): JsonResponse
     {
-        $grade = $this->gradeService->updateGrade($id, $request->all());
+        $grade = $this->gradeService->updateGrade($id, $request->validated());
 
         if (!$grade) {
             return response()->json(['success' => false, 'message' => 'Kelas tidak ditemukan.'], 404);

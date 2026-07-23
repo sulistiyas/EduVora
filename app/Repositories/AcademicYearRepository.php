@@ -2,24 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Concerns\HasSchoolScope;
 use App\Models\Academic\AcademicYear;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class AcademicYearRepository
 {
-
-    private function getAuthSchoolId(): int
-    {
-        $schoolId = Auth::user()->schools->first()->school_id ?? null;
-
-        if (!$schoolId) {
-            throw new \Exception('Admin tidak terkait dengan sekolah manapun.');
-        }
-
-        return $schoolId;
-    }
+    use HasSchoolScope;
 
     public function getAllAcademicYears(array $filters = []): LengthAwarePaginator|Collection
     {
@@ -69,7 +59,7 @@ class AcademicYearRepository
 
     public function getAcademicYearById($id)
     {
-        return AcademicYear::find($id);
+        return AcademicYear::where('school_id', $this->getAuthSchoolId())->find($id);
     }
 
     public function createAcademicYear($data)

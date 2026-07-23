@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Class;
 
+use App\Http\Requests\StoreRoomRequest;
+use App\Http\Requests\UpdateRoomRequest;
 use App\Http\Controllers\Controller;
 use App\Services\RoomsService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -67,10 +69,9 @@ class RoomsController extends Controller
         return response()->json($room);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreRoomRequest $request): JsonResponse
     {
-        
-        $room = $this->roomsService->createRoom($request->all());
+        $room = $this->roomsService->createRoom($request->validated());
 
         return response()->json([
             'success' => true,
@@ -79,9 +80,9 @@ class RoomsController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateRoomRequest $request, $id): JsonResponse
     {
-        $room = $this->roomsService->updateRoom($id, $request->all());
+        $room = $this->roomsService->updateRoom($id, $request->validated());
 
         if (!$room) {
             return response()->json(['success' => false, 'message' => 'Ruangan tidak ditemukan.'], 404);

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Services\Teacher\DashboardService;
+use App\Services\Student\DashboardService;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardController extends Controller
+class StudentDashboardController extends Controller
 {
     public function __construct(
         protected DashboardService $dashboardService
@@ -18,6 +18,6 @@ class DashboardController extends Controller
 
         $data = $this->dashboardService->getDashboardData($user->id);
 
-        return view('pages.dash.teacher_dash', $data);
+        return view('pages.student.dash', $data);
     }
 }

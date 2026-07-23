@@ -2,11 +2,14 @@
 
 namespace App\Repositories\Academic;
 
+use App\Concerns\HasSchoolScope;
 use App\Models\Academic\Schedule;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ScheduleRepository
 {
+    use HasSchoolScope;
+
     /**
      * Paginate schedules with eager-loaded relations.
      */
@@ -19,6 +22,9 @@ class ScheduleRepository
                 'room',
                 'semester',
             ])
+            ->whereHas('gradeSubject.grade', function ($q) {
+                $q->where('school_id', $this->getAuthSchoolId());
+            })
             ->when(
                 ! empty($filters['search']),
                 fn ($q) => $q->whereHas(
@@ -74,7 +80,7 @@ class ScheduleRepository
                 ! empty($filters['session_type']),
                 fn ($q) => $q->where('session_type', $filters['session_type'])
             )
-            ->where('status', Schedule::STATUS_ACTIVE) // teacher hanya lihat yang aktif
+            ->where('status', Schedule::STATUS_ACTIVE)
             ->orderByTime()
             ->paginate($perPage);
     }
@@ -90,7 +96,9 @@ class ScheduleRepository
             'gradeSubject.teacher',
             'room',
             'semester',
-        ])->find($id);
+        ])->whereHas('gradeSubject.grade', function ($q) {
+            $q->where('school_id', $this->getAuthSchoolId());
+        })->find($id);
     }
 
     /**

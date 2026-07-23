@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Requests\StoreRoleRequest;
+use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Controllers\Controller;
 use App\Services\RolesService;
 use Illuminate\Http\JsonResponse;
@@ -55,23 +57,19 @@ class RolesController extends Controller
         return view('pages.roles.index');
     }
 
-    public function create(){
-        
-    }
-
     public function show($id)
     {
         return response()->json($this->rolesService->getRoleById($id));
     }
 
-    public function store(Request $request)
+    public function store(StoreRoleRequest $request)
     {
-        return response()->json($this->rolesService->createRole($request->all()));
+        return response()->json($this->rolesService->createRole($request->validated()));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateRoleRequest $request, $id)
     {
-        return response()->json($this->rolesService->updateRole($id, $request->all()));
+        return response()->json($this->rolesService->updateRole($id, $request->validated()));
     }
 
     public function toggleStatus($id): JsonResponse

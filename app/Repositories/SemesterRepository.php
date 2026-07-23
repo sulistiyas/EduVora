@@ -2,25 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Concerns\HasSchoolScope;
 use App\Models\Academic\Semester;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class SemesterRepository
 {
-    // ─── Private Helper ────────────────────────────────────────────────────────
-
-    private function getAuthSchoolId(): int
-    {
-        $schoolId = Auth::user()->schools->first()->school_id ?? null;
-
-        if (!$schoolId) {
-            throw new \Exception('Admin tidak terkait dengan sekolah manapun.');
-        }
-
-        return $schoolId;
-    }
+    use HasSchoolScope;
 
     // ─── Read ──────────────────────────────────────────────────────────────────
 
@@ -122,13 +111,23 @@ class SemesterRepository
                     'status',
                 ]);
             }
-        ])->find($id);
+        ])->whereHas('academicYear', function ($q) {
+            $q->where('school_id', $this->getAuthSchoolId());
+        })->find($id);
     }
 
     // ─── Write ─────────────────────────────────────────────────────────────────
 
     public function createSemester(array $data): Semester
     {
+        $academicYear = \App\Models\Academic\AcademicYear::where('academic_year_id', $data['academic_year_id'])
+            ->where('school_id', $this->getAuthSchoolId())
+            ->first();
+
+        if (!$academicYear) {
+            throw new \Exception('Tahun ajaran tidak ditemukan atau bukan milik sekolah ini.');
+        }
+
         return Semester::create($data);
     }
 

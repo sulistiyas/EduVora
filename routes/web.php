@@ -13,7 +13,7 @@ use App\Http\Controllers\School\StudentController;
 use App\Http\Controllers\School\StudentScoreController;
 use App\Http\Controllers\School\TeacherController;
 use App\Http\Controllers\SchoolController;
-use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
@@ -65,7 +65,6 @@ Route::middleware(['auth'])->group(function () {
         // Roles & Permissions
         Route::prefix('roles')->name('roles.')->group(function () {
             Route::get('/',                    [RolesController::class, 'index'])->name('index');
-            Route::get('/create',              [RolesController::class, 'create'])->name('create');
             Route::post('/',                   [RolesController::class, 'store'])->name('store');
             Route::get('/{id}',                [RolesController::class, 'show'])->name('show');
             Route::put('/{id}',                [RolesController::class, 'update'])->name('update');
@@ -90,7 +89,6 @@ Route::middleware(['auth'])->group(function () {
         // School Management
         Route::prefix('school-management')->name('school-management.')->group(function () {
             Route::get('/',                    [SchoolController::class, 'index'])->name('index');
-            Route::get('/create',              [SchoolController::class, 'create'])->name('create');
             Route::post('/',                   [SchoolController::class, 'store'])->name('store');
             Route::get('/{id}',                [SchoolController::class, 'show'])->name('show');
             Route::get('/{id}/detail',         [SchoolController::class, 'detail'])->name('detail');
@@ -111,7 +109,6 @@ Route::middleware(['auth'])->group(function () {
         // Academic Year
         Route::prefix('academic-year')->name('academic-year.')->group(function () {
             Route::get('/',                    [AcademicYearController::class, 'index'])->name('index');
-            Route::get('/create',              [AcademicYearController::class, 'create'])->name('create');
             Route::post('/',                   [AcademicYearController::class, 'store'])->name('store');
             Route::get('/{id}',                [AcademicYearController::class, 'show'])->name('show');
             Route::put('/{id}',                [AcademicYearController::class, 'update'])->name('update');
@@ -123,7 +120,6 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('semesters')->name('semesters.')->group(function () {
             Route::get('/',                    [SemesterController::class, 'index'])->name('index');
             Route::get('/academic-years',      [SemesterController::class, 'getAcademicYears'])->name('academic-years');
-            Route::get('/create',              [SemesterController::class, 'create'])->name('create');
             Route::post('/',                   [SemesterController::class, 'store'])->name('store');
             Route::get('/{id}',                [SemesterController::class, 'show'])->name('show');
             Route::put('/{id}',                [SemesterController::class, 'update'])->name('update');
@@ -134,7 +130,6 @@ Route::middleware(['auth'])->group(function () {
         // Rooms
         Route::prefix('rooms')->name('rooms.')->group(function () {
             Route::get('/',                    [RoomsController::class, 'index'])->name('index');
-            Route::get('/create',              [RoomsController::class, 'create'])->name('create');
             Route::post('/',                   [RoomsController::class, 'store'])->name('store');
             Route::get('/{id}',                [RoomsController::class, 'show'])->name('show');
             Route::put('/{id}',                [RoomsController::class, 'update'])->name('update');
@@ -188,7 +183,6 @@ Route::middleware(['auth'])->group(function () {
         // Subjects
         Route::prefix('subjects')->name('subjects.')->group(function () {
             Route::get('/',                    [SubjectController::class, 'index'])->name('index');
-            Route::get('/create',              [SubjectController::class, 'create'])->name('create');
             Route::post('/',                   [SubjectController::class, 'store'])->name('store');
             Route::get('/{id}',                [SubjectController::class, 'show'])->name('show');
             Route::put('/{id}',                [SubjectController::class, 'update'])->name('update');
@@ -243,7 +237,6 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('student-scores')->name('student-scores.')->group(function () {
             Route::get('/', [StudentScoreController::class, 'index'])->name('index');
             Route::post('/', [StudentScoreController::class, 'store'])->name('store');
-            Route::get('/final-score', [StudentScoreController::class, 'finalScore'])->name('final-score');
             Route::get('/{id}', [StudentScoreController::class, 'show'])->name('show');
             Route::put('/{id}', [StudentScoreController::class, 'update'])->name('update');
             Route::delete('/{id}', [StudentScoreController::class, 'destroy'])->name('destroy');
@@ -321,10 +314,6 @@ Route::middleware(['auth'])->group(function () {
     
             // Delete session
             Route::delete('/{id}',    [StudentScoreController::class, 'destroy'])->name('destroy');
-    
-            // Dropdown helpers
-            Route::get('/data/semesters',     [StudentScoreController::class, 'semesters'])->name('semesters');
-            Route::get('/data/grade-subjects',[StudentScoreController::class, 'gradeSubjects'])->name('grade-subjects');
         });
 
         Route::get('/grade-subjects', [
@@ -332,21 +321,14 @@ Route::middleware(['auth'])->group(function () {
             'gradeSubjects'
         ])->name('grade-subjects');
 
-        Route::get('/students', [
-            StudentScoreController::class,
-            'students'
-        ])->name('students');
-
         Route::prefix('reports/attendance')->name('reports.attendance.')->group(function () {
             Route::get('/',          [AttendanceReportController::class, 'index'])->name('index');
-            Route::get('/students',  [AttendanceReportController::class, 'studentSummary'])->name('students');
             Route::get('/export',    [AttendanceReportController::class, 'export'])->name('export');
             Route::get('/{session}', [AttendanceReportController::class, 'show'])->name('show');
         });
 
         Route::prefix('reports/score')->name('reports.score.')->group(function(){
             Route::get('/',          [ScoreReportController::class, 'index'])->name('index');
-            Route::get('/students',  [ScoreReportController::class, 'studentSummary'])->name('students');
             Route::get('/export',    [ScoreReportController::class, 'export'])->name('export');
             Route::get('/{session}', [ScoreReportController::class, 'show'])->name('show');
         });
@@ -355,20 +337,9 @@ Route::middleware(['auth'])->group(function () {
 
     // ── STUDENT ──────────────────────────────────────────
     Route::middleware(['role:student'])->prefix('student')->name('student.')->group(function () {
-
-        // Route::get('/dashboard', [StudentDashboardController::class, 'index'])
-        //     ->name('dashboard');
-
-        // Siap dikembangkan:
-        // Route::prefix('grades')->name('grades.')->group(function () { ... });
-        // Route::prefix('attendance')->name('attendance.')->group(function () { ... });
-        // Route::prefix('assignments')->name('assignments.')->group(function () { ... });
-        // Route::prefix('scores')->name('scores.')->group(function () {
-        //     Route::get('/', [StudentScoreController::class, 'index'])->name('index');
-        //     Route::get('/final-score', [StudentScoreController::class, 'finalScore'])->name('final-score');
-        //     Route::get('/{id}', [StudentScoreController::class, 'show'])->name('show');
-        //     // Student hanya bisa lihat, tidak bisa store/update/delete
-        // });
+        Route::get('/dashboard', [StudentDashboardController::class, 'index'])
+            ->name('dashboard');
+        
     });
 
 });

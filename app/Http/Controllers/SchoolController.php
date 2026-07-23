@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSchoolRequest;
+use App\Http\Requests\UpdateSchoolRequest;
 use App\Services\SchoolService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -69,19 +71,14 @@ class SchoolController extends Controller
         return view('pages.schools.detail', compact('school'));
     }
 
-    public function create()
+    public function store(StoreSchoolRequest $request)
     {
-        // return view('pages.schools.create');
+        return response()->json($this->schoolService->createSchool($request->validated()));
     }
 
-    public function store(Request $request)
+    public function update(UpdateSchoolRequest $request, $id)
     {
-        return response()->json($this->schoolService->createSchool($request->all()));
-    }
-
-    public function update(Request $request, $id)
-    {
-        return response()->json($this->schoolService->updateSchool($id, $request->all()));
+        return response()->json($this->schoolService->updateSchool($id, $request->validated()));
     }
 
     public function toggleStatus($id): JsonResponse

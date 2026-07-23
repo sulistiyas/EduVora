@@ -2,29 +2,18 @@
 
 namespace App\Repositories;
 
+use App\Concerns\HasSchoolScope;
 use App\Models\Academic\Grade;
 use App\Models\Academic\Room;
 use App\Models\Teacher\Teacher;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Student\Student;
 use Illuminate\Support\Facades\DB;
 
 class GradesRepository
 {
-    // ─── Private Helper ────────────────────────────────────────────────────────
-
-    private function getAuthSchoolId(): int
-    {
-        $schoolId = Auth::user()->schools->first()->school_id ?? null;
-
-        if (!$schoolId) {
-            throw new \Exception('Admin tidak terkait dengan sekolah manapun.');
-        }
-
-        return $schoolId;
-    }
+    use HasSchoolScope;
 
     // ─── Read ──────────────────────────────────────────────────────────────────
 
@@ -141,7 +130,7 @@ class GradesRepository
                 'full_name',
                 'gender',
             ]),
-        ])->find($id);
+        ])->where('school_id', $this->getAuthSchoolId())->find($id);
     }
 
     // ─── Dropdown Data ─────────────────────────────────────────────────────────
@@ -349,6 +338,9 @@ class GradesRepository
 
         $student = Student::where('id', $studentId)
             ->where('grade_id', $grade->grade_id)
+            ->whereHas('user.schools', function ($q) use ($schoolId) {
+                $q->where('school_profiles.school_id', $schoolId);
+            })
             ->first();
 
         if (!$student) {
@@ -377,6 +369,9 @@ class GradesRepository
         }
 
         Student::where('grade_id', $grade->grade_id)
+            ->whereHas('user.schools', function ($q) use ($schoolId) {
+                $q->where('school_profiles.school_id', $schoolId);
+            })
             ->update([
                 'grade_id' => null,
                 'updated_at' => now(),

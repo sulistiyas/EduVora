@@ -2,23 +2,14 @@
 
 namespace App\Repositories\Academic;
 
+use App\Concerns\HasSchoolScope;
 use App\Models\Academic\Subject;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class SubjectsRepository 
 {
-    private function getAuthSchoolId(): int
-    {
-        $schoolId = Auth::user()->schools->first()->school_id ?? null;
-
-        if (!$schoolId) {
-            throw new \Exception('Admin tidak terkait dengan sekolah manapun.');
-        }
-
-        return $schoolId;
-    }
+    use HasSchoolScope;
 
     public function getAllSubjects(array $filters = []): LengthAwarePaginator|Collection
     {
@@ -72,7 +63,7 @@ class SubjectsRepository
 
     public function getSubjectById($id)
     {
-        return Subject::find($id);
+        return Subject::where('school_id', $this->getAuthSchoolId())->find($id);
     }
 
     public function createSubject($data)
@@ -93,12 +84,12 @@ class SubjectsRepository
 
     public function toggleStatus($id): ?Subject
     {
-        $students = Subject::find($id);
-        if ($students) {
-            $students->update([
-                'status' => $students->status === 'active' ? 'inactive' : 'active',
+        $subject = Subject::where('school_id', $this->getAuthSchoolId())->find($id);
+        if ($subject) {
+            $subject->update([
+                'status' => $subject->status === 'active' ? 'inactive' : 'active',
             ]);
-            return $students;
+            return $subject;
         }
         return null;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Academic;
 
+use App\Http\Requests\StoreSemesterRequest;
+use App\Http\Requests\UpdateSemesterRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Academic\AcademicYear;
 use App\Services\SemesterService;
@@ -79,9 +81,9 @@ class SemesterController extends Controller
         return response()->json($semester);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreSemesterRequest $request): JsonResponse
     {
-        $semester = $this->semesterService->createSemester($request->all());
+        $semester = $this->semesterService->createSemester($request->validated());
 
         return response()->json([
             'success' => true,
@@ -90,9 +92,9 @@ class SemesterController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateSemesterRequest $request, $id): JsonResponse
     {
-        $semester = $this->semesterService->updateSemester($id, $request->all());
+        $semester = $this->semesterService->updateSemester($id, $request->validated());
 
         if (!$semester) {
             return response()->json(['success' => false, 'message' => 'Semester tidak ditemukan.'], 404);

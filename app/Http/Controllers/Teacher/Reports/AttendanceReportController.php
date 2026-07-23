@@ -54,11 +54,19 @@ class AttendanceReportController extends Controller
 
     public function show(int $sessionId)
     {
+        $teacher = Auth::user()->teacher;
+
         $session = AttendanceSession::with([
             'grade:grade_id,grade_name',
             'subject:id,subject_name',
             'semester:semester_id,semester_name',
         ])->findOrFail($sessionId);
+
+        abort_if(
+            $session->teacher_id !== $teacher->teacher_id,
+            403,
+            'Anda tidak memiliki akses ke sesi ini.'
+        );
 
         $detail = $this->service->getSessionDetail($sessionId);
 

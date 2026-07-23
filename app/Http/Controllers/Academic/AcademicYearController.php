@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Academic;
 
+use App\Http\Requests\StoreAcademicYearRequest;
+use App\Http\Requests\UpdateAcademicYearRequest;
 use App\Http\Controllers\Controller;
 use App\Services\AcademicYearService;
 use Illuminate\Http\RedirectResponse;
@@ -59,14 +61,14 @@ class AcademicYearController extends Controller
         return response()->json($this->academicYearService->getAcademicYearById($id));
     }
 
-    public function store(Request $request)
+    public function store(StoreAcademicYearRequest $request)
     {
-        return response()->json($this->academicYearService->createAcademicYear($request->all()));
+        return response()->json($this->academicYearService->createAcademicYear($request->validated()));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateAcademicYearRequest $request, $id)
     {
-        return response()->json($this->academicYearService->updateAcademicYear($id, $request->all()));
+        return response()->json($this->academicYearService->updateAcademicYear($id, $request->validated()));
     }
 
     public function toggleStatus($id): JsonResponse

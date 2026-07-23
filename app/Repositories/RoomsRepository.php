@@ -2,25 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Concerns\HasSchoolScope;
 use App\Models\Academic\Room;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class RoomsRepository
 {
-    // ─── Private Helper ────────────────────────────────────────────────────────
-
-    private function getAuthSchoolId(): int
-    {
-        $schoolId = Auth::user()->schools->first()->school_id ?? null;
-
-        if (!$schoolId) {
-            throw new \Exception('Admin tidak terkait dengan sekolah manapun.');
-        }
-
-        return $schoolId;
-    }
+    use HasSchoolScope;
 
     // ─── Read ──────────────────────────────────────────────────────────────────
 
@@ -121,7 +110,9 @@ class RoomsRepository
                     'status',
                 ]);
             }
-        ])->find($id);
+        ])->whereHas('school', function ($q) {
+            $q->where('school_id', $this->getAuthSchoolId());
+        })->find($id);
     }
 
     // ─── Write ─────────────────────────────────────────────────────────────────

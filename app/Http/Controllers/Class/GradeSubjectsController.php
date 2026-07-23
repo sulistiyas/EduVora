@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Class;
 
+use App\Http\Requests\StoreGradeSubjectRequest;
+use App\Http\Requests\UpdateGradeSubjectRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Academic\GradeSubjectsService;
@@ -25,10 +27,10 @@ class GradeSubjectsController extends Controller
      * POST /grades/{gradeId}/subjects
      * Assign mapel baru ke kelas
      */
-    public function store(Request $request, $gradeId): JsonResponse
+    public function store(StoreGradeSubjectRequest $request, $gradeId): JsonResponse
     {
         try {
-            $item = $this->service->assignSubject($gradeId, $request->all());
+            $item = $this->service->assignSubject($gradeId, $request->validated());
             return response()->json([
                 'success' => true,
                 'message' => 'Mata pelajaran berhasil ditambahkan ke kelas.',
@@ -43,10 +45,10 @@ class GradeSubjectsController extends Controller
      * PATCH /grades/{gradeId}/subjects/{id}
      * Update teacher / KKM / bobot untuk 1 baris grade_subject
      */
-    public function update(Request $request, $gradeId, $id): JsonResponse
+    public function update(UpdateGradeSubjectRequest $request, $gradeId, $id): JsonResponse
     {
         try {
-            $item = $this->service->updateSubject($gradeId, $id, $request->all());
+            $item = $this->service->updateSubject($gradeId, $id, $request->validated());
             if (!$item) {
                 return response()->json(['success' => false, 'message' => 'Data tidak ditemukan.'], 404);
             }

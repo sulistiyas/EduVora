@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Academic;
 
+use App\Http\Requests\StoreSubjectRequest;
+use App\Http\Requests\UpdateSubjectRequest;
 use App\Http\Controllers\Controller;
 use App\Services\Academic\SubjectsService;
 use Illuminate\Http\RedirectResponse;
@@ -59,14 +61,14 @@ class SubjectController extends Controller
         return response()->json($this->subjectService->getSubjectById($id));
     }
 
-    public function store(Request $request)
+    public function store(StoreSubjectRequest $request)
     {
-        return response()->json($this->subjectService->createSubject($request->all()));
+        return response()->json($this->subjectService->createSubject($request->validated()));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateSubjectRequest $request, $id)
     {
-        return response()->json($this->subjectService->updateSubject($id, $request->all()));
+        return response()->json($this->subjectService->updateSubject($id, $request->validated()));
     }
 
     public function toggleStatus($id): JsonResponse
