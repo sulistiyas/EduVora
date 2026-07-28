@@ -112,11 +112,17 @@ class DashboardService
 
         $jadwalHariIni = count($todaySchedules);
 
+        $pendingSubmissionsCount = DB::table('assigment_submissions as sub')
+            ->join('assigments as a', 'a.id', '=', 'sub.assigment_id')
+            ->where('a.teacher_id', $teacherId)
+            ->where('sub.status', 'submitted')
+            ->count();
+
         $statistics = [
             'total_kelas' => $totalKelas,
             'total_siswa' => $totalSiswa,
             'jadwal_hari_ini' => $jadwalHariIni,
-            'tugas_belum_dinilai' => 0,
+            'tugas_belum_dinilai' => $pendingSubmissionsCount,
             'absensi_belum_diisi' => 0,
         ];
 

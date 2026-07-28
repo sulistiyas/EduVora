@@ -30,6 +30,8 @@ class AssigmentSubmission extends Model
         'submitted_at',
         'file_path',
         'feedback',
+        'status',
+        'score',
     ];
 
     /**
@@ -53,5 +55,25 @@ class AssigmentSubmission extends Model
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
+    }
+
+    public function statusLabel()
+    {
+        return match ($this->status) {
+            'pending' => 'Belum Dikumpulkan',
+            'submitted' => 'Terkumpul',
+            'graded' => 'Dinilai',
+            default => 'Unknown',
+        };
+    }
+
+    public function isGraded()
+    {
+        return $this->status === 'graded';
+    }
+
+    public function isSubmitted()
+    {
+        return $this->status === 'submitted' || $this->status === 'graded';
     }
 }

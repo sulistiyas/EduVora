@@ -4,7 +4,9 @@ namespace App\Models\Exam;
 
 use App\Models\Academic\Grade;
 use App\Models\Academic\Subject;
+use App\Models\Core\SchoolProfiles;
 use App\Models\Teacher\Teacher;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Assigment extends Model
@@ -34,6 +36,8 @@ class Assigment extends Model
         'assigned_date',
         'due_date',
         'attachment',
+        'school_id',
+        'status',
     ];
 
     /**
@@ -65,5 +69,35 @@ class Assigment extends Model
     public function teacher()
     {
         return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
+
+    public function school()
+    {
+        return $this->belongsTo(SchoolProfiles::class, 'school_id');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(AssigmentSubmission::class, 'assigment_id');
+    }
+
+    public function scopeForSchool(Builder $query, $schoolId)
+    {
+        return $query->where('school_id', $schoolId);
+    }
+
+    public function isOverdue()
+    {
+        return $this->due_date && $this->due_date->isPast();
+    }
+
+    public function submissionCount()
+    {
+        return $this->submissions()->where('status', '!=', 'pending')->count();
+    }
+
+    public function gradedCount()
+    {
+        return $this->submissions()->where('status', 'graded')->count();
     }
 }

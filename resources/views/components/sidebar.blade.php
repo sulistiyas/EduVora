@@ -210,6 +210,12 @@
                 Input Nilai
             </a>
 
+            <a href="{{ route('teacher.assignments.index') }}" 
+               class="nav-item {{ request()->routeIs('teacher.assignments.*') ? 'active' : '' }}">
+                <i class="ri-file-list-2-line"></i>
+                Tugas
+            </a>
+
             <div class="nav-section-label" style="margin-top:8px;">Reports</div>
 
             <a href="{{ route('teacher.reports.attendance.index') }}"
@@ -278,6 +284,12 @@
             <a href="{{ route('student.scores') }}" class="nav-item {{ request()->routeIs('student.scores') ? 'active' : '' }}">
                 <i class="ri-bar-chart-2-line"></i>
                 Nilai Saya
+            </a>
+
+            <a href="{{ route('student.assignments.index') }}" 
+               class="nav-item {{ request()->routeIs('student.assignments.*') ? 'active' : '' }}">
+                <i class="ri-file-list-2-line"></i>
+                Tugas
             </a>
 
         @endif

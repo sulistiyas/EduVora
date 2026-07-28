@@ -23,11 +23,13 @@ use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\PlatformSettingController;
+use App\Http\Controllers\Teacher\AssignmentController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardController;
 use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
 use App\Http\Controllers\Teacher\Reports\ScoreReportController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
+use App\Http\Controllers\Student\StudentAssignmentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -354,6 +356,17 @@ Route::middleware(['auth'])->group(function () {
             'gradeSubjects',
         ])->name('grade-subjects');
 
+        Route::prefix('assignments')->name('assignments.')->group(function () {
+            Route::get('/', [AssignmentController::class, 'index'])->name('index');
+            Route::post('/', [AssignmentController::class, 'store'])->name('store');
+            Route::get('/data/grade-subjects', [AssignmentController::class, 'gradeSubjects'])->name('grade-subjects');
+            Route::get('/{id}', [AssignmentController::class, 'show'])->name('show');
+            Route::patch('/{id}', [AssignmentController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AssignmentController::class, 'destroy'])->name('destroy');
+            Route::patch('/{id}/status', [AssignmentController::class, 'toggleStatus'])->name('status');
+            Route::patch('/{id}/submissions/{submissionId}/grade', [AssignmentController::class, 'gradeSubmission'])->name('grade');
+        });
+
         Route::prefix('reports/attendance')->name('reports.attendance.')->group(function () {
             Route::get('/', [AttendanceReportController::class, 'index'])->name('index');
             Route::get('/export', [AttendanceReportController::class, 'export'])->name('export');
@@ -381,6 +394,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/scores', [StudentMyScoreController::class, 'index'])
             ->name('scores');
 
+        Route::prefix('assignments')->name('assignments.')->group(function () {
+            Route::get('/', [StudentAssignmentController::class, 'index'])->name('index');
+            Route::get('/{id}', [StudentAssignmentController::class, 'show'])->name('show');
+            Route::post('/{id}/submit', [StudentAssignmentController::class, 'submit'])->name('submit');
+            Route::delete('/{id}/submission', [StudentAssignmentController::class, 'deleteSubmission'])->name('delete-submission');
+        });
     });
 
 });

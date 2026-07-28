@@ -264,6 +264,7 @@ class DashboardService
                         ->where('asub.student_id', '=', $studentId);
                 })
                 ->where('a.grade_id', $gradeId)
+                ->where('a.status', 'published')
                 ->whereNull('asub.id')
                 ->where('a.due_date', '>=', now())
                 ->orderBy('a.due_date')
@@ -291,6 +292,7 @@ class DashboardService
                 ->join('subjects as sub', 'sub.id', '=', 'a.subject_id')
                 ->join('assigment_submissions as asub', 'asub.assigment_id', '=', 'a.id')
                 ->where('a.grade_id', $gradeId)
+                ->where('a.status', 'published')
                 ->where('asub.student_id', $studentId)
                 ->orderByDesc('asub.submitted_at')
                 ->take(5)
