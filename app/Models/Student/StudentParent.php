@@ -2,6 +2,7 @@
 
 namespace App\Models\Student;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 
 class StudentParent extends Model
@@ -26,11 +27,15 @@ class StudentParent extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
+        'student_id',
         'parent_name',
+        'relationship',
         'email',
         'phone_number',
         'occupation',
         'address',
+        'status',
     ];
 
     /**
@@ -41,8 +46,14 @@ class StudentParent extends Model
     protected function casts(): array
     {
         return [
+            'user_id' => 'integer',
             'student_id' => 'integer',
         ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function student()

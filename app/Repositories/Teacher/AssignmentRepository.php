@@ -5,7 +5,6 @@ namespace App\Repositories\Teacher;
 use App\Concerns\HasSchoolScope;
 use App\Models\Exam\Assigment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
 
 class AssignmentRepository
 {
@@ -13,11 +12,6 @@ class AssignmentRepository
 
     /**
      * Get paginated assignments for a teacher with filters.
-     *
-     * @param int $teacherId
-     * @param array $filters
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getTeacherAssignments(int $teacherId, array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
@@ -31,22 +25,22 @@ class AssignmentRepository
                 },
                 'submissions as graded_count' => function ($q) {
                     $q->where('status', 'graded');
-                }
+                },
             ]);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['search'])) {
-            $query->where('title', 'ILIKE', '%' . $filters['search'] . '%');
+        if (! empty($filters['search'])) {
+            $query->where('title', 'ILIKE', '%'.$filters['search'].'%');
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('assigned_date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('due_date', '<=', $filters['date_to']);
         }
 
@@ -55,10 +49,6 @@ class AssignmentRepository
 
     /**
      * Get a single assignment by ID and verify teacher ownership.
-     *
-     * @param int $id
-     * @param int $teacherId
-     * @return Assigment|null
      */
     public function getAssignmentByIdAndTeacher(int $id, int $teacherId): ?Assigment
     {
@@ -67,31 +57,25 @@ class AssignmentRepository
             ->where('id', $id)
             ->where('teacher_id', $teacherId)
             ->with([
-                'subject', 
-                'grade', 
-                'submissions.student.user'
+                'subject',
+                'grade',
+                'submissions.student.user',
             ])
             ->first();
     }
 
     /**
      * Create a new assignment.
-     *
-     * @param array $data
-     * @return Assigment
      */
     public function create(array $data): Assigment
     {
         $data['school_id'] = $this->getAuthSchoolId();
+
         return Assigment::create($data);
     }
 
     /**
      * Update an existing assignment.
-     *
-     * @param Assigment $assignment
-     * @param array $data
-     * @return bool
      */
     public function update(Assigment $assignment, array $data): bool
     {
@@ -100,9 +84,6 @@ class AssignmentRepository
 
     /**
      * Delete an assignment.
-     *
-     * @param Assigment $assignment
-     * @return bool|null
      */
     public function delete(Assigment $assignment): ?bool
     {
@@ -111,9 +92,6 @@ class AssignmentRepository
 
     /**
      * Get assignments counts by status for a teacher.
-     *
-     * @param int $teacherId
-     * @return array
      */
     public function getTeacherAssignmentStats(int $teacherId): array
     {
@@ -125,7 +103,7 @@ class AssignmentRepository
         $publishedCount = (clone $clonedQuery)->where('status', 'published')->count();
         $draftCount = (clone $clonedQuery)->where('status', 'draft')->count();
         $closedCount = (clone $clonedQuery)->where('status', 'closed')->count();
-        
+
         return [
             'total' => $publishedCount + $draftCount + $closedCount,
             'published' => $publishedCount,

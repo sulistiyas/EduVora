@@ -9,7 +9,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\UploadedFile;
 
 class StudentAssignmentController extends Controller
 {
@@ -34,7 +33,7 @@ class StudentAssignmentController extends Controller
                 }]);
 
             if ($request->filled('search')) {
-                $query->where('title', 'ILIKE', '%' . $request->search . '%');
+                $query->where('title', 'ILIKE', '%'.$request->search.'%');
             }
 
             if ($request->filled('status')) {
@@ -46,6 +45,7 @@ class StudentAssignmentController extends Controller
             }
 
             $assignments = $query->latest('assigned_date')->paginate(10);
+
             return response()->json($assignments);
         }
 
@@ -58,7 +58,7 @@ class StudentAssignmentController extends Controller
     public function show(int $id)
     {
         $student = $this->getStudent();
-        
+
         $assignment = Assigment::where('id', $id)
             ->where('grade_id', $student->grade_id)
             ->where('school_id', $student->school_id)
@@ -70,7 +70,7 @@ class StudentAssignmentController extends Controller
             'assigment_id' => $assignment->id,
             'student_id' => $student->id,
         ], [
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         return view('pages.student.assignment.show', compact('assignment', 'submission'));
@@ -87,14 +87,14 @@ class StudentAssignmentController extends Controller
         ]);
 
         $student = $this->getStudent();
-        
+
         $assignment = Assigment::where('id', $id)
             ->where('grade_id', $student->grade_id)
             ->where('school_id', $student->school_id)
             ->where('status', 'published')
             ->first();
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json(['message' => 'Tugas tidak ditemukan atau tidak tersedia.'], 404);
         }
 
@@ -106,7 +106,7 @@ class StudentAssignmentController extends Controller
             'assigment_id' => $assignment->id,
             'student_id' => $student->id,
         ], [
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         if ($submission->status === 'graded') {
@@ -135,12 +135,12 @@ class StudentAssignmentController extends Controller
     public function deleteSubmission(int $id): JsonResponse
     {
         $student = $this->getStudent();
-        
+
         $submission = AssigmentSubmission::where('assigment_id', $id)
             ->where('student_id', $student->id)
             ->first();
 
-        if (!$submission) {
+        if (! $submission) {
             return response()->json(['message' => 'Submission tidak ditemukan.'], 404);
         }
 

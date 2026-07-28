@@ -161,22 +161,22 @@ Aplikasi EduVora adalah platform manajemen sekolah **multi-tenant SaaS** dengan 
 
 ---
 
-## ROLE 5: STUDENT-PARENT (Belum Terimplementasi)
+## ROLE 5: STUDENT-PARENT (Sudah Terimplementasi ✅)
 
-Sidebar sudah ada tapi **tidak ada route, controller, atau view sama sekali**.
+Fitur portal orang tua telah selesai dibangun secara utuh (**Controller → Service → Repository → Model**) dengan 8 fitur utama:
 
-### Fitur yang Harus Dibangun Dari Nol
+### Fitur yang Sudah Terimplementasi
 
-| No | Fitur | Keterangan |
-|----|-------|------------|
-| 1 | **Dashboard Orang Tua** | Ringkasan data anak |
-| 2 | **Presensi Anak** | Lihat rekap kehadiran anak |
-| 3 | **Nilai Anak** | Lihat nilai anak per mata pelajaran |
-| 4 | **Pembayaran SPP** | Bayar/tagih SPP anak |
-| 5 | **Profil Anak** | Lihat data lengkap anak |
-| 6 | **Pesan ke Guru** | Komunikasi dengan wali kelas/guru |
-| 7 | **Rapor Anak** | Lihat rapor anak |
-| 8 | **Histori Akademik** | Lihat riwayat kelas dan prestasi anak |
+| No | Fitur | Status | Keterangan |
+|----|-------|--------|------------|
+| 1 | **Dashboard Orang Tua** | ✅ Selesai | Ringkasan profil anak, statistik kehadiran, nilai, SPP, & jadwal |
+| 2 | **Presensi Anak** | ✅ Selesai | Rekap kehadiran harian & per sesi (Hadir, Izin, Sakit, Alpa, Terlambat) |
+| 3 | **Nilai Anak** | ✅ Selesai | Transkrip nilai per mapel & detail sesi penilaian |
+| 4 | **Pembayaran SPP** | ✅ Selesai | Monitoring tagihan & histori pembayaran SPP |
+| 5 | **Profil Anak** | ✅ Selesai | Data lengkap anak, NIS, wali kelas, & kontak |
+| 6 | **Pesan ke Guru** | ✅ Selesai | Kontak pengajar & wali kelas (WhatsApp / Email) |
+| 7 | **Rapor Anak** | ✅ Selesai | Rekapitulasi nilai akhir semester & cetak rapor |
+| 8 | **Histori Akademik** | ✅ Selesai | Riwayat kenaikan kelas & pencapaian semester |
 
 ---
 
@@ -201,7 +201,7 @@ Sidebar sudah ada tapi **tidak ada route, controller, atau view sama sekali**.
 
 | Kategori | Jumlah |
 |----------|--------|
-| Total Role | 5 (4 aktif + 1 terencana) |
+| Total Role | 5 Aktif |
 | Fitur Sudah Ada (Super-Admin) | 6 |
 | Fitur Kurang (Super-Admin) | 11 |
 | Fitur Sudah Ada (School-Admin) | 13 |
@@ -210,6 +210,6 @@ Sidebar sudah ada tapi **tidak ada route, controller, atau view sama sekali**.
 | Fitur Kurang (Teacher) | 17 |
 | Fitur Sudah Ada (Student) | 4 |
 | Fitur Kurang (Student) | 14 |
-| Fitur Belum Dibangun (Parent) | 8 |
+| Fitur Portal Orang Tua (Parent) | 8 (Selesai ✅) |
 | Module Tanpa UI (Schema Only) | 10 |
-| **Total Fitur Kurang/Bisa Ditambah** | **71** |
+| **Total Fitur Kurang/Bisa Ditambah** | **63** |

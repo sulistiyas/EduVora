@@ -9,6 +9,14 @@ use App\Http\Controllers\Auth\RolesController;
 use App\Http\Controllers\Class\GradesController;
 use App\Http\Controllers\Class\GradeSubjectsController;
 use App\Http\Controllers\Class\RoomsController;
+use App\Http\Controllers\Parent\ParentAcademicHistoryController;
+use App\Http\Controllers\Parent\ParentAttendanceController;
+use App\Http\Controllers\Parent\ParentDashboardController;
+use App\Http\Controllers\Parent\ParentFeeController;
+use App\Http\Controllers\Parent\ParentMessageController;
+use App\Http\Controllers\Parent\ParentProfileController;
+use App\Http\Controllers\Parent\ParentReportController;
+use App\Http\Controllers\Parent\ParentScoreController;
 use App\Http\Controllers\School\StudentController;
 use App\Http\Controllers\School\StudentScoreController;
 use App\Http\Controllers\School\TeacherController;
@@ -19,6 +27,7 @@ use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
 use App\Http\Controllers\Student\ScheduleController as StudentScheduleController;
 use App\Http\Controllers\Student\ScoreController as StudentMyScoreController;
+use App\Http\Controllers\Student\StudentAssignmentController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\SuperAdmin\AuditLogController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
@@ -29,7 +38,6 @@ use App\Http\Controllers\Teacher\DashboardController as TeacherDashboardControll
 use App\Http\Controllers\Teacher\Reports\AttendanceReportController;
 use App\Http\Controllers\Teacher\Reports\ScoreReportController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
-use App\Http\Controllers\Student\StudentAssignmentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +69,7 @@ Route::middleware(['auth'])->group(function () {
             'school-admin' => redirect()->route('school-admin.dashboard'),
             'teacher' => redirect()->route('teacher.dashboard'),
             'student' => redirect()->route('student.dashboard'),
+            'student-parent' => redirect()->route('parent.dashboard'),
             default => abort(403, 'Role tidak dikenali.'),
         };
     })->name('dashboard');
@@ -400,6 +409,18 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/{id}/submit', [StudentAssignmentController::class, 'submit'])->name('submit');
             Route::delete('/{id}/submission', [StudentAssignmentController::class, 'deleteSubmission'])->name('delete-submission');
         });
+    });
+
+    // ── PARENT / STUDENT-PARENT ─────────────────────────
+    Route::middleware(['role:student-parent'])->prefix('parent')->name('parent.')->group(function () {
+        Route::get('/dashboard', [ParentDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/attendance', [ParentAttendanceController::class, 'index'])->name('attendance');
+        Route::get('/scores', [ParentScoreController::class, 'index'])->name('scores');
+        Route::get('/fees', [ParentFeeController::class, 'index'])->name('fees');
+        Route::get('/profile', [ParentProfileController::class, 'index'])->name('profile');
+        Route::get('/reports', [ParentReportController::class, 'index'])->name('reports');
+        Route::get('/messages', [ParentMessageController::class, 'index'])->name('messages');
+        Route::get('/academic-history', [ParentAcademicHistoryController::class, 'index'])->name('academic-history');
     });
 
 });

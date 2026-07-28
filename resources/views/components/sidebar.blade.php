@@ -307,19 +307,39 @@
 
             <div class="nav-section-label" style="margin-top:8px;">Pantau Anak</div>
 
-            <a href="#" class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+            <a href="{{ route('parent.attendance') }}" class="nav-item {{ request()->routeIs('parent.attendance') ? 'active' : '' }}">
                 <i class="ri-checkbox-circle-line"></i>
                 Presensi Anak
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('scores.*') ? 'active' : '' }}">
+            <a href="{{ route('parent.scores') }}" class="nav-item {{ request()->routeIs('parent.scores') ? 'active' : '' }}">
                 <i class="ri-bar-chart-2-line"></i>
                 Nilai Anak
             </a>
 
-            <a href="#" class="nav-item {{ request()->routeIs('finance.*') ? 'active' : '' }}">
+            <a href="{{ route('parent.fees') }}" class="nav-item {{ request()->routeIs('parent.fees') ? 'active' : '' }}">
                 <i class="ri-money-dollar-circle-line"></i>
                 Pembayaran SPP
+            </a>
+
+            <a href="{{ route('parent.reports') }}" class="nav-item {{ request()->routeIs('parent.reports') ? 'active' : '' }}">
+                <i class="ri-file-chart-line"></i>
+                Rapor Anak
+            </a>
+
+            <a href="{{ route('parent.profile') }}" class="nav-item {{ request()->routeIs('parent.profile') ? 'active' : '' }}">
+                <i class="ri-user-smile-line"></i>
+                Profil Anak
+            </a>
+
+            <a href="{{ route('parent.messages') }}" class="nav-item {{ request()->routeIs('parent.messages') ? 'active' : '' }}">
+                <i class="ri-chat-3-line"></i>
+                Pesan ke Guru
+            </a>
+
+            <a href="{{ route('parent.academic-history') }}" class="nav-item {{ request()->routeIs('parent.academic-history') ? 'active' : '' }}">
+                <i class="ri-history-line"></i>
+                Histori Akademik
             </a>
 
         @endif

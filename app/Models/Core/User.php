@@ -3,6 +3,7 @@
 namespace App\Models\Core;
 
 use App\Models\Student\Student;
+use App\Models\Student\StudentParent;
 use App\Models\Teacher\Teacher;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -62,6 +63,16 @@ class User extends Authenticatable
     public function student()
     {
         return $this->hasOne(Student::class, 'user_id', 'id');
+    }
+
+    public function studentParent()
+    {
+        return $this->hasOne(StudentParent::class, 'user_id', 'id');
+    }
+
+    public function studentParents()
+    {
+        return $this->hasMany(StudentParent::class, 'user_id', 'id');
     }
 
     public function teacher()

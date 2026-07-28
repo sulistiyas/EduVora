@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAssignmentRequest;
 use App\Http\Requests\UpdateAssignmentRequest;
 use App\Models\Academic\GradeSubject;
-use App\Models\Exam\Assigment;
-use App\Models\Exam\AssigmentSubmission;
 use App\Repositories\Teacher\AssignmentRepository;
 use App\Services\Teacher\AssignmentService;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class AssignmentController extends Controller
 {
     protected $repository;
+
     protected $service;
 
     public function __construct(AssignmentRepository $repository, AssignmentService $service)
@@ -36,10 +35,11 @@ class AssignmentController extends Controller
     public function index(Request $request)
     {
         $teacherId = $this->getTeacherId();
-        
+
         if ($request->expectsJson()) {
             $filters = $request->only(['status', 'search', 'date_from', 'date_to']);
             $assignments = $this->repository->getTeacherAssignments($teacherId, $filters);
+
             return response()->json($assignments);
         }
 
@@ -54,7 +54,7 @@ class AssignmentController extends Controller
     public function gradeSubjects(Request $request): JsonResponse
     {
         $teacherId = $this->getTeacherId();
-        
+
         $gradeSubjects = GradeSubject::with(['grade', 'subject'])
             ->where('teacher_id', $teacherId)
             ->get()
@@ -62,10 +62,10 @@ class AssignmentController extends Controller
                 return [
                     'grade_id' => $gs->grade_id,
                     'subject_id' => $gs->subject_id,
-                    'label' => $gs->grade->grade_name . ' - ' . $gs->subject->subject_name,
+                    'label' => $gs->grade->grade_name.' - '.$gs->subject->subject_name,
                 ];
             });
-            
+
         return response()->json($gradeSubjects);
     }
 
@@ -82,18 +82,19 @@ class AssignmentController extends Controller
             ->where('subject_id', $request->subject_id)
             ->exists();
 
-        if (!$validGradeSubject) {
+        if (! $validGradeSubject) {
             return response()->json(['message' => 'Anda tidak mengajar mata pelajaran ini di kelas tersebut.'], 403);
         }
 
         try {
             $assignment = $this->service->createAssignment($request->validated(), $teacherId);
+
             return response()->json([
                 'message' => 'Tugas berhasil dibuat.',
-                'data' => $assignment
+                'data' => $assignment,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Gagal membuat tugas: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Gagal membuat tugas: '.$e->getMessage()], 500);
         }
     }
 
@@ -105,7 +106,7 @@ class AssignmentController extends Controller
         $teacherId = $this->getTeacherId();
         $assignment = $this->repository->getAssignmentByIdAndTeacher($id, $teacherId);
 
-        if (!$assignment) {
+        if (! $assignment) {
             abort(404, 'Tugas tidak ditemukan atau Anda tidak memiliki akses.');
         }
 
@@ -120,15 +121,16 @@ class AssignmentController extends Controller
         $teacherId = $this->getTeacherId();
         $assignment = $this->repository->getAssignmentByIdAndTeacher($id, $teacherId);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json(['message' => 'Tugas tidak ditemukan.'], 404);
         }
 
         try {
             $this->service->updateAssignment($assignment, $request->validated());
+
             return response()->json(['message' => 'Tugas berhasil diperbarui.']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Gagal memperbarui tugas: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Gagal memperbarui tugas: '.$e->getMessage()], 500);
         }
     }
 
@@ -140,7 +142,7 @@ class AssignmentController extends Controller
         $teacherId = $this->getTeacherId();
         $assignment = $this->repository->getAssignmentByIdAndTeacher($id, $teacherId);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json(['message' => 'Tugas tidak ditemukan.'], 404);
         }
 
@@ -157,12 +159,13 @@ class AssignmentController extends Controller
         $teacherId = $this->getTeacherId();
         $assignment = $this->repository->getAssignmentByIdAndTeacher($id, $teacherId);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json(['message' => 'Tugas tidak ditemukan.'], 404);
         }
 
         try {
             $this->service->deleteAssignment($assignment);
+
             return response()->json(['message' => 'Tugas berhasil dihapus.']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
@@ -182,21 +185,22 @@ class AssignmentController extends Controller
         $teacherId = $this->getTeacherId();
         $assignment = $this->repository->getAssignmentByIdAndTeacher($id, $teacherId);
 
-        if (!$assignment) {
+        if (! $assignment) {
             return response()->json(['message' => 'Tugas tidak ditemukan.'], 404);
         }
 
         // Verify submission belongs to this assignment
         $submissionExists = $assignment->submissions()->where('id', $submissionId)->exists();
-        if (!$submissionExists) {
+        if (! $submissionExists) {
             return response()->json(['message' => 'Submission tidak ditemukan pada tugas ini.'], 404);
         }
 
         try {
             $this->service->gradeSubmission($submissionId, $request->score, $request->feedback);
+
             return response()->json(['message' => 'Nilai berhasil disimpan.']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Gagal menyimpan nilai: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Gagal menyimpan nilai: '.$e->getMessage()], 500);
         }
     }
 }

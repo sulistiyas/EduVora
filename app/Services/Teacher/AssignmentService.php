@@ -6,9 +6,9 @@ use App\Concerns\HasSchoolScope;
 use App\Models\Exam\Assigment;
 use App\Models\Exam\AssigmentSubmission;
 use App\Models\Student\Student;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\UploadedFile;
 
 class AssignmentService
 {
@@ -17,16 +17,13 @@ class AssignmentService
     /**
      * Create a new assignment and initialize submissions for all students in the grade.
      *
-     * @param array $data
-     * @param int $teacherId
-     * @return Assigment
      * @throws \Exception
      */
     public function createAssignment(array $data, int $teacherId): Assigment
     {
         return DB::transaction(function () use ($data, $teacherId) {
             $schoolId = $this->getAuthSchoolId();
-            
+
             // Handle file upload
             if (isset($data['attachment']) && $data['attachment'] instanceof UploadedFile) {
                 $path = $data['attachment']->store('assignments', 'public');
@@ -62,7 +59,7 @@ class AssignmentService
                 ];
             }
 
-            if (!empty($submissions)) {
+            if (! empty($submissions)) {
                 AssigmentSubmission::insert($submissions);
             }
 
@@ -72,10 +69,6 @@ class AssignmentService
 
     /**
      * Update an existing assignment.
-     *
-     * @param Assigment $assignment
-     * @param array $data
-     * @return bool
      */
     public function updateAssignment(Assigment $assignment, array $data): bool
     {
@@ -100,9 +93,6 @@ class AssignmentService
 
     /**
      * Toggle assignment status.
-     *
-     * @param Assigment $assignment
-     * @return bool
      */
     public function toggleStatus(Assigment $assignment): bool
     {
@@ -118,16 +108,11 @@ class AssignmentService
 
     /**
      * Grade a student's submission.
-     *
-     * @param int $submissionId
-     * @param float $score
-     * @param string|null $feedback
-     * @return AssigmentSubmission
      */
     public function gradeSubmission(int $submissionId, float $score, ?string $feedback): AssigmentSubmission
     {
         $submission = AssigmentSubmission::findOrFail($submissionId);
-        
+
         $submission->update([
             'score' => $score,
             'feedback' => $feedback,
@@ -141,8 +126,6 @@ class AssignmentService
      * Delete an assignment.
      * Throws exception if there are graded submissions.
      *
-     * @param Assigment $assignment
-     * @return bool
      * @throws \Exception
      */
     public function deleteAssignment(Assigment $assignment): bool
@@ -155,7 +138,7 @@ class AssignmentService
             Storage::disk('public')->delete($assignment->attachment);
         }
 
-        // Submissions will be cascade deleted by DB foreign key constraint, 
+        // Submissions will be cascade deleted by DB foreign key constraint,
         // but just in case we can delete associated files
         foreach ($assignment->submissions as $submission) {
             if ($submission->file_path) {
