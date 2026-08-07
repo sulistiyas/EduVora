@@ -40,13 +40,21 @@ class ScheduleController extends Controller
             7 => 'Minggu',
         ];
 
+        $todayNum = (int) \Carbon\Carbon::now()->dayOfWeekIso;
+
         $schedules = [];
+        $stats = [
+            'total_subjects' => 0,
+            'total_sessions' => 0,
+            'active_days' => 0,
+        ];
+
         if ($gradeId && $semesterId) {
             $rows = DB::table('schedules as sc')
                 ->join('grade_subjects as gs', 'gs.id', '=', 'sc.grade_subject_id')
                 ->join('subjects as sub', 'sub.id', '=', 'gs.subject_id')
-                ->join('rooms as r', 'r.room_id', '=', 'sc.room_id')
-                ->join('teachers as t', 't.teacher_id', '=', 'gs.teacher_id')
+                ->leftJoin('rooms as r', 'r.room_id', '=', 'sc.room_id')
+                ->leftJoin('teachers as t', 't.teacher_id', '=', 'gs.teacher_id')
                 ->where('gs.grade_id', $gradeId)
                 ->where('sc.semester_id', $semesterId)
                 ->where('sc.status', 'active')
@@ -59,25 +67,33 @@ class ScheduleController extends Controller
                     'sc.end_time',
                     'sc.session_type',
                     'sub.subject_name as mapel',
+                    'sub.subject_code as mapel_kode',
                     'r.room_name as ruangan',
                     'r.code as ruangan_kode',
                     't.full_name as guru',
                 ])
                 ->get();
 
+            $stats['total_sessions'] = $rows->count();
+            $stats['total_subjects'] = $rows->pluck('mapel')->unique()->count();
+
             $schedules = $rows->map(function ($s) use ($dayNames) {
                 return [
                     'schedule_id' => $s->schedule_id,
                     'day' => $dayNames[$s->day_of_week] ?? '-',
-                    'day_num' => $s->day_of_week,
+                    'day_num' => (int) $s->day_of_week,
                     'jam' => substr($s->start_time, 0, 5).' – '.substr($s->end_time, 0, 5),
-                    'start' => $s->start_time,
+                    'start' => substr($s->start_time, 0, 5),
+                    'end' => substr($s->end_time, 0, 5),
                     'mapel' => $s->mapel,
-                    'guru' => $s->guru,
-                    'ruangan' => $s->ruangan_kode ?: $s->ruangan,
+                    'mapel_kode' => $s->mapel_kode,
+                    'guru' => $s->guru ?? 'Belum Ditentukan',
+                    'ruangan' => $s->ruangan_kode ?: ($s->ruangan ?? 'Ruang Kelas'),
                     'tipe' => $s->session_type,
                 ];
             })->groupBy('day_num')->toArray();
+
+            $stats['active_days'] = count($schedules);
         }
 
         $gradeName = null;
@@ -86,6 +102,13 @@ class ScheduleController extends Controller
             $gradeName = $gradeRecord?->grade_name;
         }
 
-        return view('pages.student.schedule.index', compact('schedules', 'dayNames', 'activeSemester', 'gradeName'));
+        return view('pages.student.schedule.index', compact(
+            'schedules',
+            'dayNames',
+            'activeSemester',
+            'gradeName',
+            'todayNum',
+            'stats'
+        ));
     }
 }

@@ -26,12 +26,12 @@ class GradeSeeder extends Seeder
             [
                 'grade_name' => 'XI TKJ 1',
                 'level' => 11,
-                'room_id' => 1,
+                'room_id' => 3,
             ],
             [
                 'grade_name' => 'XII TKJ 1',
                 'level' => 12,
-                'room_id' => 2,
+                'room_id' => 4,
             ],
         ];
 

@@ -20,104 +20,138 @@
 {{-- ═══════════════════════════════════════════════════════════════
      STUDENT PROFILE HERO
 ═══════════════════════════════════════════════════════════════ --}}
+@php
+    $jamSekarang = now()->hour;
+    $sapaan = $jamSekarang < 11 ? 'Selamat pagi'
+            : ($jamSekarang < 15 ? 'Selamat siang'
+            : ($jamSekarang < 18 ? 'Selamat sore'
+            : 'Selamat malam'));
+@endphp
+
 <div style="
-    background: linear-gradient(135deg, var(--sidebar-bg) 0%, #1D4ED8 60%, #2563EB 100%);
-    border-radius: var(--radius);
+    background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%);
+    border-radius: var(--radius-lg, 16px);
     padding: 28px 32px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: 24px;
     position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(30,58,138,.22);
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+    margin-bottom: 24px;
 ">
-    {{-- decorative circles --}}
-    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none;"></div>
-    <div style="position:absolute;bottom:-60px;right:80px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;"></div>
+    {{-- Decorative Background Elements --}}
+    <div style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;filter:blur(20px);"></div>
+    <div style="position:absolute;bottom:-60px;right:120px;width:180px;height:180px;border-radius:50%;background:rgba(59,130,246,.3);pointer-events:none;filter:blur(30px);"></div>
 
-    {{-- Avatar --}}
-    <div style="
-        width: 72px; height: 72px; border-radius: 18px;
-        background: linear-gradient(135deg, #3B82F6, #60A5FA);
-        display: grid; place-items: center;
-        font-size: 26px; font-weight: 800; color: #fff;
-        flex-shrink: 0;
-        border: 3px solid rgba(255,255,255,.2);
-        box-shadow: 0 8px 24px rgba(0,0,0,.18);
-        position: relative; z-index: 1;
-    ">
-        @if($student->photo)
-            <img src="{{ asset($student->photo) }}" alt="{{ $student->name }}"
-                 style="width:100%;height:100%;object-fit:cover;border-radius:15px;">
-        @else
-            {{ strtoupper(substr($student->name, 0, 2)) }}
-        @endif
-    </div>
-
-    {{-- Info --}}
-    <div style="flex:1;min-width:0;position:relative;z-index:1;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;">
-                Siswa Aktif
-            </span>
-            <span style="
-                display:inline-flex;align-items:center;gap:4px;
-                font-size:10px;font-weight:700;
-                background:rgba(16,185,129,.25);color:#6EE7B7;
-                border:1px solid rgba(16,185,129,.3);
-                padding:2px 8px;border-radius:99px;
-            ">
-                <span style="width:5px;height:5px;border-radius:50%;background:#10B981;display:block;"></span>
-                Aktif
-            </span>
-        </div>
-        <h2 style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            {{ $student->name }}
-        </h2>
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-            <span style="font-size:12px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:5px;">
-                <i class="ri-id-card-line" style="font-size:13px;"></i>
-                NIS: <strong style="color:rgba(255,255,255,.9);">{{ $student->nis }}</strong>
-            </span>
-            <span style="font-size:12px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:5px;">
-                <i class="ri-school-line" style="font-size:13px;"></i>
-                Kelas: <strong style="color:rgba(255,255,255,.9);">{{ $student->grade_name }}</strong>
-            </span>
-            <span style="font-size:12px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:5px;">
-                <i class="ri-calendar-2-line" style="font-size:13px;"></i>
-                Semester: <strong style="color:rgba(255,255,255,.9);">{{ $student->semester }}</strong>
-            </span>
-        </div>
-    </div>
-
-    {{-- Quick Stats on Hero --}}
-    <div style="
-        display:flex;gap:12px;
-        position:relative;z-index:1;
-        flex-shrink:0;
-    " class="hero-stats-wrap">
-        @php
-            $heroStats = [
-                ['icon'=>'ri-bar-chart-2-line','val'=> $statistics['rata_rata_nilai'],'label'=>'Rata Nilai','color'=>'#60A5FA'],
-                ['icon'=>'ri-user-star-line','val'=> ($statistics['ranking'] !== '-' ? '#'.$statistics['ranking'] : '-'),'label'=>'Ranking Kelas','color'=>'#FCD34D'],
-                ['icon'=>'ri-checkbox-circle-line','val'=> $statistics['persen_kehadiran'].'%','label'=>'Kehadiran','color'=>'#6EE7B7'],
-            ];
-        @endphp
-        @foreach($heroStats as $hs)
+    {{-- Left Section: Avatar + Content --}}
+    <div style="display:flex;align-items:flex-start;gap:20px;position:relative;z-index:1;flex:1;min-width:0;">
+        {{-- Avatar --}}
         <div style="
-            background: rgba(255,255,255,.1);
-            border: 1px solid rgba(255,255,255,.15);
-            border-radius: 12px;
-            padding: 14px 18px;
-            text-align: center;
-            min-width: 90px;
-            backdrop-filter: blur(8px);
+            width: 64px; height: 64px; border-radius: 16px;
+            background: linear-gradient(135deg, #60A5FA, #2563EB);
+            display: grid; place-items: center;
+            font-size: 22px; font-weight: 800; color: #fff;
+            flex-shrink: 0;
+            border: 3px solid rgba(255,255,255,.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,.2);
+            overflow: hidden;
+            margin-top: 2px;
         ">
-            <i class="{{ $hs['icon'] }}" style="font-size:18px;color:{{ $hs['color'] }};margin-bottom:4px;display:block;"></i>
-            <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1;">{{ $hs['val'] }}</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.55);margin-top:3px;font-weight:500;">{{ $hs['label'] }}</div>
+            @if(!empty($student->photo))
+                <img src="{{ asset($student->photo) }}" alt="{{ $student->name }}" style="width:100%;height:100%;object-fit:cover;">
+            @else
+                {{ strtoupper(substr($student->name, 0, 2)) }}
+            @endif
         </div>
-        @endforeach
+
+        {{-- Profile Detail --}}
+        <div style="flex:1;min-width:0;">
+            {{-- Top row: Greeting + Status Badge --}}
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+                <h2 style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px;margin:0;line-height:1.3;">
+                    {{ $sapaan }}, {{ $student->name }}! 👋
+                </h2>
+                <span style="
+                    display:inline-flex;align-items:center;gap:5px;
+                    font-size:11px;font-weight:700;
+                    background:rgba(16,185,129,.25);color:#6EE7B7;
+                    border:1px solid rgba(16,185,129,.35);
+                    padding:3px 10px;border-radius:99px;
+                ">
+                    <span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:block;"></span>
+                    Siswa Aktif
+                </span>
+            </div>
+
+            {{-- Subtitle --}}
+            <p style="font-size:13px;color:rgba(255,255,255,.85);margin:0 0 14px 0;line-height:1.5;">
+                @if($statistics['jadwal_hari_ini'] > 0)
+                    Kamu memiliki <strong style="color:#FDE047;font-weight:700;">{{ $statistics['jadwal_hari_ini'] }} jadwal mata pelajaran</strong> untuk diikuti hari ini.
+                @else
+                    Tidak ada jadwal pelajaran hari ini. Selamat beristirahat! 🎉
+                @endif
+            </p>
+
+            {{-- Badges / Meta --}}
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <span style="
+                    font-size:12px;font-weight:600;
+                    background:rgba(255,255,255,.14);
+                    border:1px solid rgba(255,255,255,.2);
+                    color:#ffffff;
+                    padding:4px 12px;border-radius:8px;
+                    display:inline-flex;align-items:center;gap:6px;
+                    backdrop-filter:blur(4px);
+                ">
+                    <i class="ri-id-card-line" style="font-size:13px;color:#93C5FD;"></i>
+                    NIS: {{ $student->nis }}
+                </span>
+                <span style="
+                    font-size:12px;font-weight:600;
+                    background:rgba(255,255,255,.14);
+                    border:1px solid rgba(255,255,255,.2);
+                    color:#ffffff;
+                    padding:4px 12px;border-radius:8px;
+                    display:inline-flex;align-items:center;gap:6px;
+                    backdrop-filter:blur(4px);
+                ">
+                    <i class="ri-building-4-line" style="font-size:13px;color:#93C5FD;"></i>
+                    Kelas: {{ $student->grade_name }}
+                </span>
+                <span style="
+                    font-size:12px;font-weight:600;
+                    background:rgba(255,255,255,.14);
+                    border:1px solid rgba(255,255,255,.2);
+                    color:#ffffff;
+                    padding:4px 12px;border-radius:8px;
+                    display:inline-flex;align-items:center;gap:6px;
+                    backdrop-filter:blur(4px);
+                ">
+                    <i class="ri-calendar-event-line" style="font-size:13px;color:#93C5FD;"></i>
+                    Semester: {{ $student->semester }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Right Section: Date Card Widget --}}
+    <div style="
+        position:relative;z-index:1;
+        background:rgba(255,255,255,.14);
+        border:1px solid rgba(255,255,255,.22);
+        border-radius:14px;
+        padding:14px 22px;
+        text-align:center;
+        min-width:110px;
+        backdrop-filter:blur(10px);
+        box-shadow:0 4px 15px rgba(0,0,0,.1);
+        flex-shrink:0;
+        align-self:center;
+    " class="hero-date-card">
+        <div style="font-size:26px;font-weight:800;color:#fff;line-height:1;letter-spacing:-0.5px;">{{ now()->format('d') }}</div>
+        <div style="font-size:11px;font-weight:700;color:#93C5FD;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">{{ now()->translatedFormat('M Y') }}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px;font-weight:500;">{{ now()->translatedFormat('l') }}</div>
     </div>
 </div>
 
@@ -682,8 +716,8 @@
 
 @push('styles')
 <style>
-@media (max-width: 900px) {
-    .hero-stats-wrap { display: none !important; }
+@media (max-width: 768px) {
+    .hero-date-card { display: none !important; }
 }
 @media (max-width: 768px) {
     [style*="grid-template-columns:1fr 300px"],

@@ -14,13 +14,15 @@ class DashboardService
             ->first();
 
         $totalSiswa = DB::table('students')
-            ->where('school_id', $schoolId)
-            ->where('status', 'active')
+            ->join('user_has_schools', 'students.user_id', '=', 'user_has_schools.user_id')
+            ->where('user_has_schools.school_id', $schoolId)
+            ->where('students.status', 'active')
             ->count();
 
         $totalGuru = DB::table('teachers')
-            ->where('school_id', $schoolId)
-            ->where('status', 'active')
+            ->join('user_has_schools', 'teachers.user_id', '=', 'user_has_schools.user_id')
+            ->where('user_has_schools.school_id', $schoolId)
+            ->where('teachers.status', 'active')
             ->count();
 
         $totalKelas = DB::table('grades')
@@ -36,7 +38,7 @@ class DashboardService
 
         $totalRuangan = DB::table('rooms')
             ->where('school_id', $schoolId)
-            ->where('status', 'active')
+            ->where('status', 'available')
             ->count();
 
         $activeSemester = DB::table('semesters')
@@ -78,38 +80,33 @@ class DashboardService
         $totalTugas = 0;
         if ($semesterId) {
             $totalTugas = DB::table('assigments as a')
-                ->join('grade_subjects as gs', 'gs.id', '=', 'a.grade_subject_id')
-                ->join('grades as g', 'g.grade_id', '=', 'gs.grade_id')
+                ->join('grades as g', 'g.grade_id', '=', 'a.grade_id')
                 ->where('g.school_id', $schoolId)
                 ->where('a.due_date', '>=', now())
                 ->count();
         }
 
         $recentLogs = DB::table('audit_logs as al')
+            ->join('user_has_schools as me', 'me.user_id', '=', 'al.user_id')
             ->leftJoin('users as u', 'u.id', '=', 'al.user_id')
-            ->where('al.school_id', $schoolId)
+            ->where('me.school_id', $schoolId)
             ->orderByDesc('al.created_at')
             ->take(10)
             ->select([
-                'al.audit_log_id',
-                'al.description',
-                'al.module',
-                'al.status',
+                'al.id as audit_log_id',
+                'al.action as description',
+                DB::raw("COALESCE(al.table_name, 'Sistem') as module"),
                 'al.created_at',
                 'u.name as user_name',
                 'u.email as user_email',
             ])
-            ->get();
+            ->get()
+            ->map(function ($log) {
+                $log->status_badge = 'success';
+                $log->status_label = 'Berhasil';
 
-        $statusBadge = ['success' => 'success', 'warning' => 'warning', 'error' => 'danger', 'info' => 'info'];
-        $statusLabel = ['success' => 'Berhasil', 'warning' => 'Peringatan', 'error' => 'Gagal', 'info' => 'Info'];
-
-        $recentLogs = $recentLogs->map(function ($log) use ($statusBadge, $statusLabel) {
-            $log->status_badge = $statusBadge[$log->status] ?? 'secondary';
-            $log->status_label = $statusLabel[$log->status] ?? ucfirst($log->status ?? '-');
-
-            return $log;
-        });
+                return $log;
+            });
 
         return compact(
             'school',

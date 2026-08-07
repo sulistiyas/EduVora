@@ -19,11 +19,10 @@ class GradeSubjectSeeder extends Seeder
             ->get();
 
         /**
-         * Ambil 5 mapel pertama
+         * Ambil semua mapel
          */
         $subjects = DB::table('subjects')
             ->where('school_id', $schoolId)
-            ->limit(5)
             ->get();
 
         /**
@@ -37,6 +36,10 @@ class GradeSubjectSeeder extends Seeder
             ->select('teachers.teacher_id')
             ->pluck('teacher_id')
             ->toArray();
+
+        if (empty($teachers)) {
+            $teachers = DB::table('teachers')->pluck('teacher_id')->toArray();
+        }
 
         $data = [];
 

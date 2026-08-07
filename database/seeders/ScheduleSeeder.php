@@ -106,6 +106,7 @@ class ScheduleSeeder extends Seeder
                 'grades.grade_id',
                 'grades.room_id',
                 'subjects.subject_name',
+                'subjects.category',
                 'subjects.hours_per_week'
             )
             ->orderBy('grades.grade_id')
@@ -114,78 +115,42 @@ class ScheduleSeeder extends Seeder
 
         $data = [];
 
-        /**
-         * Counter per room
-         */
-        $roomCounters = [];
-
         foreach ($gradeSubjects as $gradeId => $subjects) {
+            $gradeSessions = [];
 
             foreach ($subjects as $subject) {
-
-                $roomId = $subject->room_id;
-
-                /**
-                 * Init counter room
-                 */
-                if (! isset($roomCounters[$roomId])) {
-                    $roomCounters[$roomId] = 0;
-                }
-
-                /**
-                 * ─────────────────────────────────────
-                 * Jumlah sesi per minggu
-                 * contoh:
-                 * hours_per_week = 4
-                 * maka jadi 2 sesi
-                 * ─────────────────────────────────────
-                 */
                 $sessionsPerWeek = max(
                     1,
-                    ceil($subject->hours_per_week / 2)
+                    (int) ceil($subject->hours_per_week / 2)
                 );
 
-                /**
-                 * Generate beberapa sesi
-                 */
                 for ($i = 0; $i < $sessionsPerWeek; $i++) {
-
-                    $counter = $roomCounters[$roomId];
-
-                    /**
-                     * Tentukan hari
-                     */
-                    $day = $days[
-                        floor($counter / count($timeSlots))
-                        % count($days)
-                    ];
-
-                    /**
-                     * Tentukan slot jam
-                     */
-                    $time = $timeSlots[
-                        $counter % count($timeSlots)
-                    ];
-
-                    $data[] = [
-                        'school_id' => $schoolId,
-                        'grade_subject_id' => $subject->grade_subject_id,
-                        'room_id' => $roomId,
-                        'semester_id' => $semesterId,
-                        'day_of_week' => $day,
-                        'start_time' => $time['start'],
-                        'end_time' => $time['end'],
-                        'session_type' => 'regular',
-                        'status' => 'active',
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-
-                    /**
-                     * Increment slot room
-                     */
-                    $roomCounters[$roomId]++;
+                    $gradeSessions[] = $subject;
                 }
+            }
+
+            foreach ($gradeSessions as $sessionIndex => $subject) {
+                $roomId = $subject->room_id;
+
+                $day = $days[$sessionIndex % count($days)];
+                $slotIndex = (int) (floor($sessionIndex / count($days)) % count($timeSlots));
+                $time = $timeSlots[$slotIndex];
+
+                $sessionType = in_array($subject->category, ['Sains', 'Kejuruan']) ? 'lab' : 'regular';
+
+                $data[] = [
+                    'school_id' => $schoolId,
+                    'grade_subject_id' => $subject->grade_subject_id,
+                    'room_id' => $roomId,
+                    'semester_id' => $semesterId,
+                    'day_of_week' => $day,
+                    'start_time' => $time['start'],
+                    'end_time' => $time['end'],
+                    'session_type' => $sessionType,
+                    'status' => 'active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
         }
 

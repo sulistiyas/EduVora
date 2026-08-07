@@ -119,13 +119,19 @@ class UserSeeder extends Seeder
         DB::table('user_has_schools')->insert($userSchoolPivot);
     }
 
+    private static ?string $hashedPassword = null;
+
     private function insertUser($name, $email, $phone, $now)
     {
+        if (self::$hashedPassword === null) {
+            self::$hashedPassword = Hash::make('password123');
+        }
+
         return DB::table('users')->insertGetId([
             'name' => $name,
             'email' => $email,
             'email_verified_at' => $now,
-            'password' => Hash::make('password123'),
+            'password' => self::$hashedPassword,
             'phone_number' => $phone,
             'status' => Arr::random(['active', 'inactive']),
             'profile_picture' => null,
